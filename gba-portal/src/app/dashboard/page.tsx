@@ -110,7 +110,7 @@ export default async function DashboardPage({
     <div className="grid gap-6">
       {!accessCode ? (
         <div className="rounded-3xl border border-white/10 bg-white/5 p-5 text-sm text-white/70">
-          <p className="text-xs font-black uppercase tracking-[0.5em] text-white/55">Accès</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-white/55">Accès</p>
           <p className="mt-3">
             Cet espace est pensé pour le staff. Pour suivre le parcours “entrée” (sans authentification), passez par{" "}
             <Link href="/login?next=/dashboard" className="font-semibold text-white/85 underline-offset-4 hover:underline">
@@ -126,7 +126,7 @@ export default async function DashboardPage({
 
       {accessCode ? (
         <div className="rounded-3xl border border-white/10 bg-white/5 p-5 text-sm text-white/70">
-          <p className="text-xs font-black uppercase tracking-[0.5em] text-white/55">Session (placeholder)</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-white/55">Session (placeholder)</p>
           <p className="mt-3">
             Code saisi sur{" "}
             <Link href="/login" className="font-semibold text-white/85 underline-offset-4 hover:underline">
@@ -149,7 +149,7 @@ export default async function DashboardPage({
       ) : null}
 
       <div>
-        <p className="text-xs uppercase tracking-[0.6em] text-white/60">Vue d’ensemble</p>
+        <p className="text-xs uppercase tracking-widest text-white/60">Vue d’ensemble</p>
         <h2 className="mt-3 font-[var(--font-teko)] text-3xl font-black tracking-[0.06em] text-white md:text-4xl">
           Dashboard staff
         </h2>
@@ -163,7 +163,7 @@ export default async function DashboardPage({
           <Link key={s.label} href={s.href} className="focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30">
             <Card className="premium-card card-shell rounded-3xl transition hover:border-white/20">
               <CardHeader>
-                <CardDescription className="text-xs uppercase tracking-[0.35em] text-white/55">{s.label}</CardDescription>
+                <CardDescription className="text-xs uppercase tracking-widest text-white/55">{s.label}</CardDescription>
                 <CardTitle className="text-3xl font-black tracking-tight text-white">
                   {s.value}
                   <span className="ml-2 text-xs font-semibold text-white/45">{s.hint}</span>
@@ -179,7 +179,7 @@ export default async function DashboardPage({
           <Link key={a.label} href={a.href} className="focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30">
             <Card className="premium-card card-shell rounded-3xl transition hover:border-white/20">
               <CardHeader>
-                <CardDescription className="text-xs uppercase tracking-[0.35em] text-white/55">À traiter</CardDescription>
+                <CardDescription className="text-xs uppercase tracking-widest text-white/55">À traiter</CardDescription>
                 <CardTitle className="text-3xl font-black tracking-tight text-white">{a.value}</CardTitle>
               </CardHeader>
               <CardContent>
@@ -228,7 +228,7 @@ export default async function DashboardPage({
           <CardContent>
             <div className="flex flex-col gap-3">
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="text-xs uppercase tracking-[0.35em] text-white/55">Placeholder permissions</p>
+                <p className="text-xs uppercase tracking-widest text-white/55">Placeholder permissions</p>
                 <p className="mt-2 text-sm text-white/70">
                   Rôles envisagés : <span className="font-semibold text-white/80">admin</span>,{" "}
                   <span className="font-semibold text-white/80">staff</span>,{" "}

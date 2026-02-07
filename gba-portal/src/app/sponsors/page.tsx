@@ -163,13 +163,13 @@ export default function SponsorsPage() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <a
                 href="#contact"
-                className="rounded-full border border-white/40 bg-gradient-to-r from-[#00a1ff] to-[#0065bd] px-6 py-3 text-xs font-black uppercase tracking-[0.5em] text-white shadow-[0_15px_50px_rgba(0,161,255,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A1FF] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                className="rounded-full border border-white/40 bg-gradient-to-r from-[#00a1ff] to-[#0065bd] px-6 py-3 text-sm font-bold text-white shadow-[0_15px_50px_rgba(0,161,255,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A1FF] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
               >
                 Proposer un partenariat
               </a>
               <a
                 href={`mailto:${contactEmail}`}
-                className="rounded-full border border-white/25 bg-white/5 px-6 py-3 text-xs font-semibold uppercase tracking-[0.5em] text-white/80 hover:border-white/50 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A1FF] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                className="rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-bold text-white/80 hover:border-white/50 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A1FF] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
               >
                 Contacter par email
               </a>
@@ -182,10 +182,10 @@ export default function SponsorsPage() {
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.6em] text-white/60">Pourquoi sponsoriser</p>
+              <p className="text-xs uppercase tracking-widest text-white/60">Pourquoi sponsoriser</p>
               <h2 className="mt-3 font-[var(--font-teko)] text-4xl font-black tracking-[0.06em] text-white">Un plan simple, une image forte</h2>
             </div>
-            <span className="text-xs uppercase tracking-[0.45em] text-white/45">Territoire · Jeunesse · Performance</span>
+            <span className="text-xs uppercase tracking-widest text-white/45">Territoire · Jeunesse · Performance</span>
           </div>
 
           <div className="mt-10 grid gap-6 md:grid-cols-3">
@@ -194,7 +194,7 @@ export default function SponsorsPage() {
                 key={reason.title}
                 className="premium-card card-shell rounded-[2rem] p-6"
               >
-                <p className="text-[10px] uppercase tracking-[0.6em] text-white/50">Axe</p>
+                <p className="text-[10px] uppercase tracking-widest text-white/50">Axe</p>
                 <h3 className="mt-4 text-2xl font-bold text-white">{reason.title}</h3>
                 <p className="mt-3 text-sm text-white/70">{reason.description}</p>
               </article>
@@ -206,7 +206,7 @@ export default function SponsorsPage() {
       <section id="chiffres" className="px-6 py-16">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <p className="text-xs uppercase tracking-[0.6em] text-white/60">Chiffres clés</p>
+            <p className="text-xs uppercase tracking-widest text-white/60">Chiffres clés</p>
             <h2 className="mt-3 font-[var(--font-teko)] text-4xl font-black tracking-[0.06em] text-white">Le terrain parle</h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm text-white/70">
               Indicateurs à adapter selon la saison. L’objectif : un cadre clair et lisible.
@@ -216,7 +216,7 @@ export default function SponsorsPage() {
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat) => (
               <article key={stat.label} className="premium-card card-shell space-y-2 rounded-3xl p-6 text-center">
-                <p className="text-xs uppercase tracking-[0.6em] text-white/50">{stat.label}</p>
+                <p className="text-xs uppercase tracking-widest text-white/50">{stat.label}</p>
                 <p className="text-3xl font-black text-white">{stat.value}</p>
                 <p className="text-sm text-white/60">{stat.sub}</p>
               </article>
@@ -229,7 +229,7 @@ export default function SponsorsPage() {
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.6em] text-white/60">Offres</p>
+              <p className="text-xs uppercase tracking-widest text-white/60">Offres</p>
               <h2 className="mt-3 font-[var(--font-teko)] text-4xl font-black tracking-[0.06em] text-white">3 tiers pour matcher votre marque</h2>
               <p className="mt-4 max-w-2xl text-sm text-white/70">
                 Packs indicatifs. On peut aussi composer un partenariat sur-mesure (matériel, dotations, événements, contenus).
@@ -237,7 +237,7 @@ export default function SponsorsPage() {
             </div>
             <a
               href="#contact"
-              className="btn-ghost inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-[10px] font-black uppercase tracking-[0.5em] text-white/80 transition hover:border-white/50 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A1FF] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              className="btn-ghost inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-xs font-bold text-white/80 transition hover:border-white/50 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A1FF] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
             >
               Demander le dossier
             </a>
@@ -250,11 +250,11 @@ export default function SponsorsPage() {
                 className={`premium-card card-shell relative overflow-hidden rounded-[2rem] bg-gradient-to-br ${tier.accent} p-7`}
               >
                 {tier.featured ? (
-                  <div className="absolute right-6 top-6 rounded-full border border-white/20 bg-black/40 px-4 py-2 text-[10px] font-black uppercase tracking-[0.45em] text-white/70">
+                  <div className="absolute right-6 top-6 rounded-full border border-white/20 bg-black/40 px-4 py-2 text-xs font-bold text-white/70">
                     Populaire
                   </div>
                 ) : null}
-                <p className="text-[10px] uppercase tracking-[0.6em] text-white/50">Tier</p>
+                <p className="text-[10px] uppercase tracking-widest text-white/50">Tier</p>
                 <h3 className="mt-4 text-3xl font-black text-white">{tier.name}</h3>
                 <p className="mt-1 text-sm text-white/70">{tier.tagline}</p>
                 <p className="mt-5 text-sm font-semibold text-white/85">{tier.price}</p>
@@ -280,7 +280,7 @@ export default function SponsorsPage() {
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.6em] text-white/60">Activation</p>
+              <p className="text-xs uppercase tracking-widest text-white/60">Activation</p>
               <h2
                 id="boutique-partenaires-title"
                 className="mt-3 font-[var(--font-teko)] text-4xl font-black tracking-[0.06em] text-white"
@@ -295,14 +295,14 @@ export default function SponsorsPage() {
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/shop"
-                className="rounded-full border border-white/40 bg-gradient-to-r from-[#00a1ff] to-[#0065bd] px-6 py-3 text-center text-[10px] font-black uppercase tracking-[0.5em] text-white shadow-[0_15px_50px_rgba(0,161,255,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A1FF] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                className="rounded-full border border-white/40 bg-gradient-to-r from-[#00a1ff] to-[#0065bd] px-6 py-3 text-center text-xs font-bold text-white shadow-[0_15px_50px_rgba(0,161,255,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A1FF] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                 aria-label="Découvrir la boutique du club"
               >
                 Voir la boutique
               </Link>
               <a
                 href={`mailto:${contactEmail}?subject=${encodeURIComponent("Édition partenaire / co-branding — Boutique GBA")}`}
-                className="btn-ghost inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-center text-[10px] font-black uppercase tracking-[0.5em] text-white/80 transition hover:border-white/50 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A1FF] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                className="btn-ghost inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-center text-xs font-bold text-white/80 transition hover:border-white/50 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A1FF] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
               >
                 Proposer une édition
               </a>
@@ -311,21 +311,21 @@ export default function SponsorsPage() {
 
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             <article className="premium-card card-shell rounded-[2rem] p-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.6em] text-white/50">01</p>
+              <p className="text-xs font-bold text-white/50">01</p>
               <h3 className="mt-4 text-2xl font-bold text-white">Une offre claire</h3>
               <p className="mt-3 text-sm text-white/70">
                 Produit simple (précommande si besoin), quantités maîtrisées, et message “soutien à la formation”.
               </p>
             </article>
             <article className="premium-card card-shell rounded-[2rem] p-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.6em] text-white/50">02</p>
+              <p className="text-xs font-bold text-white/50">02</p>
               <h3 className="mt-4 text-2xl font-bold text-white">Visibilité naturelle</h3>
               <p className="mt-3 text-sm text-white/70">
                 Mise en avant sur la vitrine + la boutique, relais terrain (match / événement), et contenus courts.
               </p>
             </article>
             <article className="premium-card card-shell rounded-[2rem] p-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.6em] text-white/50">03</p>
+              <p className="text-xs font-bold text-white/50">03</p>
               <h3 className="mt-4 text-2xl font-bold text-white">Impact club</h3>
               <p className="mt-3 text-sm text-white/70">
                 Une activation qui finance du concret (équipements, déplacements, événements) et renforce l’identité.
@@ -438,7 +438,7 @@ export default function SponsorsPage() {
       <footer className="border-t border-white/10 bg-black/50 px-6 py-12">
         <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-3">
           <div className="space-y-3">
-            <p className="font-[var(--font-cinzel)] text-xs uppercase tracking-[0.45em] text-white/70">GBA Portal</p>
+            <p className="font-[var(--font-cinzel)] text-xs uppercase tracking-widest text-white/70">GBA Portal</p>
             <p className="text-sm text-white/60">
               Sponsoring conçu comme un produit : visibilité mesurable, activation propre, et un reporting lisible.
             </p>
@@ -446,7 +446,7 @@ export default function SponsorsPage() {
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs uppercase tracking-[0.6em] text-white/60">Liens</p>
+            <p className="text-xs uppercase tracking-widest text-white/60">Liens</p>
             <ul className="space-y-2 text-sm text-white/65">
               <li>
                 <a className="hover:text-white" href="/about">
@@ -482,19 +482,19 @@ export default function SponsorsPage() {
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs uppercase tracking-[0.6em] text-white/60">Sponsor</p>
+            <p className="text-xs uppercase tracking-widest text-white/60">Sponsor</p>
             <p className="text-sm text-white/65">Demande d’offre, activation, ou validation d’un pack.</p>
             <div className="flex flex-wrap gap-3">
               <a
                 href={`mailto:${contactEmail}?subject=${encodeURIComponent("Partenariat sponsor — GBA")}`}
-                className="btn-ghost rounded-full border border-white/25 bg-white/5 px-5 py-2 text-[10px] font-black uppercase tracking-[0.45em] text-white/80 transition-transform duration-200 hover:scale-[1.03] hover:border-white/50 hover:bg-white/10 active:scale-[0.99]"
+                className="btn-ghost rounded-full border border-white/25 bg-white/5 px-5 py-2 text-xs font-bold text-white/80 transition-transform duration-200 hover:scale-[1.03] hover:border-white/50 hover:bg-white/10 active:scale-[0.99]"
               >
                 Email
               </a>
               <a
                 href="/cahier-des-charges.md"
                 download
-                className="btn-ghost rounded-full border border-white/25 bg-white/5 px-5 py-2 text-[10px] font-black uppercase tracking-[0.45em] text-white/80 transition-transform duration-200 hover:scale-[1.03] hover:border-white/50 hover:bg-white/10 active:scale-[0.99]"
+                className="btn-ghost rounded-full border border-white/25 bg-white/5 px-5 py-2 text-xs font-bold text-white/80 transition-transform duration-200 hover:scale-[1.03] hover:border-white/50 hover:bg-white/10 active:scale-[0.99]"
               >
                 Dossier
               </a>
