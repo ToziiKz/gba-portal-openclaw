@@ -1,0 +1,12 @@
+
+> gba-portal@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://76.13.33.246:3000
+
+✓ Starting...
+✓ Ready in 1195ms
+○ Compiling / ...
+ GET / 200 in 4.4s (compile: 4.1s, render: 303ms)

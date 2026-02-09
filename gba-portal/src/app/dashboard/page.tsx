@@ -92,6 +92,26 @@ const modules = [
     desc: "Dotations (tailles / remis / non remis) — liste + détails, actions locales de remise.",
     href: "/dashboard/equipements",
   },
+  {
+    title: "Stock & matériel",
+    desc: "Suivi inventaire (mock) — quantités, seuils mini et mouvements déclaratifs.",
+    href: "/dashboard/stock",
+  },
+  {
+    title: "Présences",
+    desc: "Suivi par séance — appel présent/retard/absent + historique (mock).",
+    href: "/dashboard/presences",
+  },
+  {
+    title: "Relances",
+    desc: "Backlog de relances (licences/équipements) — gestion et templates de message.",
+    href: "/dashboard/relances",
+  },
+  {
+    title: "Rapports & KPI",
+    desc: "Cockpit staff — vue d'ensemble, alertes et indicateurs de pilotage (mock).",
+    href: "/dashboard/rapports",
+  },
 ];
 
 export default async function DashboardPage({
