@@ -19,3 +19,6 @@
 # IDE
 .vscode/
 .idea/
+
+# local tools
+qmd/
