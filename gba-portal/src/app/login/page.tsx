@@ -1,44 +1,44 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+import type { Metadata } from 'next'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: "Connexion",
-  description: "Accès staff (bientôt). Page de connexion placeholder pour le portail GBA.",
+  title: 'Connexion',
+  description: 'Accès staff (bientôt). Page de connexion placeholder pour le portail GBA.',
   robots: {
     index: false,
     follow: false,
   },
   alternates: {
-    canonical: "/login",
+    canonical: '/login',
   },
-};
+}
 
 function safeInternalPath(input: string | undefined, fallback: string) {
-  if (!input) return fallback;
-  if (!input.startsWith("/")) return fallback;
-  if (input.startsWith("//")) return fallback;
-  if (input.includes("://")) return fallback;
-  return input;
+  if (!input) return fallback
+  if (!input.startsWith('/')) return fallback
+  if (input.startsWith('//')) return fallback
+  if (input.includes('://')) return fallback
+  return input
 }
 
 function appendQueryParam(path: string, key: string, value: string) {
-  const [base, rawQuery] = path.split("?");
-  const params = new URLSearchParams(rawQuery ?? "");
-  params.set(key, value);
-  const query = params.toString();
-  return query ? `${base}?${query}` : base;
+  const [base, rawQuery] = path.split('?')
+  const params = new URLSearchParams(rawQuery ?? '')
+  params.set(key, value)
+  const query = params.toString()
+  return query ? `${base}?${query}` : base
 }
 
 export default async function LoginPage({
   searchParams,
 }: {
   searchParams?: Promise<{
-    next?: string;
-  }>;
+    next?: string
+  }>
 }) {
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const nextPath = safeInternalPath(resolvedSearchParams?.next, "/dashboard");
-  const demoPath = appendQueryParam(nextPath, "accessCode", "DEMO");
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const nextPath = safeInternalPath(resolvedSearchParams?.next, '/dashboard')
+  const demoPath = appendQueryParam(nextPath, 'accessCode', 'DEMO')
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#020202] via-[#050505] to-[#000000] px-6 py-24">
@@ -48,12 +48,18 @@ export default async function LoginPage({
           Connexion
         </h1>
         <p className="mt-4 text-sm text-white/70">
-          L’espace staff arrive bientôt. Pour l’instant, cette page sert de point d’entrée clair (sans authentification) et guide
-          vers le <span className="font-semibold text-white/80">/dashboard</span> (placeholder) pour valider le routing login → dashboard.
+          L’espace staff arrive bientôt. Pour l’instant, cette page sert de point d’entrée clair
+          (sans authentification) et guide vers le{' '}
+          <span className="font-semibold text-white/80">/dashboard</span> (placeholder) pour valider
+          le routing login → dashboard.
         </p>
         <p className="mt-3 text-xs text-white/45">
-          Pour le grand public : la vitrine du club reste sur <span className="font-semibold text-white/70">/</span> et la boutique sur{" "}
-          <Link href="/shop" className="font-semibold text-white/70 underline-offset-4 hover:underline">
+          Pour le grand public : la vitrine du club reste sur{' '}
+          <span className="font-semibold text-white/70">/</span> et la boutique sur{' '}
+          <Link
+            href="/shop"
+            className="font-semibold text-white/70 underline-offset-4 hover:underline"
+          >
             /shop
           </Link>
           .
@@ -91,11 +97,13 @@ export default async function LoginPage({
               Ouvrir la démo (code DEMO)
             </Link>
             <p className="text-xs text-white/50">
-              Pas d’auth pour l’instant : le champ sert à préparer l’UX (éventuel code / rôle). Le dashboard reste un placeholder.
+              Pas d’auth pour l’instant : le champ sert à préparer l’UX (éventuel code / rôle). Le
+              dashboard reste un placeholder.
             </p>
-            {nextPath !== "/dashboard" ? (
+            {nextPath !== '/dashboard' ? (
               <p className="text-xs text-white/45">
-                Après validation, vous serez redirigé vers : <span className="font-semibold text-white/70">{nextPath}</span>
+                Après validation, vous serez redirigé vers :{' '}
+                <span className="font-semibold text-white/70">{nextPath}</span>
               </p>
             ) : null}
           </form>
@@ -115,10 +123,11 @@ export default async function LoginPage({
             </Link>
           </div>
           <p className="text-xs text-white/50">
-            Prochaine étape : authentification + rôles (admin / staff / coach) et restrictions d’accès au dashboard.
+            Prochaine étape : authentification + rôles (admin / staff / coach) et restrictions
+            d’accès au dashboard.
           </p>
         </div>
       </div>
     </div>
-  );
+  )
 }

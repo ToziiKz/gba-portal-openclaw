@@ -1,30 +1,34 @@
-"use client";
+'use client'
 
-import * as React from "react";
-import { Modal } from "@/components/ui/Modal";
-import { Button } from "@/components/ui/Button";
-import { Pill } from "@/components/ui/Pill";
-import type { LicenceRow, PaymentMethod } from "@/lib/mocks/dashboardLicences";
-import { paymentMethods } from "@/lib/mocks/dashboardLicences";
+import * as React from 'react'
+import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button'
+import type { LicenceRow, PaymentMethod } from '@/lib/mocks/dashboardLicences'
+import { paymentMethods } from '@/lib/mocks/dashboardLicences'
 
 interface LicencePaymentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  row: LicenceRow | null;
-  remainingEur: number;
-  onPaymentSubmit: (amountEur: number, method: PaymentMethod, note: string, sendReceipt: boolean) => void;
+  isOpen: boolean
+  onClose: () => void
+  row: LicenceRow | null
+  remainingEur: number
+  onPaymentSubmit: (
+    amountEur: number,
+    method: PaymentMethod,
+    note: string,
+    sendReceipt: boolean
+  ) => void
 }
 
 function formatEur(value: number) {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
     maximumFractionDigits: 0,
-  }).format(value);
+  }).format(value)
 }
 
 function inputBaseClassName() {
-  return "h-10 w-full rounded-[var(--ui-radius-sm)] border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-white/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/25";
+  return 'h-10 w-full rounded-[var(--ui-radius-sm)] border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-white/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/25'
 }
 
 export function LicencePaymentModal({
@@ -34,48 +38,48 @@ export function LicencePaymentModal({
   remainingEur,
   onPaymentSubmit,
 }: LicencePaymentModalProps) {
-  const [amountEur, setAmountEur] = React.useState<number>(0);
-  const [method, setMethod] = React.useState<PaymentMethod>("CB");
-  const [note, setNote] = React.useState("");
-  const [sendReceipt, setSendReceipt] = React.useState(true);
-  const [copied, setCopied] = React.useState(false);
+  const [amountEur, setAmountEur] = React.useState<number>(0)
+  const [method, setMethod] = React.useState<PaymentMethod>('CB')
+  const [note, setNote] = React.useState('')
+  const [sendReceipt, setSendReceipt] = React.useState(true)
+  const [copied, setCopied] = React.useState(false)
 
   React.useEffect(() => {
     if (isOpen && row) {
-      setAmountEur(remainingEur);
-      setMethod(row.lastPaymentMethod ?? "CB");
-      setNote("");
-      setSendReceipt(true);
-      setCopied(false);
+      setAmountEur(remainingEur)
+      setMethod(row.lastPaymentMethod ?? 'CB')
+      setNote('')
+      setSendReceipt(true)
+      setCopied(false)
     }
-  }, [isOpen, row, remainingEur]);
+  }, [isOpen, row, remainingEur])
 
-  if (!row) return null;
+  if (!row) return null
 
   const receiptText = [
     `GBA — Reçu (mock)`,
     `Joueur : ${row.playerName} (${row.team})`,
     `Montant : ${formatEur(amountEur)}`,
     `Moyen : ${method}`,
-    `Date : ${new Date().toLocaleDateString("fr-FR")}`,
-    note ? `Note : ${note}` : "",
+    `Date : ${new Date().toLocaleDateString('fr-FR')}`,
+    note ? `Note : ${note}` : '',
   ]
     .filter(Boolean)
-    .join("\n");
+    .join('\n')
 
   const handleSubmit = () => {
-    onPaymentSubmit(amountEur, method, note, sendReceipt);
-  };
+    onPaymentSubmit(amountEur, method, note, sendReceipt)
+  }
 
   const copyReceipt = async () => {
     try {
-      await navigator.clipboard.writeText(receiptText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(receiptText)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
     } catch {
       // ignore
     }
-  };
+  }
 
   return (
     <Modal
@@ -88,13 +92,15 @@ export function LicencePaymentModal({
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-4">
           <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-            <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/50">Nouveau versement</h4>
+            <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/50">
+              Nouveau versement
+            </h4>
             <div className="space-y-4">
               <label className="grid gap-1.5">
                 <span className="text-xs text-white/70">Montant (€)</span>
                 <input
                   type="number"
-                  value={amountEur || ""}
+                  value={amountEur || ''}
                   onChange={(e) => setAmountEur(Number(e.target.value))}
                   className={inputBaseClassName()}
                 />
@@ -149,7 +155,9 @@ export function LicencePaymentModal({
 
         <div className="space-y-4 border-t border-white/10 pt-4 md:border-l md:border-t-0 md:pl-6 md:pt-0">
           <div>
-            <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/50">Aperçu reçu</h4>
+            <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/50">
+              Aperçu reçu
+            </h4>
             <div className="relative rounded-xl border border-white/10 bg-black p-4 font-mono text-xs text-white/80 shadow-inner">
               <pre className="whitespace-pre-wrap">{receiptText}</pre>
               <Button
@@ -158,13 +166,15 @@ export function LicencePaymentModal({
                 onClick={copyReceipt}
                 className="absolute right-2 top-2 h-6 px-2 text-[10px]"
               >
-                {copied ? "Copié !" : "Copier"}
+                {copied ? 'Copié !' : 'Copier'}
               </Button>
             </div>
           </div>
 
           <div>
-            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/50">Historique (Mock)</h4>
+            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/50">
+              Historique (Mock)
+            </h4>
             <ul className="space-y-2 text-xs text-white/60">
               {row.amountPaidEur > 0 ? (
                 <li className="flex justify-between rounded bg-white/5 px-2 py-1.5">
@@ -179,5 +189,5 @@ export function LicencePaymentModal({
         </div>
       </div>
     </Modal>
-  );
+  )
 }

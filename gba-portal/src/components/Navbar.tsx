@@ -1,23 +1,23 @@
-"use client";
+'use client'
 
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Image from 'next/image'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 const links = [
-  { label: "Le Club", href: "/#manifesto" },
-  { label: "Boutique", href: "/shop", highlight: true },
-  { label: "Actus", href: "/news" },
-  { label: "Sponsors", href: "/sponsors" },
-  { label: "Contact", href: "/contact" },
-];
+  { label: 'Le Club', href: '/#manifesto' },
+  { label: 'Boutique', href: '/shop', highlight: true },
+  { label: 'Actus', href: '/news' },
+  { label: 'Sponsors', href: '/sponsors' },
+  { label: 'Contact', href: '/contact' },
+]
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A1FF] focus-visible:ring-offset-2 focus-visible:ring-offset-black";
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00A1FF] focus-visible:ring-offset-2 focus-visible:ring-offset-black'
 
 export function Navbar() {
-  const pathname = usePathname();
-  const isLogin = pathname === "/login";
+  const pathname = usePathname()
+  const isLogin = pathname === '/login'
 
   return (
     <nav
@@ -37,25 +37,25 @@ export function Navbar() {
 
       <div className="hidden items-center gap-5 text-[11px] font-semibold uppercase tracking-[0.38em] text-white/70 md:flex">
         {links.map((link) => {
-          const isActive = pathname === link.href;
+          const isActive = pathname === link.href
 
           return (
             <Link
               key={link.href}
               href={link.href}
-              aria-current={isActive ? "page" : undefined}
+              aria-current={isActive ? 'page' : undefined}
               className={`group relative px-3 py-1 transition-colors duration-300 hover:text-white ${focusRing} ${
-                isActive ? "text-white" : ""
-              } ${link.highlight ? "rounded-full border border-white/15 bg-white/5" : ""}`}
+                isActive ? 'text-white' : ''
+              } ${link.highlight ? 'rounded-full border border-white/15 bg-white/5' : ''}`}
             >
               {link.label}
               <span
                 className={`absolute left-0 bottom-0 h-[1px] w-full origin-left bg-white transition-transform duration-300 motion-reduce:transition-none motion-reduce:scale-x-100 ${
-                  isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                  isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                 }`}
               />
             </Link>
-          );
+          )
         })}
       </div>
 
@@ -79,7 +79,7 @@ export function Navbar() {
 
         <Link
           href="/login?next=/dashboard"
-          aria-current={isLogin ? "page" : undefined}
+          aria-current={isLogin ? 'page' : undefined}
           aria-label="Connexion"
           className={`group relative overflow-hidden rounded-full border border-white/30 bg-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.28em] text-white transition hover:border-white/60 hover:bg-white/20 whitespace-nowrap min-w-max sm:px-5 ${focusRing}`}
         >
@@ -116,5 +116,5 @@ export function Navbar() {
         </Link>
       </div>
     </nav>
-  );
+  )
 }

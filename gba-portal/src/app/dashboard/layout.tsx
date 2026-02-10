@@ -1,19 +1,19 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next'
 
-import { DashboardNav } from "@/components/DashboardNav";
-import { PermissionsProvider } from "@/components/PermissionsProvider";
+import { DashboardNav } from '@/components/DashboardNav'
+import { PermissionsProvider } from '@/components/PermissionsProvider'
 
 export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Espace staff GBA (données mock, sans base de données pour l’instant).",
+  title: 'Dashboard',
+  description: 'Espace staff GBA (données mock, sans base de données pour l’instant).',
   robots: {
     index: false,
     follow: false,
   },
   alternates: {
-    canonical: "/dashboard",
+    canonical: '/dashboard',
   },
-};
+}
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -25,8 +25,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             Dashboard
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/70">
-            UI premium, sans base de données : on itère module par module avec des mocks. Les accès/permissions restent des
-            placeholders.
+            UI premium, sans base de données : on itère module par module avec des mocks. Les
+            accès/permissions restent des placeholders.
           </p>
         </div>
 
@@ -40,5 +40,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </div>
     </div>
-  );
+  )
 }

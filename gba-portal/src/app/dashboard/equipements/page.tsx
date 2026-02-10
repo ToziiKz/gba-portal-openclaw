@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import * as React from "react";
+import * as React from 'react'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Pill } from "@/components/ui/Pill";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Pill } from '@/components/ui/Pill'
 import {
   dashboardEquipmentMock,
   equipmentItemLabels,
@@ -12,140 +12,141 @@ import {
   type DashboardEquipmentPlayer,
   type EquipmentPole,
   type EquipmentItemType,
-} from "@/lib/mocks/dashboardEquipment";
+} from '@/lib/mocks/dashboardEquipment'
 
-type DeliveryFilter = "all" | "todo" | "complete";
+type DeliveryFilter = 'all' | 'todo' | 'complete'
 
 function inputBaseClassName() {
-  return "w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20";
+  return 'w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20'
 }
 
 function completion(player: DashboardEquipmentPlayer) {
-  const total = player.items.length;
-  const given = player.items.filter((i) => i.given).length;
+  const total = player.items.length
+  const given = player.items.filter((i) => i.given).length
   return {
     total,
     given,
     ratio: total === 0 ? 0 : given / total,
-  };
+  }
 }
 
 function hasMissingSize(player: DashboardEquipmentPlayer) {
-  return player.items.some((i) => !i.size);
+  return player.items.some((i) => !i.size)
 }
 
 function defaultSelected(players: DashboardEquipmentPlayer[]) {
-  return players[0]?.id ?? null;
+  return players[0]?.id ?? null
 }
 
 function summaryCounts(players: DashboardEquipmentPlayer[]) {
-  let missingSize = 0;
-  let incomplete = 0;
+  let missingSize = 0
+  let incomplete = 0
 
   for (const p of players) {
-    if (hasMissingSize(p)) missingSize += 1;
-    if (completion(p).given !== completion(p).total) incomplete += 1;
+    if (hasMissingSize(p)) missingSize += 1
+    if (completion(p).given !== completion(p).total) incomplete += 1
   }
 
   return {
     players: players.length,
     incomplete,
     missingSize,
-  };
+  }
 }
 
 function formatItemLine(itemType: EquipmentItemType, size: string | null) {
-  const label = equipmentItemLabels[itemType];
-  return size ? `${label} · ${size}` : `${label} · taille ?`;
+  const label = equipmentItemLabels[itemType]
+  return size ? `${label} · ${size}` : `${label} · taille ?`
 }
 
 export default function DashboardEquipementsPage() {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [players, setPlayers] = React.useState<DashboardEquipmentPlayer[]>(dashboardEquipmentMock);
+  const [isLoading, setIsLoading] = React.useState(true)
+  const [players, setPlayers] = React.useState<DashboardEquipmentPlayer[]>(dashboardEquipmentMock)
 
-  const [query, setQuery] = React.useState("");
-  const [pole, setPole] = React.useState<EquipmentPole | "all">("all");
-  const [deliveryFilter, setDeliveryFilter] = React.useState<DeliveryFilter>("todo");
-  const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const [query, setQuery] = React.useState('')
+  const [pole, setPole] = React.useState<EquipmentPole | 'all'>('all')
+  const [deliveryFilter, setDeliveryFilter] = React.useState<DeliveryFilter>('todo')
+  const [selectedId, setSelectedId] = React.useState<string | null>(null)
 
-  const didInitFromUrl = React.useRef(false);
+  const didInitFromUrl = React.useRef(false)
 
   React.useEffect(() => {
-    if (didInitFromUrl.current) return;
+    if (didInitFromUrl.current) return
 
-    const sp = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+    const sp = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search)
 
-    const poleRaw = sp.get("pole");
-    const deliveryRaw = sp.get("delivery") ?? sp.get("status");
-    const qRaw = sp.get("q") ?? sp.get("query");
+    const poleRaw = sp.get('pole')
+    const deliveryRaw = sp.get('delivery') ?? sp.get('status')
+    const qRaw = sp.get('q') ?? sp.get('query')
 
-    if (poleRaw && (equipmentPoles as string[]).includes(poleRaw)) setPole(poleRaw as EquipmentPole);
+    if (poleRaw && (equipmentPoles as string[]).includes(poleRaw)) setPole(poleRaw as EquipmentPole)
 
-    const deliveryOptions: DeliveryFilter[] = ["all", "todo", "complete"];
-    if (deliveryRaw && deliveryOptions.includes(deliveryRaw as DeliveryFilter)) setDeliveryFilter(deliveryRaw as DeliveryFilter);
+    const deliveryOptions: DeliveryFilter[] = ['all', 'todo', 'complete']
+    if (deliveryRaw && deliveryOptions.includes(deliveryRaw as DeliveryFilter))
+      setDeliveryFilter(deliveryRaw as DeliveryFilter)
 
-    if (typeof qRaw === "string" && qRaw.trim()) setQuery(qRaw);
+    if (typeof qRaw === 'string' && qRaw.trim()) setQuery(qRaw)
 
-    didInitFromUrl.current = true;
-  }, []);
+    didInitFromUrl.current = true
+  }, [])
 
   React.useEffect(() => {
     const t = window.setTimeout(() => {
-      setIsLoading(false);
-      setSelectedId((prev) => prev ?? defaultSelected(dashboardEquipmentMock));
-    }, 520);
+      setIsLoading(false)
+      setSelectedId((prev) => prev ?? defaultSelected(dashboardEquipmentMock))
+    }, 520)
 
-    return () => window.clearTimeout(t);
-  }, []);
+    return () => window.clearTimeout(t)
+  }, [])
 
   const filtered = React.useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = query.trim().toLowerCase()
 
     return players
-      .filter((p) => (pole === "all" ? true : p.pole === pole))
+      .filter((p) => (pole === 'all' ? true : p.pole === pole))
       .filter((p) => {
-        const { given, total } = completion(p);
-        if (deliveryFilter === "todo") return given !== total;
-        if (deliveryFilter === "complete") return given === total;
-        return true;
+        const { given, total } = completion(p)
+        if (deliveryFilter === 'todo') return given !== total
+        if (deliveryFilter === 'complete') return given === total
+        return true
       })
       .filter((p) => {
-        if (!q) return true;
-        const hay = `${p.name} ${p.category} ${p.teamName} ${p.pole}`.toLowerCase();
-        return hay.includes(q);
-      });
-  }, [players, pole, deliveryFilter, query]);
+        if (!q) return true
+        const hay = `${p.name} ${p.category} ${p.teamName} ${p.pole}`.toLowerCase()
+        return hay.includes(q)
+      })
+  }, [players, pole, deliveryFilter, query])
 
   const selectedPlayer = React.useMemo(() => {
-    return filtered.find((p) => p.id === selectedId) ?? filtered[0] ?? null;
-  }, [filtered, selectedId]);
+    return filtered.find((p) => p.id === selectedId) ?? filtered[0] ?? null
+  }, [filtered, selectedId])
 
   React.useEffect(() => {
-    if (!selectedPlayer) setSelectedId(null);
-    else setSelectedId(selectedPlayer.id);
+    if (!selectedPlayer) setSelectedId(null)
+    else setSelectedId(selectedPlayer.id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedPlayer?.id]);
+  }, [selectedPlayer?.id])
 
-  const counts = React.useMemo(() => summaryCounts(players), [players]);
+  const counts = React.useMemo(() => summaryCounts(players), [players])
 
   function toggleGiven(playerId: string, itemType: EquipmentItemType) {
     setPlayers((prev) =>
       prev.map((p) => {
-        if (p.id !== playerId) return p;
+        if (p.id !== playerId) return p
         return {
           ...p,
           items: p.items.map((it) => {
-            if (it.type !== itemType) return it;
-            const nextGiven = !it.given;
+            if (it.type !== itemType) return it
+            const nextGiven = !it.given
             return {
               ...it,
               given: nextGiven,
               givenAt: nextGiven ? new Date().toISOString().slice(0, 10) : undefined,
-            };
+            }
           }),
-        };
-      }),
-    );
+        }
+      })
+    )
   }
 
   return (
@@ -156,14 +157,17 @@ export default function DashboardEquipementsPage() {
           Équipements
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-white/70">
-          Suivi des dotations (tailles, remis / non remis). Données mock + state local ; l’objectif est de figer l’UX.
+          Suivi des dotations (tailles, remis / non remis). Données mock + state local ; l’objectif
+          est de figer l’UX.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="premium-card card-shell rounded-3xl">
           <CardHeader>
-            <CardDescription className="text-xs uppercase tracking-[0.35em] text-white/55">Joueurs</CardDescription>
+            <CardDescription className="text-xs uppercase tracking-[0.35em] text-white/55">
+              Joueurs
+            </CardDescription>
             <CardTitle className="text-3xl font-black tracking-tight text-white">
               {counts.players}
               <span className="ml-2 text-xs font-semibold text-white/45">(mock)</span>
@@ -172,14 +176,22 @@ export default function DashboardEquipementsPage() {
         </Card>
         <Card className="premium-card card-shell rounded-3xl">
           <CardHeader>
-            <CardDescription className="text-xs uppercase tracking-[0.35em] text-white/55">Dotations incomplètes</CardDescription>
-            <CardTitle className="text-3xl font-black tracking-tight text-white">{counts.incomplete}</CardTitle>
+            <CardDescription className="text-xs uppercase tracking-[0.35em] text-white/55">
+              Dotations incomplètes
+            </CardDescription>
+            <CardTitle className="text-3xl font-black tracking-tight text-white">
+              {counts.incomplete}
+            </CardTitle>
           </CardHeader>
         </Card>
         <Card className="premium-card card-shell rounded-3xl">
           <CardHeader>
-            <CardDescription className="text-xs uppercase tracking-[0.35em] text-white/55">Tailles manquantes</CardDescription>
-            <CardTitle className="text-3xl font-black tracking-tight text-white">{counts.missingSize}</CardTitle>
+            <CardDescription className="text-xs uppercase tracking-[0.35em] text-white/55">
+              Tailles manquantes
+            </CardDescription>
+            <CardTitle className="text-3xl font-black tracking-tight text-white">
+              {counts.missingSize}
+            </CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -187,12 +199,16 @@ export default function DashboardEquipementsPage() {
       <Card className="premium-card card-shell rounded-3xl">
         <CardHeader>
           <CardTitle>Recherche & filtres</CardTitle>
-          <CardDescription>Filtrer par pôle, statut de remise et recherche par nom / équipe.</CardDescription>
+          <CardDescription>
+            Filtrer par pôle, statut de remise et recherche par nom / équipe.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 md:grid-cols-3">
             <label className="grid gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Recherche</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                Recherche
+              </span>
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -204,10 +220,12 @@ export default function DashboardEquipementsPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Pôle</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                Pôle
+              </span>
               <select
                 value={pole}
-                onChange={(e) => setPole(e.target.value as EquipmentPole | "all")}
+                onChange={(e) => setPole(e.target.value as EquipmentPole | 'all')}
                 className={inputBaseClassName()}
                 aria-label="Filtrer par pôle"
               >
@@ -221,7 +239,9 @@ export default function DashboardEquipementsPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Statut</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                Statut
+              </span>
               <select
                 value={deliveryFilter}
                 onChange={(e) => setDeliveryFilter(e.target.value as DeliveryFilter)}
@@ -237,16 +257,16 @@ export default function DashboardEquipementsPage() {
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-white/60" aria-live="polite">
-              {isLoading ? "Chargement des dotations…" : `${filtered.length} joueur(s)`}
+              {isLoading ? 'Chargement des dotations…' : `${filtered.length} joueur(s)`}
             </p>
             <div className="flex flex-wrap gap-2">
               <Button
                 size="sm"
                 variant="secondary"
                 onClick={() => {
-                  setQuery("");
-                  setPole("all");
-                  setDeliveryFilter("todo");
+                  setQuery('')
+                  setPole('all')
+                  setDeliveryFilter('todo')
                 }}
               >
                 Réinitialiser
@@ -269,7 +289,10 @@ export default function DashboardEquipementsPage() {
             {isLoading ? (
               <ul className="grid gap-3">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <li key={i} className="h-[92px] animate-pulse rounded-2xl border border-white/10 bg-white/5" />
+                  <li
+                    key={i}
+                    className="h-[92px] animate-pulse rounded-2xl border border-white/10 bg-white/5"
+                  />
                 ))}
               </ul>
             ) : filtered.length === 0 ? (
@@ -280,9 +303,10 @@ export default function DashboardEquipementsPage() {
             ) : (
               <ul className="grid gap-3">
                 {filtered.map((p) => {
-                  const isSelected = p.id === selectedPlayer?.id;
-                  const { given, total, ratio } = completion(p);
-                  const pillVariant = given === total ? "success" : ratio >= 0.6 ? "warning" : "danger";
+                  const isSelected = p.id === selectedPlayer?.id
+                  const { given, total, ratio } = completion(p)
+                  const pillVariant =
+                    given === total ? 'success' : ratio >= 0.6 ? 'warning' : 'danger'
 
                   return (
                     <li key={p.id}>
@@ -291,10 +315,10 @@ export default function DashboardEquipementsPage() {
                         onClick={() => setSelectedId(p.id)}
                         className={`group w-full rounded-2xl border px-4 py-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 ${
                           isSelected
-                            ? "border-white/25 bg-white/10"
-                            : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/7"
+                            ? 'border-white/25 bg-white/10'
+                            : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/7'
                         }`}
-                        aria-current={isSelected ? "true" : undefined}
+                        aria-current={isSelected ? 'true' : undefined}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
@@ -319,7 +343,7 @@ export default function DashboardEquipementsPage() {
                         </div>
                       </button>
                     </li>
-                  );
+                  )
                 })}
               </ul>
             )}
@@ -364,7 +388,7 @@ export default function DashboardEquipementsPage() {
                   <p className="text-xs uppercase tracking-[0.35em] text-white/55">Dotation</p>
                   <ul className="mt-3 grid gap-2">
                     {selectedPlayer.items.map((it) => {
-                      const variant = it.given ? "success" : it.size ? "warning" : "danger";
+                      const variant = it.given ? 'success' : it.size ? 'warning' : 'danger'
 
                       return (
                         <li
@@ -372,27 +396,31 @@ export default function DashboardEquipementsPage() {
                           className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-black/20 px-3 py-3 md:flex-row md:items-center md:justify-between"
                         >
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold text-white">{formatItemLine(it.type, it.size)}</p>
+                            <p className="text-sm font-semibold text-white">
+                              {formatItemLine(it.type, it.size)}
+                            </p>
                             <p className="mt-1 text-xs text-white/45">
                               {it.given
-                                ? `Remis le ${it.givenAt ?? "(date mock)"}`
+                                ? `Remis le ${it.givenAt ?? '(date mock)'}`
                                 : it.size
-                                  ? "À remettre"
-                                  : "Taille à confirmer"}
+                                  ? 'À remettre'
+                                  : 'Taille à confirmer'}
                             </p>
                           </div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <Pill variant={variant}>{it.given ? "remis" : it.size ? "en attente" : "taille ?"}</Pill>
+                            <Pill variant={variant}>
+                              {it.given ? 'remis' : it.size ? 'en attente' : 'taille ?'}
+                            </Pill>
                             <Button
                               size="sm"
-                              variant={it.given ? "ghost" : "secondary"}
+                              variant={it.given ? 'ghost' : 'secondary'}
                               onClick={() => toggleGiven(selectedPlayer.id, it.type)}
                             >
-                              {it.given ? "Marquer non remis" : "Marquer remis"}
+                              {it.given ? 'Marquer non remis' : 'Marquer remis'}
                             </Button>
                           </div>
                         </li>
-                      );
+                      )
                     })}
                   </ul>
                 </div>
@@ -407,7 +435,8 @@ export default function DashboardEquipementsPage() {
                 </div>
 
                 <p className="text-xs text-white/45">
-                  Prochaines itérations : gestion par lots (remise équipe), import tailles, export CSV, permissions.
+                  Prochaines itérations : gestion par lots (remise équipe), import tailles, export
+                  CSV, permissions.
                 </p>
               </div>
             )}
@@ -415,5 +444,5 @@ export default function DashboardEquipementsPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

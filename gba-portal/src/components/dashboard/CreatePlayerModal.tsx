@@ -1,33 +1,42 @@
-"use client";
+'use client'
 
-import * as React from "react";
-import { Modal } from "@/components/ui/Modal";
-import { Button } from "@/components/ui/Button";
-import { dashboardPlayerPoles, type DashboardPlayer, type PlayerPole } from "@/lib/mocks/dashboardPlayers";
+import * as React from 'react'
+import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button'
+import {
+  dashboardPlayerPoles,
+  type DashboardPlayer,
+  type PlayerPole,
+} from '@/lib/mocks/dashboardPlayers'
 
 interface CreatePlayerModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onCreate: (player: Omit<DashboardPlayer, "id" | "updatedAtLabel" | "medicalStatusLabel" | "licenceStatus" | "equipmentStatus">) => void;
+  isOpen: boolean
+  onClose: () => void
+  onCreate: (
+    player: Omit<
+      DashboardPlayer,
+      'id' | 'updatedAtLabel' | 'medicalStatusLabel' | 'licenceStatus' | 'equipmentStatus'
+    >
+  ) => void
 }
 
 function inputBaseClassName() {
-  return "w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20";
+  return 'w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20'
 }
 
 export function CreatePlayerModal({ isOpen, onClose, onCreate }: CreatePlayerModalProps) {
-  const [firstName, setFirstName] = React.useState("");
-  const [lastName, setLastName] = React.useState("");
-  const [birthYear, setBirthYear] = React.useState<number>(2015);
-  const [category, setCategory] = React.useState("U11");
-  const [pole, setPole] = React.useState<PlayerPole>("École de foot");
-  const [team, setTeam] = React.useState("GBA U11");
-  const [position, setPosition] = React.useState<DashboardPlayer["position"]>("M");
-  const [guardianName, setGuardianName] = React.useState("");
-  const [phone, setPhone] = React.useState("");
+  const [firstName, setFirstName] = React.useState('')
+  const [lastName, setLastName] = React.useState('')
+  const [birthYear, setBirthYear] = React.useState<number>(2015)
+  const [category, setCategory] = React.useState('U11')
+  const [pole, setPole] = React.useState<PlayerPole>('École de foot')
+  const [team, setTeam] = React.useState('GBA U11')
+  const [position, setPosition] = React.useState<DashboardPlayer['position']>('M')
+  const [guardianName, setGuardianName] = React.useState('')
+  const [phone, setPhone] = React.useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     onCreate({
       firstName,
       lastName,
@@ -38,26 +47,33 @@ export function CreatePlayerModal({ isOpen, onClose, onCreate }: CreatePlayerMod
       position,
       guardianName: guardianName || undefined,
       phone: phone || undefined,
-    });
-    onClose();
+    })
+    onClose()
     // Reset form
-    setFirstName("");
-    setLastName("");
-    setBirthYear(2015);
-    setCategory("U11");
-    setPole("École de foot");
-    setTeam("GBA U11");
-    setPosition("M");
-    setGuardianName("");
-    setPhone("");
-  };
+    setFirstName('')
+    setLastName('')
+    setBirthYear(2015)
+    setCategory('U11')
+    setPole('École de foot')
+    setTeam('GBA U11')
+    setPosition('M')
+    setGuardianName('')
+    setPhone('')
+  }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Nouveau joueur" description="Ajouter un joueur à l'effectif.">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Nouveau joueur"
+      description="Ajouter un joueur à l'effectif."
+    >
       <form onSubmit={handleSubmit} className="grid gap-4">
         <div className="grid grid-cols-2 gap-4">
           <label className="grid gap-2">
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Prénom</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+              Prénom
+            </span>
             <input
               required
               value={firstName}
@@ -67,7 +83,9 @@ export function CreatePlayerModal({ isOpen, onClose, onCreate }: CreatePlayerMod
             />
           </label>
           <label className="grid gap-2">
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Nom</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+              Nom
+            </span>
             <input
               required
               value={lastName}
@@ -80,7 +98,9 @@ export function CreatePlayerModal({ isOpen, onClose, onCreate }: CreatePlayerMod
 
         <div className="grid grid-cols-2 gap-4">
           <label className="grid gap-2">
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Année</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+              Année
+            </span>
             <input
               type="number"
               required
@@ -90,10 +110,12 @@ export function CreatePlayerModal({ isOpen, onClose, onCreate }: CreatePlayerMod
             />
           </label>
           <label className="grid gap-2">
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Poste</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+              Poste
+            </span>
             <select
               value={position}
-              onChange={(e) => setPosition(e.target.value as DashboardPlayer["position"])}
+              onChange={(e) => setPosition(e.target.value as DashboardPlayer['position'])}
               className={inputBaseClassName()}
             >
               <option value="G">Gardien</option>
@@ -105,8 +127,10 @@ export function CreatePlayerModal({ isOpen, onClose, onCreate }: CreatePlayerMod
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-           <label className="grid gap-2">
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Pôle</span>
+          <label className="grid gap-2">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+              Pôle
+            </span>
             <select
               value={pole}
               onChange={(e) => setPole(e.target.value as PlayerPole)}
@@ -119,8 +143,10 @@ export function CreatePlayerModal({ isOpen, onClose, onCreate }: CreatePlayerMod
               ))}
             </select>
           </label>
-           <label className="grid gap-2">
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Catégorie</span>
+          <label className="grid gap-2">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+              Catégorie
+            </span>
             <input
               required
               value={category}
@@ -132,7 +158,9 @@ export function CreatePlayerModal({ isOpen, onClose, onCreate }: CreatePlayerMod
         </div>
 
         <label className="grid gap-2">
-          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Équipe</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+            Équipe
+          </span>
           <input
             required
             value={team}
@@ -144,7 +172,9 @@ export function CreatePlayerModal({ isOpen, onClose, onCreate }: CreatePlayerMod
 
         <div className="grid grid-cols-2 gap-4">
           <label className="grid gap-2">
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Responsable (opt)</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+              Responsable (opt)
+            </span>
             <input
               value={guardianName}
               onChange={(e) => setGuardianName(e.target.value)}
@@ -153,7 +183,9 @@ export function CreatePlayerModal({ isOpen, onClose, onCreate }: CreatePlayerMod
             />
           </label>
           <label className="grid gap-2">
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Tél (opt)</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+              Tél (opt)
+            </span>
             <input
               type="tel"
               value={phone}
@@ -174,5 +206,5 @@ export function CreatePlayerModal({ isOpen, onClose, onCreate }: CreatePlayerMod
         </div>
       </form>
     </Modal>
-  );
+  )
 }

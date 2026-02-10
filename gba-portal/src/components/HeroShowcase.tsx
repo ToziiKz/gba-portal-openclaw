@@ -1,33 +1,33 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export function HeroShowcase() {
-  const [reduceMotion, setReduceMotion] = useState(false);
-  const [reduceData, setReduceData] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false)
+  const [reduceData, setReduceData] = useState(false)
 
   // Enable only when the asset exists in /public (avoid 404 on clients).
-  const hasHeroWebm = process.env.NEXT_PUBLIC_HERO_WEBM === "1";
+  const hasHeroWebm = process.env.NEXT_PUBLIC_HERO_WEBM === '1'
 
   useEffect(() => {
-    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const data = window.matchMedia("(prefers-reduced-data: reduce)");
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const data = window.matchMedia('(prefers-reduced-data: reduce)')
 
     const onChange = () => {
-      setReduceMotion(motion.matches);
-      setReduceData(data.matches);
-    };
+      setReduceMotion(motion.matches)
+      setReduceData(data.matches)
+    }
 
-    onChange();
-    motion.addEventListener?.("change", onChange);
-    data.addEventListener?.("change", onChange);
+    onChange()
+    motion.addEventListener?.('change', onChange)
+    data.addEventListener?.('change', onChange)
 
     return () => {
-      motion.removeEventListener?.("change", onChange);
-      data.removeEventListener?.("change", onChange);
-    };
-  }, []);
+      motion.removeEventListener?.('change', onChange)
+      data.removeEventListener?.('change', onChange)
+    }
+  }, [])
 
   return (
     <section className="relative min-h-screen overflow-hidden">
@@ -35,7 +35,7 @@ export function HeroShowcase() {
         <div
           aria-hidden="true"
           className="absolute inset-0 bg-cover bg-center opacity-80"
-          style={{ backgroundImage: "url(/gba-logo.png)" }}
+          style={{ backgroundImage: 'url(/gba-logo.png)' }}
         />
       ) : (
         <video
@@ -69,23 +69,22 @@ export function HeroShowcase() {
 
       <div className="absolute inset-x-0 bottom-6 z-10 mx-auto flex w-full max-w-6xl flex-col items-center gap-6 px-6 text-center text-white md:bottom-10 md:px-10 lg:bottom-14">
         <h1 className="cinematic-reveal cinematic-reveal-delay-1 font-[var(--font-teko)] text-[clamp(3rem,6vw,5rem)] font-black leading-none tracking-tight text-white">
-          <span className="block drop-shadow-lg">
-            Académie Monumentale
-          </span>
+          <span className="block drop-shadow-lg">Académie Monumentale</span>
           <span className="mt-2 block text-[clamp(1.2rem,2vw,1.5rem)] font-medium tracking-normal text-white/80">
             Une région, une passion, un maillot
           </span>
         </h1>
 
         <p className="cinematic-reveal cinematic-reveal-delay-2 mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/70 md:text-lg">
-          Vivez l&rsquo;expérience GBA. L&rsquo;histoire s&rsquo;écrit ensemble, sur et en dehors du terrain.
+          Vivez l&rsquo;expérience GBA. L&rsquo;histoire s&rsquo;écrit ensemble, sur et en dehors du
+          terrain.
         </p>
 
         <ul
           aria-label="Thématiques"
           className="cinematic-reveal cinematic-reveal-delay-2 flex flex-wrap items-center justify-center gap-3 text-[11px] font-medium tracking-wide uppercase text-white/60"
         >
-          {["Passion", "Formation", "Héritage"].map((label) => (
+          {['Passion', 'Formation', 'Héritage'].map((label) => (
             <li key={label}>{label}</li>
           ))}
         </ul>
@@ -107,5 +106,5 @@ export function HeroShowcase() {
         </div>
       </div>
     </section>
-  );
+  )
 }

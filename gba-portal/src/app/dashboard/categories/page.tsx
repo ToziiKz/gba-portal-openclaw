@@ -1,88 +1,89 @@
-"use client";
+'use client'
 
-import * as React from "react";
-import Link from "next/link";
+import * as React from 'react'
+import Link from 'next/link'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
 import {
   dashboardCategoriesMock,
   dashboardCategoryPoles,
   type CategoryPole,
   type DashboardCategory,
-} from "@/lib/mocks/dashboardCategories";
+} from '@/lib/mocks/dashboardCategories'
 
 function inputBaseClassName() {
-  return "w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20";
+  return 'w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20'
 }
 
-function roleLabel(role: DashboardCategory["leadStaff"][number]["role"]) {
+function roleLabel(role: DashboardCategory['leadStaff'][number]['role']) {
   switch (role) {
-    case "resp-categorie":
-      return "Resp. catégorie";
-    case "coord":
-      return "Coordinateur";
-    case "coach":
-      return "Coach";
+    case 'resp-categorie':
+      return 'Resp. catégorie'
+    case 'coord':
+      return 'Coordinateur'
+    case 'coach':
+      return 'Coach'
     default:
-      return role;
+      return role
   }
 }
 
 function defaultSelectedId() {
-  return dashboardCategoriesMock[0]?.id ?? null;
+  return dashboardCategoriesMock[0]?.id ?? null
 }
 
 export default function DashboardCategoriesPage() {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [query, setQuery] = React.useState("");
-  const [pole, setPole] = React.useState<CategoryPole | "all">("all");
-  const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true)
+  const [query, setQuery] = React.useState('')
+  const [pole, setPole] = React.useState<CategoryPole | 'all'>('all')
+  const [selectedId, setSelectedId] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     const t = window.setTimeout(() => {
-      setIsLoading(false);
-      setSelectedId((prev) => prev ?? defaultSelectedId());
-    }, 420);
+      setIsLoading(false)
+      setSelectedId((prev) => prev ?? defaultSelectedId())
+    }, 420)
 
-    return () => window.clearTimeout(t);
-  }, []);
+    return () => window.clearTimeout(t)
+  }, [])
 
   const filtered = React.useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = query.trim().toLowerCase()
 
     return dashboardCategoriesMock
-      .filter((c) => (pole === "all" ? true : c.pole === pole))
+      .filter((c) => (pole === 'all' ? true : c.pole === pole))
       .filter((c) => {
-        if (!q) return true;
-        const hay = `${c.name} ${c.pole} ${c.teamsLabel} ${c.ageRangeLabel} ${c.leadStaff.map((s) => s.name).join(" ")}`.toLowerCase();
-        return hay.includes(q);
+        if (!q) return true
+        const hay =
+          `${c.name} ${c.pole} ${c.teamsLabel} ${c.ageRangeLabel} ${c.leadStaff.map((s) => s.name).join(' ')}`.toLowerCase()
+        return hay.includes(q)
       })
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [pole, query]);
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [pole, query])
 
   const selectedCategory = React.useMemo(() => {
-    return filtered.find((c) => c.id === selectedId) ?? filtered[0] ?? null;
-  }, [filtered, selectedId]);
+    return filtered.find((c) => c.id === selectedId) ?? filtered[0] ?? null
+  }, [filtered, selectedId])
 
   React.useEffect(() => {
-    if (!selectedCategory) setSelectedId(null);
-    else setSelectedId(selectedCategory.id);
+    if (!selectedCategory) setSelectedId(null)
+    else setSelectedId(selectedCategory.id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory?.id]);
+  }, [selectedCategory?.id])
 
   const stats = React.useMemo(() => {
     return filtered.reduce(
       (acc, c) => {
-        acc.categories += 1;
-        acc.teams += c.teamsCount;
-        acc.players += c.playersEstimate;
-        if (c.leadStaff.some((s) => s.role === "resp-categorie")) acc.withOwner += 1;
-        return acc;
+        acc.categories += 1
+        acc.teams += c.teamsCount
+        acc.players += c.playersEstimate
+        if (c.leadStaff.some((s) => s.role === 'resp-categorie')) acc.withOwner += 1
+        return acc
       },
-      { categories: 0, teams: 0, players: 0, withOwner: 0 },
-    );
-  }, [filtered]);
+      { categories: 0, teams: 0, players: 0, withOwner: 0 }
+    )
+  }, [filtered])
 
   return (
     <div className="grid gap-6">
@@ -92,28 +93,40 @@ export default function DashboardCategoriesPage() {
           Catégories
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-white/70">
-          Vue “staff” des catégories (U6→U18, seniors…) avec responsables, volumes (équipes/joueurs) et notes. Données mock +
-          state local uniquement.
+          Vue “staff” des catégories (U6→U18, seniors…) avec responsables, volumes (équipes/joueurs)
+          et notes. Données mock + state local uniquement.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="premium-card card-shell rounded-3xl">
           <CardHeader>
-            <CardDescription className="text-xs uppercase tracking-[0.35em] text-white/55">Catégories (filtre)</CardDescription>
-            <CardTitle className="text-3xl font-black tracking-tight text-white">{stats.categories}</CardTitle>
+            <CardDescription className="text-xs uppercase tracking-[0.35em] text-white/55">
+              Catégories (filtre)
+            </CardDescription>
+            <CardTitle className="text-3xl font-black tracking-tight text-white">
+              {stats.categories}
+            </CardTitle>
           </CardHeader>
         </Card>
         <Card className="premium-card card-shell rounded-3xl">
           <CardHeader>
-            <CardDescription className="text-xs uppercase tracking-[0.35em] text-white/55">Équipes (est.)</CardDescription>
-            <CardTitle className="text-3xl font-black tracking-tight text-white">{stats.teams}</CardTitle>
+            <CardDescription className="text-xs uppercase tracking-[0.35em] text-white/55">
+              Équipes (est.)
+            </CardDescription>
+            <CardTitle className="text-3xl font-black tracking-tight text-white">
+              {stats.teams}
+            </CardTitle>
           </CardHeader>
         </Card>
         <Card className="premium-card card-shell rounded-3xl">
           <CardHeader>
-            <CardDescription className="text-xs uppercase tracking-[0.35em] text-white/55">Joueurs (est.)</CardDescription>
-            <CardTitle className="text-3xl font-black tracking-tight text-white">{stats.players}</CardTitle>
+            <CardDescription className="text-xs uppercase tracking-[0.35em] text-white/55">
+              Joueurs (est.)
+            </CardDescription>
+            <CardTitle className="text-3xl font-black tracking-tight text-white">
+              {stats.players}
+            </CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -121,12 +134,16 @@ export default function DashboardCategoriesPage() {
       <Card className="premium-card card-shell rounded-3xl">
         <CardHeader>
           <CardTitle>Recherche & filtres</CardTitle>
-          <CardDescription>Filtrer par pôle et rechercher par catégorie / équipes / staff.</CardDescription>
+          <CardDescription>
+            Filtrer par pôle et rechercher par catégorie / équipes / staff.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 md:grid-cols-3">
             <label className="grid gap-2 md:col-span-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Recherche</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                Recherche
+              </span>
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -138,10 +155,12 @@ export default function DashboardCategoriesPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Pôle</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                Pôle
+              </span>
               <select
                 value={pole}
-                onChange={(e) => setPole(e.target.value as CategoryPole | "all")}
+                onChange={(e) => setPole(e.target.value as CategoryPole | 'all')}
                 className={inputBaseClassName()}
                 aria-label="Filtrer par pôle"
               >
@@ -157,15 +176,17 @@ export default function DashboardCategoriesPage() {
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-white/60" aria-live="polite">
-              {isLoading ? "Chargement des catégories…" : `${filtered.length} catégorie(s) (mock) • ${stats.withOwner} avec resp.`}
+              {isLoading
+                ? 'Chargement des catégories…'
+                : `${filtered.length} catégorie(s) (mock) • ${stats.withOwner} avec resp.`}
             </p>
             <div className="flex flex-wrap gap-2">
               <Button
                 size="sm"
                 variant="secondary"
                 onClick={() => {
-                  setQuery("");
-                  setPole("all");
+                  setQuery('')
+                  setPole('all')
                 }}
               >
                 Réinitialiser
@@ -188,18 +209,23 @@ export default function DashboardCategoriesPage() {
             {isLoading ? (
               <ul className="grid gap-3">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <li key={i} className="h-[92px] animate-pulse rounded-2xl border border-white/10 bg-white/5" />
+                  <li
+                    key={i}
+                    className="h-[92px] animate-pulse rounded-2xl border border-white/10 bg-white/5"
+                  />
                 ))}
               </ul>
             ) : filtered.length === 0 ? (
               <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
                 <p className="text-sm font-semibold text-white">Aucune catégorie</p>
-                <p className="mt-1 text-sm text-white/65">Essayez de modifier le pôle ou la recherche.</p>
+                <p className="mt-1 text-sm text-white/65">
+                  Essayez de modifier le pôle ou la recherche.
+                </p>
               </div>
             ) : (
               <ul className="grid gap-3">
                 {filtered.map((c) => {
-                  const isSelected = c.id === selectedCategory?.id;
+                  const isSelected = c.id === selectedCategory?.id
                   return (
                     <li key={c.id}>
                       <button
@@ -207,10 +233,10 @@ export default function DashboardCategoriesPage() {
                         onClick={() => setSelectedId(c.id)}
                         className={`group w-full rounded-2xl border px-4 py-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 ${
                           isSelected
-                            ? "border-white/25 bg-white/10"
-                            : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/7"
+                            ? 'border-white/25 bg-white/10'
+                            : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/7'
                         }`}
-                        aria-current={isSelected ? "true" : undefined}
+                        aria-current={isSelected ? 'true' : undefined}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
@@ -234,7 +260,7 @@ export default function DashboardCategoriesPage() {
                         </div>
                       </button>
                     </li>
-                  );
+                  )
                 })}
               </ul>
             )}
@@ -256,7 +282,9 @@ export default function DashboardCategoriesPage() {
             ) : !selectedCategory ? (
               <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
                 <p className="text-sm font-semibold text-white">Aucune sélection</p>
-                <p className="mt-1 text-sm text-white/65">Choisissez une catégorie dans la liste.</p>
+                <p className="mt-1 text-sm text-white/65">
+                  Choisissez une catégorie dans la liste.
+                </p>
               </div>
             ) : (
               <div className="grid gap-4">
@@ -269,11 +297,15 @@ export default function DashboardCategoriesPage() {
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs uppercase tracking-[0.35em] text-white/55">Périmètre (mock)</p>
+                  <p className="text-xs uppercase tracking-[0.35em] text-white/55">
+                    Périmètre (mock)
+                  </p>
                   <dl className="mt-3 grid gap-3">
                     <div className="flex items-start justify-between gap-4">
                       <dt className="text-sm text-white/65">Équipes</dt>
-                      <dd className="text-sm font-semibold text-white">{selectedCategory.teamsLabel}</dd>
+                      <dd className="text-sm font-semibold text-white">
+                        {selectedCategory.teamsLabel}
+                      </dd>
                     </div>
                     <div className="flex items-start justify-between gap-4">
                       <dt className="text-sm text-white/65">Volume</dt>
@@ -285,7 +317,9 @@ export default function DashboardCategoriesPage() {
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs uppercase tracking-[0.35em] text-white/55">Responsables (mock)</p>
+                  <p className="text-xs uppercase tracking-[0.35em] text-white/55">
+                    Responsables (mock)
+                  </p>
                   {selectedCategory.leadStaff.length === 0 ? (
                     <p className="mt-2 text-sm text-white/65">Aucun responsable défini.</p>
                   ) : (
@@ -310,12 +344,16 @@ export default function DashboardCategoriesPage() {
                 ) : null}
 
                 <div className="flex flex-wrap gap-2">
-                  <Link href={`/dashboard/equipes?category=${encodeURIComponent(selectedCategory.name)}&pole=${encodeURIComponent(selectedCategory.pole)}`}>
+                  <Link
+                    href={`/dashboard/equipes?category=${encodeURIComponent(selectedCategory.name)}&pole=${encodeURIComponent(selectedCategory.pole)}`}
+                  >
                     <Button size="sm" variant="secondary">
                       Voir équipes
                     </Button>
                   </Link>
-                  <Link href={`/dashboard/joueurs?category=${encodeURIComponent(selectedCategory.name)}&pole=${encodeURIComponent(selectedCategory.pole)}`}>
+                  <Link
+                    href={`/dashboard/joueurs?category=${encodeURIComponent(selectedCategory.name)}&pole=${encodeURIComponent(selectedCategory.pole)}`}
+                  >
                     <Button size="sm" variant="secondary">
                       Voir joueurs
                     </Button>
@@ -329,7 +367,8 @@ export default function DashboardCategoriesPage() {
                 </div>
 
                 <p className="text-xs text-white/45">
-                  À venir : lien direct vers les équipes/joueurs, planning par catégorie, détections, permissions.
+                  À venir : lien direct vers les équipes/joueurs, planning par catégorie,
+                  détections, permissions.
                 </p>
               </div>
             )}
@@ -337,5 +376,5 @@ export default function DashboardCategoriesPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

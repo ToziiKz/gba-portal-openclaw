@@ -1,15 +1,14 @@
-"use client";
+'use client'
 
-import Link from "next/link";
+import Link from 'next/link'
 
 export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
-
   return (
     <div className="min-h-[70vh] bg-gradient-to-b from-[#020202] via-[#050505] to-black px-6 py-16">
       <div className="mx-auto max-w-2xl text-center">
@@ -37,10 +36,8 @@ export default function Error({
           </Link>
         </div>
 
-        {error?.digest ? (
-          <p className="mt-10 text-xs text-white/40">Code: {error.digest}</p>
-        ) : null}
+        {error?.digest ? <p className="mt-10 text-xs text-white/40">Code: {error.digest}</p> : null}
       </div>
     </div>
-  );
+  )
 }

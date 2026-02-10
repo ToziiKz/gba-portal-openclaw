@@ -1,18 +1,19 @@
-import type { Metadata } from "next";
-import { TrustPageShell } from "@/components/TrustPageShell";
+import type { Metadata } from 'next'
+import { TrustPageShell } from '@/components/TrustPageShell'
 
 export const metadata: Metadata = {
-  title: "Contact",
-  description: "Contactez GBA Portal : demande de démo, sponsoring, accès staff et questions produit.",
+  title: 'Contact',
+  description:
+    'Contactez GBA Portal : demande de démo, sponsoring, accès staff et questions produit.',
   alternates: {
-    canonical: "/contact",
+    canonical: '/contact',
   },
-};
+}
 
-const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "contact@gba-portal.fr";
+const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? 'contact@gba-portal.fr'
 
 export default function ContactPage() {
-  const subject = encodeURIComponent("GBA Portal — Contact");
+  const subject = encodeURIComponent('GBA Portal — Contact')
 
   return (
     <TrustPageShell
@@ -37,10 +38,10 @@ export default function ContactPage() {
         <h2 className="text-2xl font-bold text-white">Ce qu’on peut traiter</h2>
         <ul className="mt-4 space-y-3 text-sm text-white/70">
           {[
-            "Demande d’info ou de présentation (site, projet club, partenaires).",
-            "Accès staff / partenaires (création de compte, droits).",
-            "Partenariats sponsor : offre, visibilité, activation.",
-            "Questions conformité : confidentialité, cookies, accessibilité.",
+            'Demande d’info ou de présentation (site, projet club, partenaires).',
+            'Accès staff / partenaires (création de compte, droits).',
+            'Partenariats sponsor : offre, visibilité, activation.',
+            'Questions conformité : confidentialité, cookies, accessibilité.',
           ].map((item) => (
             <li key={item} className="flex gap-3">
               <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-[#00a1ff]" />
@@ -55,15 +56,20 @@ export default function ContactPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-3xl border border-white/10 bg-black/40 p-6">
             <p className="text-xs uppercase tracking-[0.6em] text-white/50">Objet</p>
-            <p className="mt-3 text-sm text-white/70">Indiquez “Démo”, “Sponsor” ou “Support” en début d’email.</p>
+            <p className="mt-3 text-sm text-white/70">
+              Indiquez “Démo”, “Sponsor” ou “Support” en début d’email.
+            </p>
           </div>
           <div className="rounded-3xl border border-white/10 bg-black/40 p-6">
             <p className="text-xs uppercase tracking-[0.6em] text-white/50">Contexte</p>
-            <p className="mt-3 text-sm text-white/70">Ajoutez l’équipe concernée, la date, et l’objectif (info / action / validation).</p>
+            <p className="mt-3 text-sm text-white/70">
+              Ajoutez l’équipe concernée, la date, et l’objectif (info / action / validation).
+            </p>
           </div>
         </div>
         <p className="text-xs text-white/45">
-          Micro-copy premium : on préfère une réponse claire en 3 points à un roman. Vous gagnez du temps, nous aussi.
+          Micro-copy premium : on préfère une réponse claire en 3 points à un roman. Vous gagnez du
+          temps, nous aussi.
         </p>
       </div>
 
@@ -71,11 +77,11 @@ export default function ContactPage() {
         <h2 className="text-2xl font-bold text-white">Liens utiles</h2>
         <div className="flex flex-wrap gap-3">
           {[
-            { href: "/about", label: "À propos" },
-            { href: "/shop", label: "Boutique" },
-            { href: "/privacy", label: "Confidentialité" },
-            { href: "/terms", label: "Conditions" },
-            { href: "/accessibility", label: "Accessibilité" },
+            { href: '/about', label: 'À propos' },
+            { href: '/shop', label: 'Boutique' },
+            { href: '/privacy', label: 'Confidentialité' },
+            { href: '/terms', label: 'Conditions' },
+            { href: '/accessibility', label: 'Accessibilité' },
           ].map((link) => (
             <a
               key={link.href}
@@ -88,5 +94,5 @@ export default function ContactPage() {
         </div>
       </div>
     </TrustPageShell>
-  );
+  )
 }

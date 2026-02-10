@@ -1,58 +1,73 @@
-"use client";
+'use client'
 
-import * as React from "react";
-import { Modal } from "@/components/ui/Modal";
-import { Button } from "@/components/ui/Button";
+import * as React from 'react'
+import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button'
 import {
   planningPoles,
+  planningDays,
+  type PlanningDay,
   type PlanningPole,
   type PlanningSession,
-} from "@/lib/mocks/dashboardPlanning";
+} from '@/lib/mocks/dashboardPlanning'
 
 type CreateSessionModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  onCreate: (session: Omit<PlanningSession, "id" | "updatedAtLabel">) => void;
-};
+  isOpen: boolean
+  onClose: () => void
+  onCreate: (session: Omit<PlanningSession, 'id' | 'updatedAtLabel'>) => void
+}
 
 function inputClassName() {
-  return "w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20";
+  return 'w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20'
 }
 
 function labelClassName() {
-  return "block text-xs font-semibold uppercase tracking-wider text-white/60 mb-1.5";
+  return 'block text-xs font-semibold uppercase tracking-wider text-white/60 mb-1.5'
+}
+
+const planningDayLabels: Record<PlanningDay, string> = {
+  Lun: 'Lundi',
+  Mar: 'Mardi',
+  Mer: 'Mercredi',
+  Jeu: 'Jeudi',
+  Ven: 'Vendredi',
+  Sam: 'Samedi',
+  Dim: 'Dimanche',
 }
 
 export function CreateSessionModal({ isOpen, onClose, onCreate }: CreateSessionModalProps) {
-  const [pole, setPole] = React.useState<PlanningPole>("Formation");
-  const [team, setTeam] = React.useState("");
-  const [day, setDay] = React.useState("Lundi");
-  const [startTime, setStartTime] = React.useState("18:00");
-  const [endTime, setEndTime] = React.useState("19:30");
-  const [location, setLocation] = React.useState("Synthétique");
-  const [staffInput, setStaffInput] = React.useState("");
-  const [note, setNote] = React.useState("");
+  const [pole, setPole] = React.useState<PlanningPole>('Formation')
+  const [team, setTeam] = React.useState('')
+  const [day, setDay] = React.useState<PlanningDay>('Lun')
+  const [startTime, setStartTime] = React.useState('18:00')
+  const [endTime, setEndTime] = React.useState('19:30')
+  const [location, setLocation] = React.useState('Synthétique')
+  const [staffInput, setStaffInput] = React.useState('')
+  const [note, setNote] = React.useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!team || !startTime || !endTime) return;
+    e.preventDefault()
+    if (!team || !startTime || !endTime) return
 
     onCreate({
       pole,
       team,
-      day: day as any,
+      day,
       start: startTime,
       end: endTime,
       location,
-      staff: staffInput.split(",").map((s) => s.trim()).filter(Boolean),
+      staff: staffInput
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
       note: note || undefined,
-    });
-    onClose();
+    })
+    onClose()
     // Reset form
-    setTeam("");
-    setStaffInput("");
-    setNote("");
-  };
+    setTeam('')
+    setStaffInput('')
+    setNote('')
+  }
 
   return (
     <Modal
@@ -81,12 +96,12 @@ export function CreateSessionModal({ isOpen, onClose, onCreate }: CreateSessionM
             <label className={labelClassName()}>Jour</label>
             <select
               value={day}
-              onChange={(e) => setDay(e.target.value)}
+              onChange={(e) => setDay(e.target.value as PlanningDay)}
               className={inputClassName()}
             >
-              {["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"].map((d) => (
+              {planningDays.map((d) => (
                 <option key={d} value={d}>
-                  {d}
+                  {planningDayLabels[d]}
                 </option>
               ))}
             </select>
@@ -170,5 +185,5 @@ export function CreateSessionModal({ isOpen, onClose, onCreate }: CreateSessionM
         </div>
       </form>
     </Modal>
-  );
+  )
 }

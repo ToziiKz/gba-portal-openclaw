@@ -1,11 +1,11 @@
-"use client";
+'use client'
 
-import * as React from "react";
-import Link from "next/link";
+import * as React from 'react'
+import Link from 'next/link'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Pill } from "@/components/ui/Pill";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Pill } from '@/components/ui/Pill'
 
 import {
   dashboardReportsMock,
@@ -16,70 +16,70 @@ import {
   type DashboardReportPack,
   type ReportPeriod,
   type ReportPole,
-} from "@/lib/mocks/dashboardReports";
+} from '@/lib/mocks/dashboardReports'
 
-type PoleFilter = ReportPole | "all";
+type PoleFilter = ReportPole | 'all'
 
 function inputBaseClassName() {
-  return "w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20";
+  return 'w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20'
 }
 
-function trendLabel(trend: DashboardReportKpi["trend"]) {
+function trendLabel(trend: DashboardReportKpi['trend']) {
   switch (trend) {
-    case "up":
-      return "en hausse";
-    case "down":
-      return "en baisse";
+    case 'up':
+      return 'en hausse'
+    case 'down':
+      return 'en baisse'
     default:
-      return "stable";
+      return 'stable'
   }
 }
 
-function trendVariant(trend: DashboardReportKpi["trend"]) {
+function trendVariant(trend: DashboardReportKpi['trend']) {
   switch (trend) {
-    case "up":
-      return "success" as const;
-    case "down":
-      return "danger" as const;
+    case 'up':
+      return 'success' as const
+    case 'down':
+      return 'danger' as const
     default:
-      return "neutral" as const;
+      return 'neutral' as const
   }
 }
 
-function severityVariant(severity: DashboardReportPack["alerts"][number]["severity"]) {
+function severityVariant(severity: DashboardReportPack['alerts'][number]['severity']) {
   switch (severity) {
-    case "critical":
-      return "danger" as const;
-    case "warning":
-      return "warning" as const;
+    case 'critical':
+      return 'danger' as const
+    case 'warning':
+      return 'warning' as const
     default:
-      return "neutral" as const;
+      return 'neutral' as const
   }
 }
 
 function ratio(value: number, total: number) {
-  if (total <= 0) return 0;
-  return Math.min(1, Math.max(0, value / total));
+  if (total <= 0) return 0
+  return Math.min(1, Math.max(0, value / total))
 }
 
 function percentLabel(value: number, total: number) {
-  return `${Math.round(ratio(value, total) * 100)}%`;
+  return `${Math.round(ratio(value, total) * 100)}%`
 }
 
 function buildDashboardHref(pathname: string, params: Record<string, string | null | undefined>) {
-  const sp = new URLSearchParams();
+  const sp = new URLSearchParams()
   for (const [key, value] of Object.entries(params)) {
-    if (typeof value === "string" && value.trim()) sp.set(key, value);
+    if (typeof value === 'string' && value.trim()) sp.set(key, value)
   }
-  const qs = sp.toString();
-  return qs ? `${pathname}?${qs}` : pathname;
+  const qs = sp.toString()
+  return qs ? `${pathname}?${qs}` : pathname
 }
 
 function BreakdownList({ rows }: { rows: DashboardReportBreakdownRow[] }) {
   return (
     <ul className="mt-3 grid gap-2">
       {rows.map((row) => {
-        const pct = ratio(row.value, row.total);
+        const pct = ratio(row.value, row.total)
         return (
           <li key={row.id} className="rounded-2xl border border-white/10 bg-black/20 p-3">
             <div className="flex items-baseline justify-between gap-3">
@@ -99,41 +99,43 @@ function BreakdownList({ rows }: { rows: DashboardReportBreakdownRow[] }) {
               <div className="h-full rounded-full bg-white/35" style={{ width: `${pct * 100}%` }} />
             </div>
           </li>
-        );
+        )
       })}
     </ul>
-  );
+  )
 }
 
 export default function DashboardRapportsPage() {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [period, setPeriod] = React.useState<ReportPeriod>("7d");
-  const [pole, setPole] = React.useState<PoleFilter>("all");
+  const [isLoading, setIsLoading] = React.useState(true)
+  const [period, setPeriod] = React.useState<ReportPeriod>('7d')
+  const [pole, setPole] = React.useState<PoleFilter>('all')
 
   React.useEffect(() => {
-    const t = window.setTimeout(() => setIsLoading(false), 520);
-    return () => window.clearTimeout(t);
-  }, []);
+    const t = window.setTimeout(() => setIsLoading(false), 520)
+    return () => window.clearTimeout(t)
+  }, [])
 
   const pack = React.useMemo(() => {
-    const base = dashboardReportsMock.find((p) => p.period === period && p.pole === "all") ?? dashboardReportsMock[0];
+    const base =
+      dashboardReportsMock.find((p) => p.period === period && p.pole === 'all') ??
+      dashboardReportsMock[0]
 
-    if (pole === "all") return base;
+    if (pole === 'all') return base
 
     // UI-only (mock): on simule un “filtre pôle” en ajustant légèrement les chiffres.
-    const adjust = (value: number, factor: number) => Math.max(0, Math.round(value * factor));
-    const factor = pole === "École de foot" ? 0.9 : pole === "Pré-formation" ? 1.05 : 1.1;
+    const adjust = (value: number, factor: number) => Math.max(0, Math.round(value * factor))
+    const factor = pole === 'École de foot' ? 0.9 : pole === 'Pré-formation' ? 1.05 : 1.1
 
     return {
       ...base,
       pole,
       kpis: base.kpis.map((k) => ({
         ...k,
-        value: k.unit === "%" ? Math.min(100, adjust(k.value, factor)) : adjust(k.value, factor),
+        value: k.unit === '%' ? Math.min(100, adjust(k.value, factor)) : adjust(k.value, factor),
       })),
       alerts: base.alerts.map((a) => ({ ...a, id: `${a.id}-${pole}` })),
-    } satisfies DashboardReportPack;
-  }, [period, pole]);
+    } satisfies DashboardReportPack
+  }, [period, pole])
 
   return (
     <div className="grid gap-6">
@@ -143,8 +145,8 @@ export default function DashboardRapportsPage() {
           Rapports
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-white/70">
-          Cockpit “staff” : KPIs, alertes et répartitions (mock). Objectif : valider la lisibilité + le flux d’actions
-          (exports, relances, tâches) avant branchement DB.
+          Cockpit “staff” : KPIs, alertes et répartitions (mock). Objectif : valider la lisibilité +
+          le flux d’actions (exports, relances, tâches) avant branchement DB.
         </p>
       </div>
 
@@ -156,7 +158,9 @@ export default function DashboardRapportsPage() {
         <CardContent>
           <div className="grid gap-3 md:grid-cols-3">
             <label className="grid gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Période</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                Période
+              </span>
               <select
                 value={period}
                 onChange={(e) => setPeriod(e.target.value as ReportPeriod)}
@@ -172,7 +176,9 @@ export default function DashboardRapportsPage() {
             </label>
 
             <label className="grid gap-2 md:col-span-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Pôle</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                Pôle
+              </span>
               <select
                 value={pole}
                 onChange={(e) => setPole(e.target.value as PoleFilter)}
@@ -191,15 +197,15 @@ export default function DashboardRapportsPage() {
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-white/60" aria-live="polite">
-              {isLoading ? "Chargement des rapports…" : `maj ${pack.updatedAtLabel} • source: mock`}
+              {isLoading ? 'Chargement des rapports…' : `maj ${pack.updatedAtLabel} • source: mock`}
             </p>
             <div className="flex flex-wrap gap-2">
               <Button
                 size="sm"
                 variant="secondary"
                 onClick={() => {
-                  setPole("all");
-                  setPeriod("7d");
+                  setPole('all')
+                  setPeriod('7d')
                 }}
               >
                 Réinitialiser
@@ -218,13 +224,18 @@ export default function DashboardRapportsPage() {
       <Card className="premium-card card-shell rounded-3xl">
         <CardHeader>
           <CardTitle>KPIs</CardTitle>
-          <CardDescription>Indicateurs de pilotage (mock). À venir : objectifs + historique.</CardDescription>
+          <CardDescription>
+            Indicateurs de pilotage (mock). À venir : objectifs + historique.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
               {Array.from({ length: 4 }).map((_, idx) => (
-                <div key={idx} className="h-[118px] animate-pulse rounded-2xl border border-white/10 bg-white/5" />
+                <div
+                  key={idx}
+                  className="h-[118px] animate-pulse rounded-2xl border border-white/10 bg-white/5"
+                />
               ))}
             </div>
           ) : (
@@ -235,7 +246,11 @@ export default function DashboardRapportsPage() {
                   <div className="mt-3 flex items-end justify-between gap-3">
                     <p className="text-3xl font-black tracking-tight text-white">
                       {kpi.value}
-                      {kpi.unit ? <span className="ml-1 text-base font-semibold text-white/60">{kpi.unit}</span> : null}
+                      {kpi.unit ? (
+                        <span className="ml-1 text-base font-semibold text-white/60">
+                          {kpi.unit}
+                        </span>
+                      ) : null}
                     </p>
                     <Pill variant={trendVariant(kpi.trend)}>{trendLabel(kpi.trend)}</Pill>
                   </div>
@@ -251,13 +266,18 @@ export default function DashboardRapportsPage() {
         <Card className="premium-card card-shell rounded-3xl">
           <CardHeader>
             <CardTitle>Alertes</CardTitle>
-            <CardDescription>Backlog “actionnable” (mock). À venir : assignations + statut.</CardDescription>
+            <CardDescription>
+              Backlog “actionnable” (mock). À venir : assignations + statut.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <ul className="grid gap-3">
                 {Array.from({ length: 3 }).map((_, idx) => (
-                  <li key={idx} className="h-[92px] animate-pulse rounded-2xl border border-white/10 bg-white/5" />
+                  <li
+                    key={idx}
+                    className="h-[92px] animate-pulse rounded-2xl border border-white/10 bg-white/5"
+                  />
                 ))}
               </ul>
             ) : pack.alerts.length === 0 ? (
@@ -279,7 +299,8 @@ export default function DashboardRapportsPage() {
                       </Pill>
                     </div>
                     <p className="mt-3 text-xs text-white/45">
-                      Owner: <span className="font-semibold text-white/60">{a.owner}</span> • maj {a.updatedAtLabel}
+                      Owner: <span className="font-semibold text-white/60">{a.owner}</span> • maj{' '}
+                      {a.updatedAtLabel}
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Button size="sm" variant="secondary" disabled>
@@ -300,7 +321,8 @@ export default function DashboardRapportsPage() {
           <CardHeader>
             <CardTitle>Répartitions</CardTitle>
             <CardDescription>
-              3 mini-vues : licences, équipements, présence. À venir : drilldown vers modules associés.
+              3 mini-vues : licences, équipements, présence. À venir : drilldown vers modules
+              associés.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -316,13 +338,15 @@ export default function DashboardRapportsPage() {
                 <section aria-label="Répartition licences">
                   <div className="flex flex-wrap items-baseline justify-between gap-3">
                     <div className="flex items-baseline gap-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/55">Licences</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/55">
+                        Licences
+                      </p>
                       <p className="text-xs text-white/45">à encaisser / total</p>
                     </div>
                     <Link
-                      href={buildDashboardHref("/dashboard/licences", {
-                        pole: pole === "all" ? null : pole,
-                        status: "overdue",
+                      href={buildDashboardHref('/dashboard/licences', {
+                        pole: pole === 'all' ? null : pole,
+                        status: 'overdue',
                       })}
                       className="text-xs font-semibold text-white/75 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
                       aria-label="Ouvrir le module licences pré-filtré sur les retards"
@@ -336,13 +360,15 @@ export default function DashboardRapportsPage() {
                 <section aria-label="Répartition équipements">
                   <div className="flex flex-wrap items-baseline justify-between gap-3">
                     <div className="flex items-baseline gap-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/55">Équipements</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/55">
+                        Équipements
+                      </p>
                       <p className="text-xs text-white/45">à traiter</p>
                     </div>
                     <Link
-                      href={buildDashboardHref("/dashboard/equipements", {
-                        pole: pole === "all" ? null : pole,
-                        delivery: "todo",
+                      href={buildDashboardHref('/dashboard/equipements', {
+                        pole: pole === 'all' ? null : pole,
+                        delivery: 'todo',
                       })}
                       className="text-xs font-semibold text-white/75 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
                       aria-label="Ouvrir le module équipements pré-filtré sur les dotations à remettre"
@@ -356,12 +382,14 @@ export default function DashboardRapportsPage() {
                 <section aria-label="Répartition présence">
                   <div className="flex flex-wrap items-baseline justify-between gap-3">
                     <div className="flex items-baseline gap-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/55">Présences</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/55">
+                        Présences
+                      </p>
                       <p className="text-xs text-white/45">statuts</p>
                     </div>
                     <Link
-                      href={buildDashboardHref("/dashboard/presences", {
-                        pole: pole === "all" ? null : pole,
+                      href={buildDashboardHref('/dashboard/presences', {
+                        pole: pole === 'all' ? null : pole,
                       })}
                       className="text-xs font-semibold text-white/75 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
                       aria-label="Ouvrir le module présences pré-filtré par pôle"
@@ -373,7 +401,8 @@ export default function DashboardRapportsPage() {
                 </section>
 
                 <p className="text-xs text-white/45">
-                  Next : liens directs (ex. clic “Licences” → /dashboard/licences avec filtre), exports et historique.
+                  Next : liens directs (ex. clic “Licences” → /dashboard/licences avec filtre),
+                  exports et historique.
                 </p>
               </div>
             )}
@@ -381,5 +410,5 @@ export default function DashboardRapportsPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

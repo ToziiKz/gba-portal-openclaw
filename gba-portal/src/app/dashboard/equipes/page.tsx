@@ -1,97 +1,100 @@
-"use client";
+'use client'
 
-import * as React from "react";
+import * as React from 'react'
 
-import Link from "next/link";
+import Link from 'next/link'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
 import {
   dashboardTeamsMock,
   dashboardTeamPoles,
   type DashboardTeam,
   type TeamPole,
-} from "@/lib/mocks/dashboardTeams";
+} from '@/lib/mocks/dashboardTeams'
 
-function roleLabel(role: DashboardTeam["staff"][number]["role"]) {
+function roleLabel(role: DashboardTeam['staff'][number]['role']) {
   switch (role) {
-    case "coach":
-      return "Coach";
-    case "adjoint":
-      return "Adjoint";
-    case "dir-sportif":
-      return "Direction sportive";
-    case "resp-pôle":
-      return "Responsable pôle";
+    case 'coach':
+      return 'Coach'
+    case 'adjoint':
+      return 'Adjoint'
+    case 'dir-sportif':
+      return 'Direction sportive'
+    case 'resp-pôle':
+      return 'Responsable pôle'
     default:
-      return role;
+      return role
   }
 }
 
 function inputBaseClassName() {
-  return "w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20";
+  return 'w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20'
 }
 
 export default function DashboardEquipesPage() {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [query, setQuery] = React.useState("");
-  const [pole, setPole] = React.useState<TeamPole | "all">("all");
-  const [category, setCategory] = React.useState<string | "all">("all");
-  const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true)
+  const [query, setQuery] = React.useState('')
+  const [pole, setPole] = React.useState<TeamPole | 'all'>('all')
+  const [category, setCategory] = React.useState<string | 'all'>('all')
+  const [selectedId, setSelectedId] = React.useState<string | null>(null)
 
-  const didInitFromUrl = React.useRef(false);
+  const didInitFromUrl = React.useRef(false)
 
   React.useEffect(() => {
-    if (didInitFromUrl.current) return;
+    if (didInitFromUrl.current) return
 
-    const sp = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+    const sp = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search)
 
-    const poleRaw = sp.get("pole");
-    const categoryRaw = sp.get("category");
-    const qRaw = sp.get("q") ?? sp.get("query");
+    const poleRaw = sp.get('pole')
+    const categoryRaw = sp.get('category')
+    const qRaw = sp.get('q') ?? sp.get('query')
 
-    if (poleRaw && (dashboardTeamPoles as string[]).includes(poleRaw)) setPole(poleRaw as TeamPole);
-    if (categoryRaw && categoryRaw.trim()) setCategory(categoryRaw.trim());
-    if (typeof qRaw === "string" && qRaw.trim()) setQuery(qRaw);
+    if (poleRaw && (dashboardTeamPoles as string[]).includes(poleRaw)) setPole(poleRaw as TeamPole)
+    if (categoryRaw && categoryRaw.trim()) setCategory(categoryRaw.trim())
+    if (typeof qRaw === 'string' && qRaw.trim()) setQuery(qRaw)
 
-    didInitFromUrl.current = true;
-  }, []);
+    didInitFromUrl.current = true
+  }, [])
 
   React.useEffect(() => {
     const t = window.setTimeout(() => {
-      setIsLoading(false);
-      setSelectedId((prev) => prev ?? dashboardTeamsMock[0]?.id ?? null);
-    }, 450);
+      setIsLoading(false)
+      setSelectedId((prev) => prev ?? dashboardTeamsMock[0]?.id ?? null)
+    }, 450)
 
-    return () => window.clearTimeout(t);
-  }, []);
+    return () => window.clearTimeout(t)
+  }, [])
 
   const categories = React.useMemo(() => {
-    return Array.from(new Set(dashboardTeamsMock.map((t) => t.category))).sort((a, b) => a.localeCompare(b));
-  }, []);
+    return Array.from(new Set(dashboardTeamsMock.map((t) => t.category))).sort((a, b) =>
+      a.localeCompare(b)
+    )
+  }, [])
 
   const filtered = React.useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = query.trim().toLowerCase()
 
     return dashboardTeamsMock
-      .filter((t) => (pole === "all" ? true : t.pole === pole))
-      .filter((t) => (category === "all" ? true : t.category === category))
+      .filter((t) => (pole === 'all' ? true : t.pole === pole))
+      .filter((t) => (category === 'all' ? true : t.category === category))
       .filter((t) => {
-        if (!q) return true;
-        const hay = `${t.name} ${t.category} ${t.pole} ${t.staff.map((s) => s.name).join(" ")}`.toLowerCase();
-        return hay.includes(q);
-      });
-  }, [query, pole, category]);
+        if (!q) return true
+        const hay =
+          `${t.name} ${t.category} ${t.pole} ${t.staff.map((s) => s.name).join(' ')}`.toLowerCase()
+        return hay.includes(q)
+      })
+  }, [query, pole, category])
 
   const selectedTeam = React.useMemo(() => {
-    return filtered.find((t) => t.id === selectedId) ?? filtered[0] ?? null;
-  }, [filtered, selectedId]);
+    return filtered.find((t) => t.id === selectedId) ?? filtered[0] ?? null
+  }, [filtered, selectedId])
 
   React.useEffect(() => {
-    if (!selectedTeam) setSelectedId(null);
-    else setSelectedId(selectedTeam.id);
+    if (!selectedTeam) setSelectedId(null)
+    else setSelectedId(selectedTeam.id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTeam?.id]);
+  }, [selectedTeam?.id])
 
   return (
     <div className="grid gap-6">
@@ -101,20 +104,24 @@ export default function DashboardEquipesPage() {
           Équipes
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-white/70">
-          Liste + sélection d’une équipe. Données mock + state local uniquement. Les actions (édition, affectations) sont des
-          placeholders.
+          Liste + sélection d’une équipe. Données mock + state local uniquement. Les actions
+          (édition, affectations) sont des placeholders.
         </p>
       </div>
 
       <Card className="premium-card card-shell rounded-3xl">
         <CardHeader>
           <CardTitle>Recherche & filtres</CardTitle>
-          <CardDescription>Filtrer par pôle / catégorie, ou rechercher par nom / staff.</CardDescription>
+          <CardDescription>
+            Filtrer par pôle / catégorie, ou rechercher par nom / staff.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 md:grid-cols-3">
             <label className="grid gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Recherche</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                Recherche
+              </span>
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -126,10 +133,12 @@ export default function DashboardEquipesPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Pôle</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                Pôle
+              </span>
               <select
                 value={pole}
-                onChange={(e) => setPole(e.target.value as TeamPole | "all")}
+                onChange={(e) => setPole(e.target.value as TeamPole | 'all')}
                 className={inputBaseClassName()}
                 aria-label="Filtrer par pôle"
               >
@@ -143,7 +152,9 @@ export default function DashboardEquipesPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">Catégorie</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                Catégorie
+              </span>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
@@ -162,16 +173,16 @@ export default function DashboardEquipesPage() {
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-white/60" aria-live="polite">
-              {isLoading ? "Chargement des équipes…" : `${filtered.length} équipe(s) (mock)`}
+              {isLoading ? 'Chargement des équipes…' : `${filtered.length} équipe(s) (mock)`}
             </p>
             <div className="flex flex-wrap gap-2">
               <Button
                 size="sm"
                 variant="secondary"
                 onClick={() => {
-                  setQuery("");
-                  setPole("all");
-                  setCategory("all");
+                  setQuery('')
+                  setPole('all')
+                  setCategory('all')
                 }}
               >
                 Réinitialiser
@@ -194,7 +205,10 @@ export default function DashboardEquipesPage() {
             {isLoading ? (
               <ul className="grid gap-3">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <li key={i} className="h-[84px] animate-pulse rounded-2xl border border-white/10 bg-white/5" />
+                  <li
+                    key={i}
+                    className="h-[84px] animate-pulse rounded-2xl border border-white/10 bg-white/5"
+                  />
                 ))}
               </ul>
             ) : filtered.length === 0 ? (
@@ -207,7 +221,7 @@ export default function DashboardEquipesPage() {
             ) : (
               <ul className="grid gap-3">
                 {filtered.map((t) => {
-                  const isSelected = t.id === selectedTeam?.id;
+                  const isSelected = t.id === selectedTeam?.id
                   return (
                     <li key={t.id}>
                       <button
@@ -215,10 +229,10 @@ export default function DashboardEquipesPage() {
                         onClick={() => setSelectedId(t.id)}
                         className={`group w-full rounded-2xl border px-4 py-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 ${
                           isSelected
-                            ? "border-white/25 bg-white/10"
-                            : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/7"
+                            ? 'border-white/25 bg-white/10'
+                            : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/7'
                         }`}
-                        aria-current={isSelected ? "true" : undefined}
+                        aria-current={isSelected ? 'true' : undefined}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
@@ -242,7 +256,7 @@ export default function DashboardEquipesPage() {
                         </div>
                       </button>
                     </li>
-                  );
+                  )
                 })}
               </ul>
             )}
@@ -272,12 +286,15 @@ export default function DashboardEquipesPage() {
                   <p className="text-xs uppercase tracking-[0.35em] text-white/55">Équipe</p>
                   <p className="mt-2 text-lg font-semibold text-white">{selectedTeam.name}</p>
                   <p className="mt-1 text-sm text-white/70">
-                    {selectedTeam.pole} • {selectedTeam.category} • {selectedTeam.playersCount} joueurs
+                    {selectedTeam.pole} • {selectedTeam.category} • {selectedTeam.playersCount}{' '}
+                    joueurs
                   </p>
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs uppercase tracking-[0.35em] text-white/55">Encadrement (mock)</p>
+                  <p className="text-xs uppercase tracking-[0.35em] text-white/55">
+                    Encadrement (mock)
+                  </p>
                   <ul className="mt-3 grid gap-2">
                     {selectedTeam.staff.map((m) => (
                       <li key={m.id} className="flex items-start justify-between gap-3">
@@ -293,10 +310,12 @@ export default function DashboardEquipesPage() {
                 <div className="flex flex-wrap gap-2">
                   <Link
                     href={`/dashboard/joueurs?team=${encodeURIComponent(selectedTeam.name)}&pole=${encodeURIComponent(
-                      selectedTeam.pole,
+                      selectedTeam.pole
                     )}`}
                   >
-                    <Button size="sm" variant="secondary">Voir joueurs</Button>
+                    <Button size="sm" variant="secondary">
+                      Voir joueurs
+                    </Button>
                   </Link>
                   <Button size="sm" variant="secondary" disabled>
                     Modifier (bientôt)
@@ -307,7 +326,8 @@ export default function DashboardEquipesPage() {
                 </div>
 
                 <p className="text-xs text-white/45">
-                  À venir : fiches équipe complètes (contacts, créneaux, effectif, présences) + permissioning.
+                  À venir : fiches équipe complètes (contacts, créneaux, effectif, présences) +
+                  permissioning.
                 </p>
               </div>
             )}
@@ -315,5 +335,5 @@ export default function DashboardEquipesPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

@@ -1,125 +1,124 @@
-"use client";
+'use client'
 
-import * as React from "react";
+import * as React from 'react'
 
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Pill } from "@/components/ui/Pill";
-import { usePermissions } from "@/components/PermissionsProvider";
-import { LicencePaymentModal } from "@/components/dashboard/LicencePaymentModal";
-import type {
-  LicencePaymentStatus,
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Pill } from '@/components/ui/Pill'
+import { usePermissions } from '@/components/PermissionsProvider'
+import { LicencePaymentModal } from '@/components/dashboard/LicencePaymentModal'
+import type { LicencePaymentStatus, LicenceRow, PaymentMethod } from '@/lib/mocks/dashboardLicences'
+import { licenceRowsMock } from '@/lib/mocks/dashboardLicences'
+
+type StatusFilter = 'all' | LicencePaymentStatus | 'overdue'
+
+type RowState = Pick<
   LicenceRow,
-  PaymentMethod,
-} from "@/lib/mocks/dashboardLicences";
-import { licenceRowsMock } from "@/lib/mocks/dashboardLicences";
-
-type StatusFilter = "all" | LicencePaymentStatus | "overdue";
-
-type RowState = Pick<LicenceRow, "amountPaidEur" | "updatedAtLabel" | "isOverdue" | "lastPaymentMethod"> & {
-  status: LicencePaymentStatus;
-};
+  'amountPaidEur' | 'updatedAtLabel' | 'isOverdue' | 'lastPaymentMethod'
+> & {
+  status: LicencePaymentStatus
+}
 
 type Action =
-  | { type: "markPaid"; id: string }
-  | { type: "addPayment"; id: string; amountEur: number; method?: PaymentMethod | null }
-  | { type: "reset"; id: string }
-  | { type: "restore"; state: Record<string, RowState> };
+  | { type: 'markPaid'; id: string }
+  | { type: 'addPayment'; id: string; amountEur: number; method?: PaymentMethod | null }
+  | { type: 'reset'; id: string }
+  | { type: 'restore'; state: Record<string, RowState> }
 
 function deriveStatus(amountPaidEur: number, amountTotalEur: number): LicencePaymentStatus {
-  if (amountPaidEur <= 0) return "unpaid";
-  if (amountPaidEur >= amountTotalEur) return "paid";
-  return "partial";
+  if (amountPaidEur <= 0) return 'unpaid'
+  if (amountPaidEur >= amountTotalEur) return 'paid'
+  return 'partial'
 }
 
 function reducer(state: Record<string, RowState>, action: Action): Record<string, RowState> {
   // Global actions
-  if (action.type === "restore") {
-    return action.state;
+  if (action.type === 'restore') {
+    return action.state
   }
 
   // Row-specific actions
-  const current = state[action.id];
-  if (!current) return state;
+  const current = state[action.id]
+  if (!current) return state
 
   switch (action.type) {
-    case "markPaid": {
+    case 'markPaid': {
       return {
         ...state,
         [action.id]: {
           ...current,
-          status: "paid" as const,
+          status: 'paid' as const,
           amountPaidEur: Number.POSITIVE_INFINITY, // Will be clamped in render
-          updatedAtLabel: "à l’instant",
+          updatedAtLabel: 'à l’instant',
         },
-      };
+      }
     }
-    case "addPayment": {
+    case 'addPayment': {
       return {
         ...state,
         [action.id]: {
           ...current,
           amountPaidEur: Math.max(0, current.amountPaidEur + action.amountEur),
-          updatedAtLabel: "à l’instant",
+          updatedAtLabel: 'à l’instant',
           lastPaymentMethod:
-            typeof action.method === "string" ? action.method : current.lastPaymentMethod ?? null,
+            typeof action.method === 'string' ? action.method : (current.lastPaymentMethod ?? null),
         },
-      };
+      }
     }
-    case "reset": {
+    case 'reset': {
       return {
         ...state,
         [action.id]: {
           ...current,
-          status: "unpaid" as const,
+          status: 'unpaid' as const,
           amountPaidEur: 0,
-          updatedAtLabel: "à l’instant",
+          updatedAtLabel: 'à l’instant',
           isOverdue: false,
           lastPaymentMethod: null,
         },
-      };
+      }
     }
     default:
-      return state;
+      return state
   }
 }
 
 function formatEur(value: number) {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
     maximumFractionDigits: 0,
-  }).format(value);
+  }).format(value)
 }
 
 function statusToPillVariant(status: LicencePaymentStatus, isOverdue: boolean) {
-  if (status === "paid") return "success";
-  if (isOverdue) return "danger";
-  if (status === "partial") return "warning";
-  return "neutral";
+  if (status === 'paid') return 'success'
+  if (isOverdue) return 'danger'
+  if (status === 'partial') return 'warning'
+  return 'neutral'
 }
 
 function statusLabel(status: LicencePaymentStatus, isOverdue: boolean) {
-  if (status === "paid") return "payée";
-  if (isOverdue) return "en retard";
-  if (status === "partial") return "acompte";
-  return "à payer";
+  if (status === 'paid') return 'payée'
+  if (isOverdue) return 'en retard'
+  if (status === 'partial') return 'acompte'
+  return 'à payer'
 }
 
 function inputBaseClassName() {
-  return "h-10 w-full rounded-[var(--ui-radius-sm)] border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-white/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/25";
+  return 'h-10 w-full rounded-[var(--ui-radius-sm)] border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-white/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/25'
 }
 
-const STORAGE_KEY = "gba-dashboard-licences-state-v1";
+const STORAGE_KEY = 'gba-dashboard-licences-state-v1'
 
 export default function DashboardLicencesPage() {
-  const { canEdit, canViewMoney } = usePermissions();
-  const [query, setQuery] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("all");
-  const [poleFilter, setPoleFilter] = React.useState<LicenceRow["pole"] | "all">("all");
+  const { canEdit, canViewMoney } = usePermissions()
+  const [query, setQuery] = React.useState('')
+  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all')
+  const [poleFilter, setPoleFilter] = React.useState<LicenceRow['pole'] | 'all'>('all')
 
-  const [openRowId, setOpenRowId] = React.useState<string | null>(null);
-  const [toast, setToast] = React.useState<string | null>(null);
+  const [openRowId, setOpenRowId] = React.useState<string | null>(null)
+  const [toast, setToast] = React.useState<string | null>(null)
 
   const [state, dispatch] = React.useReducer(
     reducer,
@@ -135,144 +134,152 @@ export default function DashboardLicencesPage() {
             isOverdue: row.isOverdue,
             lastPaymentMethod: row.lastPaymentMethod,
           },
-        ]),
-      ) as Record<string, RowState>,
-  );
+        ])
+      ) as Record<string, RowState>
+  )
 
   // Restore from localStorage
   React.useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(STORAGE_KEY)
       if (saved) {
-        const parsed = JSON.parse(saved);
-        dispatch({ type: "restore", state: parsed });
+        const parsed = JSON.parse(saved)
+        dispatch({ type: 'restore', state: parsed })
       }
     } catch (e) {
-      console.error("Failed to load licence state", e);
+      console.error('Failed to load licence state', e)
     }
-  }, []);
+  }, [])
 
   // Save to localStorage
   React.useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  }, [state])
 
-  const didInitFromUrl = React.useRef(false);
-
-  React.useEffect(() => {
-    if (didInitFromUrl.current) return;
-
-    const sp = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
-
-    const poleRaw = sp.get("pole");
-    const statusRaw = sp.get("status");
-    const qRaw = sp.get("q") ?? sp.get("query");
-
-    const poles: Array<LicenceRow["pole"]> = ["École de foot", "Pré-formation", "Formation"];
-    if (poleRaw && poles.includes(poleRaw as LicenceRow["pole"])) setPoleFilter(poleRaw as LicenceRow["pole"]);
-
-    const statuses: StatusFilter[] = ["all", "unpaid", "partial", "paid", "overdue"];
-    if (statusRaw && statuses.includes(statusRaw as StatusFilter)) setStatusFilter(statusRaw as StatusFilter);
-
-    if (typeof qRaw === "string" && qRaw.trim()) setQuery(qRaw);
-
-    didInitFromUrl.current = true;
-  }, []);
+  const didInitFromUrl = React.useRef(false)
 
   React.useEffect(() => {
-    if (!toast) return;
-    const t = window.setTimeout(() => setToast(null), 2800);
-    return () => window.clearTimeout(t);
-  }, [toast]);
+    if (didInitFromUrl.current) return
+
+    const sp = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search)
+
+    const poleRaw = sp.get('pole')
+    const statusRaw = sp.get('status')
+    const qRaw = sp.get('q') ?? sp.get('query')
+
+    const poles: Array<LicenceRow['pole']> = ['École de foot', 'Pré-formation', 'Formation']
+    if (poleRaw && poles.includes(poleRaw as LicenceRow['pole']))
+      setPoleFilter(poleRaw as LicenceRow['pole'])
+
+    const statuses: StatusFilter[] = ['all', 'unpaid', 'partial', 'paid', 'overdue']
+    if (statusRaw && statuses.includes(statusRaw as StatusFilter))
+      setStatusFilter(statusRaw as StatusFilter)
+
+    if (typeof qRaw === 'string' && qRaw.trim()) setQuery(qRaw)
+
+    didInitFromUrl.current = true
+  }, [])
+
+  React.useEffect(() => {
+    if (!toast) return
+    const t = window.setTimeout(() => setToast(null), 2800)
+    return () => window.clearTimeout(t)
+  }, [toast])
 
   const rows = React.useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
+    const normalizedQuery = query.trim().toLowerCase()
 
     return licenceRowsMock
       .map((row) => {
-        const rowState = state[row.id];
-        const amountPaidEur = rowState?.amountPaidEur ?? row.amountPaidEur;
+        const rowState = state[row.id]
+        const amountPaidEur = rowState?.amountPaidEur ?? row.amountPaidEur
         const paidClamped = Number.isFinite(amountPaidEur)
           ? Math.min(amountPaidEur, row.amountTotalEur)
-          : row.amountTotalEur;
+          : row.amountTotalEur
         const status =
-          rowState?.status === "paid" || !Number.isFinite(amountPaidEur)
-            ? "paid"
-            : deriveStatus(paidClamped, row.amountTotalEur);
+          rowState?.status === 'paid' || !Number.isFinite(amountPaidEur)
+            ? 'paid'
+            : deriveStatus(paidClamped, row.amountTotalEur)
 
-        const isOverdue = rowState?.isOverdue ?? row.isOverdue;
-        const updatedAtLabel = rowState?.updatedAtLabel ?? row.updatedAtLabel;
-        const lastPaymentMethod = rowState?.lastPaymentMethod ?? row.lastPaymentMethod;
+        const isOverdue = rowState?.isOverdue ?? row.isOverdue
+        const updatedAtLabel = rowState?.updatedAtLabel ?? row.updatedAtLabel
+        const lastPaymentMethod = rowState?.lastPaymentMethod ?? row.lastPaymentMethod
 
         return {
           ...row,
           status,
           amountPaidEur: paidClamped,
-          isOverdue: status === "paid" ? false : isOverdue,
+          isOverdue: status === 'paid' ? false : isOverdue,
           updatedAtLabel,
           lastPaymentMethod,
-        };
+        }
       })
       .filter((row) => {
-        if (poleFilter !== "all" && row.pole !== poleFilter) return false;
+        if (poleFilter !== 'all' && row.pole !== poleFilter) return false
 
-        if (statusFilter === "overdue" && !row.isOverdue) return false;
-        if (statusFilter !== "all" && statusFilter !== "overdue" && row.status !== statusFilter) return false;
+        if (statusFilter === 'overdue' && !row.isOverdue) return false
+        if (statusFilter !== 'all' && statusFilter !== 'overdue' && row.status !== statusFilter)
+          return false
 
-        if (!normalizedQuery) return true;
-        const haystack = `${row.playerName} ${row.team} ${row.category}`.toLowerCase();
-        return haystack.includes(normalizedQuery);
-      });
-  }, [query, poleFilter, statusFilter, state]);
+        if (!normalizedQuery) return true
+        const haystack = `${row.playerName} ${row.team} ${row.category}`.toLowerCase()
+        return haystack.includes(normalizedQuery)
+      })
+  }, [query, poleFilter, statusFilter, state])
 
   const stats = React.useMemo(() => {
     const totals = rows.reduce(
       (acc, row) => {
-        acc.totalDueEur += Math.max(0, row.amountTotalEur - row.amountPaidEur);
-        if (row.status === "paid") acc.paidCount += 1;
-        if (row.isOverdue) acc.overdueCount += 1;
-        return acc;
+        acc.totalDueEur += Math.max(0, row.amountTotalEur - row.amountPaidEur)
+        if (row.status === 'paid') acc.paidCount += 1
+        if (row.isOverdue) acc.overdueCount += 1
+        return acc
       },
-      { totalDueEur: 0, paidCount: 0, overdueCount: 0 },
-    );
+      { totalDueEur: 0, paidCount: 0, overdueCount: 0 }
+    )
 
     return {
       ...totals,
       totalCount: rows.length,
-    };
-  }, [rows]);
+    }
+  }, [rows])
 
   const openRow = React.useMemo(() => {
-    if (!openRowId) return null;
-    const base = rows.find((r) => r.id === openRowId) ?? licenceRowsMock.find((r) => r.id === openRowId) ?? null;
-    return base;
-  }, [openRowId, rows]);
+    if (!openRowId) return null
+    const base =
+      rows.find((r) => r.id === openRowId) ??
+      licenceRowsMock.find((r) => r.id === openRowId) ??
+      null
+    return base
+  }, [openRowId, rows])
 
-  const handlePaymentSubmit = (amountEur: number, method: PaymentMethod, note: string, sendReceipt: boolean) => {
-    if (!openRowId || !openRow) return;
+  const handlePaymentSubmit = (
+    amountEur: number,
+    method: PaymentMethod,
+    note: string,
+    sendReceipt: boolean
+  ) => {
+    if (!openRowId || !openRow) return
 
-    dispatch({ type: "addPayment", id: openRowId, amountEur, method });
+    dispatch({ type: 'addPayment', id: openRowId, amountEur, method })
 
-    const nextPaid = openRow.amountPaidEur + amountEur;
+    const nextPaid = openRow.amountPaidEur + amountEur
     if (nextPaid >= openRow.amountTotalEur) {
-        dispatch({ type: "markPaid", id: openRowId });
+      dispatch({ type: 'markPaid', id: openRowId })
     }
 
-    setToast(
-      sendReceipt
-        ? `Paiement enregistré + reçu “envoyé” (mock)`
-        : "Paiement enregistré"
-    );
+    setToast(sendReceipt ? `Paiement enregistré + reçu “envoyé” (mock)` : 'Paiement enregistré')
 
-    setOpenRowId(null);
-  };
+    setOpenRowId(null)
+  }
 
   return (
     <div className="space-y-6">
       <header className="space-y-2">
         <h2 className="text-2xl font-semibold text-white">Licences & paiements</h2>
         <p className="text-sm text-white/65">
-          Module mock : suivi des paiements avec persistance locale (localStorage) et génération de reçus.
+          Module mock : suivi des paiements avec persistance locale (localStorage) et génération de
+          reçus.
         </p>
       </header>
 
@@ -290,7 +297,7 @@ export default function DashboardLicencesPage() {
         <Card className="premium-card card-shell rounded-3xl p-4">
           <p className="text-xs uppercase tracking-[0.3em] text-white/50">À encaisser (filtre)</p>
           <p className="mt-2 text-2xl font-semibold text-white">
-            {canViewMoney ? formatEur(stats.totalDueEur) : "•••• €"}
+            {canViewMoney ? formatEur(stats.totalDueEur) : '•••• €'}
           </p>
         </Card>
         <Card className="premium-card card-shell rounded-3xl p-4">
@@ -368,14 +375,16 @@ export default function DashboardLicencesPage() {
         ) : (
           <ul className="divide-y divide-white/10">
             {rows.map((row) => {
-              const remaining = Math.max(0, row.amountTotalEur - row.amountPaidEur);
+              const remaining = Math.max(0, row.amountTotalEur - row.amountPaidEur)
 
               return (
                 <li key={row.id} className="px-4 py-4 hover:bg-white/[0.02] transition-colors">
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div className="min-w-0 space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="truncate text-sm font-semibold text-white">{row.playerName}</p>
+                        <p className="truncate text-sm font-semibold text-white">
+                          {row.playerName}
+                        </p>
                         <Pill variant={statusToPillVariant(row.status, row.isOverdue)}>
                           {statusLabel(row.status, row.isOverdue)}
                         </Pill>
@@ -386,30 +395,36 @@ export default function DashboardLicencesPage() {
                       </p>
                       <p className="text-xs text-white/35">
                         Maj {row.updatedAtLabel}
-                        {row.lastPaymentMethod ? ` · par ${row.lastPaymentMethod}` : ""}
+                        {row.lastPaymentMethod ? ` · par ${row.lastPaymentMethod}` : ''}
                       </p>
                     </div>
 
                     <div className="flex flex-col gap-2 md:items-end">
                       <div className="flex flex-wrap items-baseline gap-2">
                         <p className="text-sm font-semibold text-white">{formatEur(remaining)}</p>
-                        <p className="text-xs text-white/45">dus (sur {formatEur(row.amountTotalEur)})</p>
+                        <p className="text-xs text-white/45">
+                          dus (sur {formatEur(row.amountTotalEur)})
+                        </p>
                       </div>
 
                       <div className="flex flex-wrap gap-2">
                         {canEdit && (
                           <>
                             <Button
-                                size="sm"
-                                variant="secondary"
-                                onClick={() => setOpenRowId(row.id)}
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => setOpenRowId(row.id)}
                             >
-                                Gérer / Payer
+                              Gérer / Payer
                             </Button>
-                            {row.status !== "paid" && row.amountPaidEur > 0 && (
-                                <Button size="sm" variant="ghost" onClick={() => dispatch({ type: "reset", id: row.id })}>
-                                    Reset
-                                </Button>
+                            {row.status !== 'paid' && row.amountPaidEur > 0 && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => dispatch({ type: 'reset', id: row.id })}
+                              >
+                                Reset
+                              </Button>
                             )}
                           </>
                         )}
@@ -417,7 +432,7 @@ export default function DashboardLicencesPage() {
                     </div>
                   </div>
                 </li>
-              );
+              )
             })}
           </ul>
         )}
@@ -431,5 +446,5 @@ export default function DashboardLicencesPage() {
         onPaymentSubmit={handlePaymentSubmit}
       />
     </div>
-  );
+  )
 }

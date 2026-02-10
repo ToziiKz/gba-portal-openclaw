@@ -1,12 +1,15 @@
-import Link from "next/link";
+import Link from 'next/link'
 
 export default function NotFound() {
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 py-20 text-center">
       <p className="text-xs uppercase tracking-[0.6em] text-white/50">404</p>
-      <h1 className="mt-4 font-[var(--font-teko)] text-5xl font-black tracking-[0.06em] text-white">Page introuvable</h1>
+      <h1 className="mt-4 font-[var(--font-teko)] text-5xl font-black tracking-[0.06em] text-white">
+        Page introuvable
+      </h1>
       <p className="mt-4 max-w-xl text-sm text-white/70">
-        Cette page n’existe pas (ou a été déplacée). Retour à l’accueil ou connexion à l’espace staff.
+        Cette page n’existe pas (ou a été déplacée). Retour à l’accueil ou connexion à l’espace
+        staff.
       </p>
 
       <div className="mt-10 flex flex-col gap-4 sm:flex-row">
@@ -24,5 +27,5 @@ export default function NotFound() {
         </Link>
       </div>
     </div>
-  );
+  )
 }

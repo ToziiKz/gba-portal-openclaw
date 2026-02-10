@@ -1,0 +1,21 @@
+# Global
+.DS_Store
+*.log
+*.pid
+
+# Next.js / Node
+**/node_modules/
+**/.next/
+**/out/
+**/dist/
+
+# Env
+**/.env
+**/.env.*
+
+# OpenClaw / agent runtime
+**/.agent/runtime/
+
+# IDE
+.vscode/
+.idea/

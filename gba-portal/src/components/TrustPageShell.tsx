@@ -1,25 +1,31 @@
-import type { ReactNode } from "react";
-import Link from "next/link";
+import type { ReactNode } from 'react'
+import Link from 'next/link'
 
 type TrustPageShellProps = {
-  eyebrow?: string;
-  title: string;
-  lead: string;
-  children: ReactNode;
-  cta?: ReactNode;
-};
+  eyebrow?: string
+  title: string
+  lead: string
+  children: ReactNode
+  cta?: ReactNode
+}
 
-export function TrustPageShell({ eyebrow = "Infos", title, lead, children, cta }: TrustPageShellProps) {
+export function TrustPageShell({
+  eyebrow = 'Infos',
+  title,
+  lead,
+  children,
+  cta,
+}: TrustPageShellProps) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#020202] via-[#050505] to-[#000000]">
       <header className="px-6 pt-20 pb-12 sm:pt-28">
         <div className="mx-auto max-w-4xl">
           <nav aria-label="Navigation" className="mb-8 flex flex-wrap gap-2">
             {[
-              { href: "/", label: "Accueil" },
-              { href: "/shop", label: "Boutique" },
-              { href: "/sponsors", label: "Sponsors" },
-              { href: "/contact", label: "Contact" },
+              { href: '/', label: 'Accueil' },
+              { href: '/shop', label: 'Boutique' },
+              { href: '/sponsors', label: 'Sponsors' },
+              { href: '/contact', label: 'Contact' },
             ].map((item) => (
               <Link
                 key={item.href}
@@ -32,7 +38,9 @@ export function TrustPageShell({ eyebrow = "Infos", title, lead, children, cta }
           </nav>
 
           <p className="text-xs uppercase tracking-widest text-white/60">{eyebrow}</p>
-          <h1 className="mt-4 font-[var(--font-teko)] text-5xl font-black tracking-[0.06em] text-white sm:text-6xl">{title}</h1>
+          <h1 className="mt-4 font-[var(--font-teko)] text-5xl font-black tracking-[0.06em] text-white sm:text-6xl">
+            {title}
+          </h1>
           <p className="mt-5 text-sm leading-relaxed text-white/70">{lead}</p>
           {cta ? <div className="mt-8">{cta}</div> : null}
         </div>
@@ -44,5 +52,5 @@ export function TrustPageShell({ eyebrow = "Infos", title, lead, children, cta }
         </div>
       </section>
     </div>
-  );
+  )
 }

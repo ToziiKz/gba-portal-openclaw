@@ -1,29 +1,29 @@
-"use client";
+'use client'
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode } from 'react'
 
-type Role = "ADMIN" | "COACH" | "VIEWER";
+type Role = 'ADMIN' | 'COACH' | 'VIEWER'
 
 interface PermissionsContextType {
-  role: Role;
-  setRole: (role: Role) => void;
-  canEdit: boolean;
-  canDelete: boolean;
-  canViewMoney: boolean;
+  role: Role
+  setRole: (role: Role) => void
+  canEdit: boolean
+  canDelete: boolean
+  canViewMoney: boolean
 }
 
-const PermissionsContext = createContext<PermissionsContextType | undefined>(undefined);
+const PermissionsContext = createContext<PermissionsContextType | undefined>(undefined)
 
 export function PermissionsProvider({ children }: { children: ReactNode }) {
-  const [role, setRole] = useState<Role>("ADMIN");
+  const [role, setRole] = useState<Role>('ADMIN')
 
   const permissions = {
     ADMIN: { canEdit: true, canDelete: true, canViewMoney: true },
     COACH: { canEdit: true, canDelete: false, canViewMoney: false },
     VIEWER: { canEdit: false, canDelete: false, canViewMoney: false },
-  };
+  }
 
-  const currentPerms = permissions[role];
+  const currentPerms = permissions[role]
 
   return (
     <PermissionsContext.Provider value={{ role, setRole, ...currentPerms }}>
@@ -41,13 +41,13 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
         </select>
       </div>
     </PermissionsContext.Provider>
-  );
+  )
 }
 
 export function usePermissions() {
-  const context = useContext(PermissionsContext);
+  const context = useContext(PermissionsContext)
   if (!context) {
-    throw new Error("usePermissions must be used within a PermissionsProvider");
+    throw new Error('usePermissions must be used within a PermissionsProvider')
   }
-  return context;
+  return context
 }
