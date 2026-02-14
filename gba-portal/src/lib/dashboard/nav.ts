@@ -6,6 +6,7 @@ export type NavItem = {
   status: 'ready' | 'coming'
   note?: string
   minRole?: DashboardRole
+  children?: NavItem[]
 }
 
 export const roleLabels: Record<DashboardRole, string> = {
@@ -24,13 +25,28 @@ export const roleOrder: Record<DashboardRole, number> = {
 
 export const navItems: NavItem[] = [
   { label: 'Vue d’ensemble', href: '/dashboard', status: 'ready', minRole: 'viewer' },
-  { label: 'Match', href: '/dashboard/match', status: 'ready', note: 'composition + convocations', minRole: 'coach' },
   {
-    label: 'Composition',
-    href: '/dashboard/tactique',
+    label: 'Match',
+    href: '/dashboard/match',
     status: 'ready',
-    note: 'compo & terrain',
+    note: 'composition + convocations',
     minRole: 'coach',
+    children: [
+      {
+        label: 'Composition',
+        href: '/dashboard/tactique',
+        status: 'ready',
+        note: 'compo & terrain',
+        minRole: 'coach',
+      },
+      {
+        label: 'Convocations',
+        href: '/dashboard/convocations',
+        status: 'ready',
+        note: 'groupe match',
+        minRole: 'coach',
+      },
+    ],
   },
   {
     label: 'Rapports',
@@ -47,7 +63,13 @@ export const navItems: NavItem[] = [
     minRole: 'staff',
   },
   { label: 'Équipes', href: '/dashboard/equipes', status: 'ready', minRole: 'coach' },
-  { label: 'Effectif', href: '/dashboard/effectif', status: 'ready', note: 'équipes + joueurs', minRole: 'coach' },
+  {
+    label: 'Effectif',
+    href: '/dashboard/effectif',
+    status: 'ready',
+    note: 'équipes + joueurs',
+    minRole: 'coach',
+  },
   {
     label: 'Catégories',
     href: '/dashboard/categories',
@@ -56,7 +78,12 @@ export const navItems: NavItem[] = [
     minRole: 'coach',
   },
   { label: 'Joueurs', href: '/dashboard/joueurs', status: 'ready', minRole: 'coach' },
-  { label: 'Planning hebdomadaire', href: '/dashboard/planning', status: 'ready', minRole: 'coach' },
+  {
+    label: 'Planning hebdomadaire',
+    href: '/dashboard/planning',
+    status: 'ready',
+    minRole: 'coach',
+  },
   {
     label: 'Présences',
     href: '/dashboard/presences',
@@ -64,7 +91,12 @@ export const navItems: NavItem[] = [
     note: 'par séance',
     minRole: 'coach',
   },
-  { label: 'Licences & paiements', href: '/dashboard/licences', status: 'ready', minRole: 'staff' },
+  {
+    label: 'Licences & paiements',
+    href: '/dashboard/licences',
+    status: 'ready',
+    minRole: 'staff',
+  },
   { label: 'Équipements', href: '/dashboard/equipements', status: 'ready', minRole: 'staff' },
   {
     label: 'Stock & matériel',
@@ -110,9 +142,27 @@ export function canAccess(role: DashboardRole, item: NavItem) {
 }
 
 export function getVisibleNavItems(role: DashboardRole) {
-  const base = navItems.filter((item) => item.status === 'ready' && canAccess(role, item))
+  const base = navItems
+    .filter((item) => item.status === 'ready' && canAccess(role, item))
+    .map((item) => ({
+      ...item,
+      children: (item.children ?? []).filter((child) => child.status === 'ready' && canAccess(role, child)),
+    }))
+
   if (role !== 'coach') return base
   return base.filter((item) => coachPrimaryHrefs.has(item.href))
+}
+
+export function flattenVisibleNavItems(role: DashboardRole) {
+  const visible = getVisibleNavItems(role)
+  const out: NavItem[] = []
+
+  for (const item of visible) {
+    out.push(item)
+    for (const child of item.children ?? []) out.push(child)
+  }
+
+  return out
 }
 
 export function normalizePath(pathname: string | null) {
@@ -129,6 +179,13 @@ export function isActivePath(current: string, href: string) {
 
 export function getNavLabelForPath(pathname: string | null) {
   const cur = normalizePath(pathname)
-  const hit = navItems.find((i) => normalizePath(i.href) === cur)
-  return hit?.label ?? 'Dashboard'
+
+  for (const item of navItems) {
+    if (normalizePath(item.href) === cur) return item.label
+    for (const child of item.children ?? []) {
+      if (normalizePath(child.href) === cur) return child.label
+    }
+  }
+
+  return 'Dashboard'
 }

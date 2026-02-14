@@ -13,14 +13,8 @@ type Props = {
   role: DashboardRole
 }
 
-const matchSubItems = [
-  { label: 'Composition', href: '/dashboard/tactique' },
-  { label: 'Convocations', href: '/dashboard/convocations' },
-]
-
 export function DashboardSidebar({ role }: Props) {
   const pathname = usePathname()
-
   const items = React.useMemo(() => getVisibleNavItems(role), [role])
 
   return (
@@ -45,11 +39,8 @@ export function DashboardSidebar({ role }: Props) {
         <ul className="space-y-1">
           {items.map((item) => {
             const active = isActivePath(pathname ?? '', item.href)
-            const isMatchModule = item.href === '/dashboard/match'
-            const showMatchSubs =
-              isMatchModule &&
-              role === 'coach' &&
-              (active || pathname?.startsWith('/dashboard/tactique') || pathname?.startsWith('/dashboard/convocations'))
+            const hasActiveChild = (item.children ?? []).some((child) => isActivePath(pathname ?? '', child.href))
+            const showChildren = (item.children?.length ?? 0) > 0 && (active || hasActiveChild)
 
             return (
               <li key={item.href}>
@@ -62,14 +53,14 @@ export function DashboardSidebar({ role }: Props) {
                   }`}
                 >
                   <span>{item.label}</span>
-                  {active && (
+                  {active ? (
                     <div className="h-1.5 w-1.5 rounded-full bg-[color:var(--ui-ring)] shadow-[0_0_8px_currentColor]" />
-                  )}
+                  ) : null}
                 </Link>
 
-                {showMatchSubs ? (
+                {showChildren ? (
                   <ul className="mt-1 grid gap-1 pl-3">
-                    {matchSubItems.map((sub) => {
+                    {(item.children ?? []).map((sub) => {
                       const subActive = isActivePath(pathname ?? '', sub.href)
                       return (
                         <li key={sub.href}>

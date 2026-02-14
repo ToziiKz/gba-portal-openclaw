@@ -13,9 +13,27 @@ export const metadata: Metadata = {
 
 const dayOrder = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'] as const
 
+type SessionTeam = { id: string; name: string; category: string | null }
+type SessionRow = {
+  id: string
+  day: string | null
+  pole: string | null
+  start_time: string | null
+  end_time: string | null
+  location: string | null
+  team: SessionTeam | SessionTeam[] | null
+}
+
+type AttendanceRow = { session_id: string }
+
 function dayRank(day: string | null | undefined) {
-  const idx = dayOrder.indexOf(day as any)
+  const idx = dayOrder.findIndex((d) => d === day)
   return idx === -1 ? 999 : idx
+}
+
+function normalizeTeam(team: SessionTeam | SessionTeam[] | null): SessionTeam | null {
+  if (!team) return null
+  return Array.isArray(team) ? (team[0] ?? null) : team
 }
 
 export default async function DashboardSynthesePage() {
@@ -41,9 +59,9 @@ export default async function DashboardSynthesePage() {
       ),
   ])
 
-  const orderedSessions = (sessions ?? [])
+  const orderedSessions = ((sessions ?? []) as SessionRow[])
     .slice()
-    .sort((a: any, b: any) => {
+    .sort((a, b) => {
       const dr = dayRank(a.day) - dayRank(b.day)
       if (dr !== 0) return dr
       return String(a.start_time).localeCompare(String(b.start_time))
@@ -52,7 +70,7 @@ export default async function DashboardSynthesePage() {
   const nextSessions = orderedSessions.slice(0, 6)
 
   // Quick “needs attendance” indicator: sessions with 0 rows in attendance.
-  const nextIds = nextSessions.map((s: any) => s.id)
+  const nextIds = nextSessions.map((s) => s.id)
   let attendanceCountBySession = new Map<string, number>()
   if (nextIds.length > 0) {
     const { data: att } = await supabase
@@ -61,13 +79,13 @@ export default async function DashboardSynthesePage() {
       .in('session_id', nextIds)
 
     attendanceCountBySession = new Map<string, number>()
-    for (const row of att ?? []) {
-      const sid = String((row as any).session_id)
+    for (const row of (att ?? []) as AttendanceRow[]) {
+      const sid = String(row.session_id)
       attendanceCountBySession.set(sid, (attendanceCountBySession.get(sid) ?? 0) + 1)
     }
   }
 
-  const missingAttendance = nextSessions.filter((s: any) => (attendanceCountBySession.get(String(s.id)) ?? 0) === 0)
+  const missingAttendance = nextSessions.filter((s) => (attendanceCountBySession.get(String(s.id)) ?? 0) === 0)
 
   return (
     <div className="grid gap-6">
@@ -140,14 +158,15 @@ export default async function DashboardSynthesePage() {
             </div>
           ) : (
             <ul className="grid gap-3 md:grid-cols-2">
-              {nextSessions.map((s: any) => {
+              {nextSessions.map((s) => {
                 const hasAttendance = (attendanceCountBySession.get(String(s.id)) ?? 0) > 0
+                const team = normalizeTeam(s.team)
                 return (
                   <li key={s.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-white">
-                          {s.team?.category ?? '—'} • {s.team?.name ?? 'Séance'}
+                          {team?.category ?? '—'} • {team?.name ?? 'Séance'}
                         </p>
                         <p className="mt-1 text-xs uppercase tracking-[0.28em] text-white/55">{s.pole}</p>
                         <p className="mt-2 text-xs text-white/60">

@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -54,7 +54,6 @@ type PresenceStats = {
 }
 
 export function PlayersView({ initialPlayers, teams }: Props) {
-  const router = useRouter()
   const searchParams = useSearchParams()
   
   const [query, setQuery] = React.useState('')
@@ -76,7 +75,7 @@ export function PlayersView({ initialPlayers, teams }: Props) {
     if (pid) {
       setSelectedId(pid)
     } 
-  }, []) // Empty dependency array -> Run only once on mount
+  }, [searchParams])
 
   // Manual update function to update URL without triggering re-renders loop
   const updateUrl = (newQuery: string, newId: string | null) => {

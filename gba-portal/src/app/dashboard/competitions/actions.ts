@@ -1,0 +1,67 @@
+'use server'
+
+import { createClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
+
+export type Competition = {
+  id: string
+  category: string
+  team_home: string
+  team_away: string
+  score_home: number
+  score_away: number
+  match_date: string
+  created_at: string
+}
+
+export async function getCompetitions() {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('competitions')
+    .select('*')
+    .order('match_date', { ascending: false })
+  
+  if (error) {
+    console.error('Error fetching competitions:', error)
+    return []
+  }
+  return data as Competition[]
+}
+
+export async function createCompetition(formData: FormData) {
+  const supabase = await createClient()
+  
+  const category = formData.get('category') as string
+  const team_home = formData.get('team_home') as string
+  const team_away = formData.get('team_away') as string
+  const match_date = formData.get('match_date') as string
+  const score_home = parseInt(formData.get('score_home') as string || '0')
+  const score_away = parseInt(formData.get('score_away') as string || '0')
+
+  const { error } = await supabase.from('competitions').insert({
+    category,
+    team_home,
+    team_away,
+    score_home,
+    score_away,
+    match_date
+  })
+
+  if (error) {
+    console.error('Error creating competition:', error)
+    throw new Error('Failed to create competition')
+  }
+
+  revalidatePath('/dashboard/competitions')
+}
+
+export async function deleteCompetition(id: string) {
+    const supabase = await createClient()
+    const { error } = await supabase.from('competitions').delete().eq('id', id)
+    
+    if (error) {
+        console.error('Error deleting competition:', error)
+        throw new Error('Failed to delete competition')
+    }
+    revalidatePath('/dashboard/competitions')
+}

@@ -6,7 +6,7 @@ import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 
 import type { DashboardRole } from '@/lib/dashboardRole'
-import { getVisibleNavItems } from '@/lib/dashboard/nav'
+import { flattenVisibleNavItems } from '@/lib/dashboard/nav'
 
 type Props = {
   role: DashboardRole
@@ -30,7 +30,7 @@ export function DashboardSpotlight({ role, isOpen, onClose }: Props) {
 
   const results = React.useMemo(() => {
     const q = query.trim().toLowerCase()
-    const base = getVisibleNavItems(role)
+    const base = flattenVisibleNavItems(role)
 
     if (!q) return base
 

@@ -47,7 +47,12 @@ export function ConvocationsView({ teams }: { teams: Team[] }) {
           setPlayers([])
           return
         }
-        setPlayers((data ?? []).map((p: any) => ({ ...p, id: String(p.id) })))
+        setPlayers(
+          ((data ?? []) as Array<{ id: string; firstname: string; lastname: string }>).map((p) => ({
+            ...p,
+            id: String(p.id),
+          }))
+        )
         setSelected(new Set())
       } finally {
         if (!cancelled) setLoading(false)

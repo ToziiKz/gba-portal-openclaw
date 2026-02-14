@@ -1,31 +1,12 @@
-import { createClient } from '@/lib/supabase/server'
 import { PlayersView, type PlayerWithTeam } from '@/components/dashboard/players/PlayersView'
-import { getDashboardScope } from '@/lib/dashboard/getDashboardScope'
+import { getScopedRosterData } from '@/lib/dashboard/server-data'
 
 export const metadata = {
   title: 'Joueurs · GBA Dashboard',
 }
 
 export default async function PlayersPage() {
-  const supabase = await createClient()
-
-  const scope = await getDashboardScope()
-
-  let playersQuery = supabase.from('players').select('*').order('lastname')
-  let teamsQuery = supabase.from('teams').select('id, name').order('name')
-
-  if (scope.role !== 'admin' && scope.role !== 'staff') {
-    if (scope.viewableTeamIds && scope.viewableTeamIds.length > 0) {
-      playersQuery = playersQuery.in('team_id', scope.viewableTeamIds)
-      teamsQuery = teamsQuery.in('id', scope.viewableTeamIds)
-    } else {
-      playersQuery = playersQuery.eq('team_id', '__none__')
-      teamsQuery = teamsQuery.eq('id', '__none__')
-    }
-  }
-
-  const { data: players } = await playersQuery
-  const { data: teams } = await teamsQuery
+  const { scope, players, teams } = await getScopedRosterData()
 
   return (
     <div className="grid gap-6">
@@ -39,9 +20,9 @@ export default async function PlayersPage() {
         </p>
       </div>
 
-      <PlayersView 
-        initialPlayers={(players ?? []) as unknown as PlayerWithTeam[]} 
-        teams={teams ?? []}
+      <PlayersView
+        initialPlayers={(players ?? []) as unknown as PlayerWithTeam[]}
+        teams={(teams ?? []).map((t) => ({ id: t.id, name: t.name }))}
       />
     </div>
   )

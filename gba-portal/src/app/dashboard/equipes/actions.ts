@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
+import { requireRole } from '@/lib/dashboard/authz'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -11,7 +11,7 @@ const schema = z.object({
 })
 
 export async function createTeam(prevState: unknown, formData: FormData) {
-  const supabase = await createClient()
+  const { supabase, role } = await requireRole('viewer')
 
   const data = {
     name: formData.get('name'),
@@ -24,16 +24,7 @@ export async function createTeam(prevState: unknown, formData: FormData) {
   if (!parsed.success) {
     return { message: 'Données invalides' }
   }
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) return { message: 'Non authentifié' }
-
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-
-  if (profile?.role === 'admin') {
+  if (role === 'admin') {
     const { error } = await supabase.from('teams').insert([parsed.data])
     if (error) return { message: 'Erreur lors de la création' }
     revalidatePath('/dashboard/equipes')

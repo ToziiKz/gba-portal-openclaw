@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
-import { createClient } from '@/lib/supabase/server'
-import { getDashboardScope } from '@/lib/dashboard/getDashboardScope'
+import { getDashboardHomeData } from '@/lib/dashboard/server-data'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 
@@ -18,77 +17,12 @@ export const metadata: Metadata = {
   },
 }
 
-type SessionRow = {
-  id: string
-  day: string | null
-  start_time: string | null
-  end_time: string | null
-  location: string | null
-  team: { id: string; name: string } | null
-}
-
-type SessionQueryRow = {
-  id: string
-  day: string | null
-  start_time: string | null
-  end_time: string | null
-  location: string | null
-  team: { id: string; name: string } | { id: string; name: string }[] | null
-}
-
 const weekdayOrder = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
-  const scope = await getDashboardScope()
+  const { scope, teamCount, playerCount, sessionsCount, sessions } = await getDashboardHomeData()
 
-  let teamsCountQuery = supabase.from('teams').select('*', { count: 'exact', head: true })
-  let playersCountQuery = supabase.from('players').select('*', { count: 'exact', head: true })
-  let sessionsCountQuery = supabase.from('planning_sessions').select('*', { count: 'exact', head: true })
-
-  let sessionsQuery = supabase
-    .from('planning_sessions')
-    .select(
-      `
-      id,
-      day,
-      start_time,
-      end_time,
-      location,
-      team:team_id (
-        id,
-        name
-      )
-    `
-    )
-
-  if (scope.role === 'coach') {
-    if (scope.viewableTeamIds && scope.viewableTeamIds.length > 0) {
-      teamsCountQuery = teamsCountQuery.in('id', scope.viewableTeamIds)
-      playersCountQuery = playersCountQuery.in('team_id', scope.viewableTeamIds)
-      sessionsCountQuery = sessionsCountQuery.in('team_id', scope.viewableTeamIds)
-      sessionsQuery = sessionsQuery.in('team_id', scope.viewableTeamIds)
-    } else {
-      teamsCountQuery = teamsCountQuery.eq('id', '__none__')
-      playersCountQuery = playersCountQuery.eq('team_id', '__none__')
-      sessionsCountQuery = sessionsCountQuery.eq('team_id', '__none__')
-      sessionsQuery = sessionsQuery.eq('team_id', '__none__')
-    }
-  }
-
-  const [{ count: teamCount }, { count: playerCount }, { count: sessionsCount }, { data: sessions }] =
-    await Promise.all([teamsCountQuery, playersCountQuery, sessionsCountQuery, sessionsQuery])
-
-  const normalizedSessions: SessionRow[] = ((sessions ?? []) as SessionQueryRow[]).map((row) => ({
-    id: String(row.id),
-    day: row.day ?? null,
-    start_time: row.start_time ?? null,
-    end_time: row.end_time ?? null,
-    location: row.location ?? null,
-    team: Array.isArray(row.team) ? (row.team[0] ?? null) : row.team,
-  }))
-
-  const orderedSessions = normalizedSessions.slice().sort((a, b) => {
+  const orderedSessions = sessions.slice().sort((a, b) => {
       const ai = weekdayOrder.indexOf(a.day ?? '')
       const bi = weekdayOrder.indexOf(b.day ?? '')
       if (ai !== bi) return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)

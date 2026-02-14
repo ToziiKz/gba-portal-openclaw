@@ -1,23 +1,10 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
-
-async function requireAdmin() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
-
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') throw new Error('Not authorized')
-
-  return supabase
-}
+import { requireRole } from '@/lib/dashboard/authz'
 
 export async function approveRequest(formData: FormData): Promise<void> {
-  const supabase = await requireAdmin()
+  const { supabase } = await requireRole('admin')
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) throw new Error('ID manquant')
 
@@ -103,7 +90,7 @@ export async function approveRequest(formData: FormData): Promise<void> {
 }
 
 export async function rejectRequest(formData: FormData): Promise<void> {
-  const supabase = await requireAdmin()
+  const { supabase } = await requireRole('admin')
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) throw new Error('ID manquant')
 

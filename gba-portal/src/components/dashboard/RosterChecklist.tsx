@@ -21,6 +21,15 @@ type LocalAttendance = {
   note: string
 }
 
+type PlayerRow = { id: string; firstname: string | null; lastname: string | null; category: string | null }
+type TeamSessionRow = { id: string }
+type AttendanceHistoryRow = {
+  session_id: string
+  player_id: string
+  status: AttendanceStatus
+  updated_at: string | null
+}
+
 const statusOptions: { value: AttendanceStatus; label: string; color: string }[] = [
   {
     value: 'present',
@@ -104,11 +113,11 @@ export function RosterChecklist({
           })
         }
 
-        const data: LocalAttendance[] = (players ?? []).map((p: any) => {
+        const data: LocalAttendance[] = ((players ?? []) as PlayerRow[]).map((p) => {
           const existing = attendanceMap.get(p.id)
           return {
             playerId: p.id,
-            name: `${p.firstname} ${p.lastname}`,
+            name: `${p.firstname ?? ''} ${p.lastname ?? ''}`.trim(),
             status: existing?.status ?? 'present',
             note: existing?.note ?? '',
           }
@@ -119,14 +128,14 @@ export function RosterChecklist({
         // 3. Compute simple per-player attendance stats over last N sessions for this team
         // We infer "last sessions" from attendance.updated_at since planning_sessions has no date.
         const N = 6
-        const playerIds = (players ?? []).map((p: any) => p.id)
+        const playerIds = ((players ?? []) as PlayerRow[]).map((p) => p.id)
 
         const { data: teamSessions } = await supabase
           .from('planning_sessions')
           .select('id')
           .eq('team_id', teamId)
 
-        const sessionIds = (teamSessions ?? []).map((s: any) => s.id)
+        const sessionIds = ((teamSessions ?? []) as TeamSessionRow[]).map((s) => s.id)
         if (sessionIds.length === 0 || playerIds.length === 0) {
           setPlayerStats({})
           setStatsMeta({ sessionsUsed: 0 })
@@ -147,9 +156,9 @@ export function RosterChecklist({
         }
 
         const latestBySession = new Map<string, number>()
-        for (const r of histAttendance ?? []) {
-          const sid = String((r as any).session_id)
-          const ts = Date.parse((r as any).updated_at ?? '')
+        for (const r of (histAttendance ?? []) as AttendanceHistoryRow[]) {
+          const sid = String(r.session_id)
+          const ts = Date.parse(r.updated_at ?? '')
           if (!Number.isFinite(ts)) continue
           const prev = latestBySession.get(sid) ?? 0
           if (ts > prev) latestBySession.set(sid, ts)
@@ -165,12 +174,12 @@ export function RosterChecklist({
           let total = 0
           let presentLike = 0
 
-          for (const r of histAttendance ?? []) {
-            if (String((r as any).player_id) !== String(pid)) continue
-            if (!lastSessionIds.includes(String((r as any).session_id))) continue
+          for (const r of (histAttendance ?? []) as AttendanceHistoryRow[]) {
+            if (String(r.player_id) !== String(pid)) continue
+            if (!lastSessionIds.includes(String(r.session_id))) continue
 
             total += 1
-            const st = (r as any).status as AttendanceStatus
+            const st = r.status
             if (st === 'present' || st === 'late') presentLike += 1
           }
 

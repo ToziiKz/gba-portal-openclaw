@@ -25,7 +25,7 @@ export default async function ConvocationsPage() {
         </p>
       </div>
 
-      <ConvocationsView teams={(teams ?? []) as any[]} />
+      <ConvocationsView teams={(teams ?? []) as Array<{ id: string; name: string; category: string }>} />
     </div>
   )
 }

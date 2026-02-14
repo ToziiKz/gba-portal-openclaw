@@ -17,7 +17,7 @@ import {
 import { Card, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { toPng } from 'html-to-image'
-import { createClient } from '@/lib/supabase/client'
+import { fetchPlayersByTeam, fetchVisibleTacticalTeams } from '@/lib/dashboard/tactical-data'
 import { Loader2 } from 'lucide-react'
 
 type Player = {
@@ -550,62 +550,15 @@ export default function TactiquePage() {
   // Load teams (coach: only assigned teams, optionally same pole)
   React.useEffect(() => {
     async function loadTeams() {
-      const supabase = createClient()
       setIsLoading(true)
+      const result = await fetchVisibleTacticalTeams(includePoleTeams)
+      const visibleTeams = result.teams as Team[]
 
-      const { data: authData } = await supabase.auth.getUser()
-      const userId = authData.user?.id
-
-      if (!userId) {
-        const { data } = await supabase.from('teams').select('id, name, category, pole').order('name')
-        const safeTeams = (data ?? []) as Team[]
-        setIsCoach(false)
-        setTeams(safeTeams)
-        setSelectedTeamId((prev) => (safeTeams.some((t) => t.id === prev) ? prev : (safeTeams[0]?.id ?? '')))
-        setIsLoading(false)
-        return
-      }
-
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).single()
-      const role = String(profile?.role ?? '').trim().toLowerCase()
-
-      if (role === 'coach') {
-        setIsCoach(true)
-
-        const { data: ownTeamsData } = await supabase
-          .from('teams')
-          .select('id, name, category, pole')
-          .eq('coach_id', userId)
-          .order('name')
-
-        const ownTeams = (ownTeamsData ?? []) as Team[]
-        let visibleTeams = ownTeams
-
-        if (includePoleTeams) {
-          const poles = Array.from(new Set(ownTeams.map((t) => t.pole).filter(Boolean))) as string[]
-          if (poles.length > 0) {
-            const { data: poleTeamsData } = await supabase
-              .from('teams')
-              .select('id, name, category, pole')
-              .in('pole', poles)
-              .order('name')
-            const merged = [...ownTeams, ...((poleTeamsData ?? []) as Team[])]
-            const byId = new Map(merged.map((t) => [t.id, t]))
-            visibleTeams = Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name))
-          }
-        }
-
-        setTeams(visibleTeams)
-        setSelectedTeamId((prev) => (visibleTeams.some((t) => t.id === prev) ? prev : (visibleTeams[0]?.id ?? '')))
-        setIsLoading(false)
-        return
-      }
-
-      setIsCoach(false)
-      const { data } = await supabase.from('teams').select('id, name, category, pole').order('name')
-      const safeTeams = (data ?? []) as Team[]
-      setTeams(safeTeams)
-      setSelectedTeamId((prev) => (safeTeams.some((t) => t.id === prev) ? prev : (safeTeams[0]?.id ?? '')))
+      setIsCoach(result.isCoach)
+      setTeams(visibleTeams)
+      setSelectedTeamId((prev) =>
+        visibleTeams.some((t) => t.id === prev) ? prev : (visibleTeams[0]?.id ?? '')
+      )
       setIsLoading(false)
     }
     loadTeams()
@@ -616,19 +569,7 @@ export default function TactiquePage() {
     if (!selectedTeamId) return
 
     async function loadPlayers() {
-      const supabase = createClient()
-      const { data } = await supabase
-        .from('players')
-        .select('id, firstname, lastname, category')
-        .eq('team_id', selectedTeamId)
-        .order('lastname')
-
-      const formatted: Player[] = (data ?? []).map((p: { id: string; firstname: string | null; lastname: string | null; category: string | null }) => ({
-        id: String(p.id),
-        name: `${p.firstname ?? ''} ${(p.lastname ?? '').slice(0, 1)}.`.trim(),
-        category: p.category ?? '',
-      }))
-
+      const formatted = await fetchPlayersByTeam(selectedTeamId)
       setPlayers(formatted)
       // reset compo on team change
       setSlots(makeSlots(format, defaultFormationFor(format)))

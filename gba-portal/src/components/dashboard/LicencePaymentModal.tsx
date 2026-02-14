@@ -3,8 +3,11 @@
 import * as React from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
-import type { LicenceRow, PaymentMethod } from '@/lib/mocks/dashboardLicences'
-import { paymentMethods } from '@/lib/mocks/dashboardLicences'
+import type { LicenceRow } from '@/app/dashboard/licences/actions'
+
+type PaymentMethod = 'CB' | 'Espèces' | 'Chèque' | 'Virement' | 'Autre'
+
+const paymentMethods: PaymentMethod[] = ['CB', 'Espèces', 'Chèque', 'Virement', 'Autre']
 
 interface LicencePaymentModalProps {
   isOpen: boolean
@@ -47,7 +50,9 @@ export function LicencePaymentModal({
   React.useEffect(() => {
     if (isOpen && row) {
       setAmountEur(remainingEur)
-      setMethod(row.lastPaymentMethod ?? 'CB')
+      const raw = row.lastPaymentMethod
+      const next = paymentMethods.includes(raw as PaymentMethod) ? (raw as PaymentMethod) : 'CB'
+      setMethod(next)
       setNote('')
       setSendReceipt(true)
       setCopied(false)

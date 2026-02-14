@@ -1,38 +1,12 @@
-import { createClient } from '@/lib/supabase/server'
 import { PlanningView, type Session, type TeamOption } from '@/components/dashboard/planning/PlanningView'
+import { getScopedPlanningData } from '@/lib/dashboard/server-data'
 
 export const metadata = {
   title: 'Planning · GBA Dashboard',
 }
 
 export default async function PlanningPage() {
-  const supabase = await createClient()
-
-  // Planning is a club-wide reference: everyone can see all sessions.
-  const { data: sessions } = await supabase
-    .from('planning_sessions')
-    .select(
-      `
-      id,
-      day,
-      pole,
-      start_time,
-      end_time,
-      location,
-      staff,
-      note,
-      team:team_id (
-        id,
-        name,
-        category
-      )
-    `
-    )
-
-  const { data: teams } = await supabase
-    .from('teams')
-    .select('id, name, category, pole')
-    .order('category')
+  const { scope, sessions, teams } = await getScopedPlanningData()
 
   return (
     <div className="grid gap-6">
@@ -42,7 +16,9 @@ export default async function PlanningPage() {
           Planning
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-white/70">
-          Planning réel (Supabase) : création/suppression + vue semaine.
+          {scope.role === 'coach'
+            ? 'Planning de vos équipes : créneaux, lieux et staff assigné.'
+            : 'Planning club : création/suppression + vue semaine.'}
         </p>
       </div>
 

@@ -46,6 +46,63 @@ export default function Home() {
     <div className="min-h-screen bg-black text-white">
       <HeroShowcase />
 
+      <section id="proof" className="px-6 py-16 border-t border-white/5" aria-labelledby="proof-title">
+        <div className="mx-auto max-w-6xl">
+          <div className="flex flex-col gap-4 text-center md:text-left md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-white/50">Preuves</p>
+              <h2 id="proof-title" className="mt-3 font-[family-name:var(--font-teko)] text-4xl font-bold uppercase tracking-wide">
+                Un club structuré, visible, actif
+              </h2>
+            </div>
+            <Link href="/contact" className="px-6 py-2 border border-white/20 rounded-full text-sm font-bold hover:bg-white hover:text-black transition-all">
+              Nous contacter
+            </Link>
+          </div>
+
+          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {KEY_STATS.map((s) => (
+              <article key={s.label} className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 text-center">
+                <p className="text-4xl md:text-5xl font-black font-[family-name:var(--font-teko)]">{s.value}</p>
+                <p className="mt-2 text-xs font-bold uppercase tracking-widest text-white/45">{s.label}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {[
+              {
+                title: 'Parents & joueurs',
+                text: 'Découvrir les équipes, la méthode et le cadre de progression.',
+                href: '/about',
+                cta: 'Découvrir le club',
+              },
+              {
+                title: 'Partenaires',
+                text: 'Associer votre image à un projet sportif local et durable.',
+                href: '/sponsors',
+                cta: 'Voir les partenaires',
+              },
+              {
+                title: 'Supporters',
+                text: 'Porter les couleurs du club au quotidien.',
+                href: '/shop',
+                cta: 'Aller à la boutique',
+              },
+            ].map((item) => (
+              <article key={item.title} className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+                <h3 className="text-xl font-bold font-[family-name:var(--font-teko)] tracking-wide">{item.title}</h3>
+                <p className="mt-2 text-sm text-white/60">{item.text}</p>
+                <Link href={item.href} className="mt-4 inline-block text-sm font-bold underline decoration-white/25 hover:decoration-white/70">
+                  {item.cta}
+                </Link>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
       <section id="manifesto" className="px-6 py-24" aria-labelledby="manifesto-title">
         <div className="mx-auto max-w-6xl text-center">
           <h2
@@ -64,19 +121,6 @@ export default function Home() {
                   {item.title}
                 </p>
                 <p className="text-base text-white/70 leading-relaxed">{item.text}</p>
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-20 pt-12 border-t border-white/5 grid grid-cols-3 gap-8">
-            {KEY_STATS.map((s) => (
-              <article key={s.label} className="text-center">
-                <p className="text-4xl md:text-5xl font-black font-[family-name:var(--font-teko)]">
-                  {s.value}
-                </p>
-                <p className="text-xs font-bold uppercase tracking-widest text-white/40 mt-2">
-                  {s.label}
-                </p>
               </article>
             ))}
           </div>

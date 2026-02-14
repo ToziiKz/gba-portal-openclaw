@@ -1,7 +1,6 @@
 import Link from 'next/link'
 
-import { createClient } from '@/lib/supabase/server'
-import { getDashboardScope } from '@/lib/dashboard/getDashboardScope'
+import { getScopedRosterData } from '@/lib/dashboard/server-data'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 
@@ -35,25 +34,9 @@ export default async function EffectifPage({
   const params = (await searchParams) ?? {}
   const group = params.group === 'pole' ? 'pole' : 'team'
 
-  const supabase = await createClient()
-  const scope = await getDashboardScope()
+  const { teams, players } = await getScopedRosterData()
 
-  let teamsQuery = supabase.from('teams').select('id, name, category, pole').order('name')
-  let playersQuery = supabase.from('players').select('id, firstname, lastname, team_id').order('lastname')
-
-  if (scope.role === 'coach') {
-    if (scope.viewableTeamIds && scope.viewableTeamIds.length > 0) {
-      teamsQuery = teamsQuery.in('id', scope.viewableTeamIds)
-      playersQuery = playersQuery.in('team_id', scope.viewableTeamIds)
-    } else {
-      teamsQuery = teamsQuery.eq('id', '__none__')
-      playersQuery = playersQuery.eq('team_id', '__none__')
-    }
-  }
-
-  const [{ data: teams }, { data: players }] = await Promise.all([teamsQuery, playersQuery])
-
-  const teamList = ((teams ?? []) as TeamRow[]).map((t) => ({
+  const teamList = (teams as TeamRow[]).map((t) => ({
     ...t,
     name: t.name ?? 'Équipe sans nom',
     category: t.category ?? '—',
@@ -61,7 +44,7 @@ export default async function EffectifPage({
   }))
 
   const playersByTeam = new Map<string, PlayerRow[]>()
-  for (const p of (players ?? []) as PlayerRow[]) {
+  for (const p of players as PlayerRow[]) {
     if (!p.team_id) continue
     const arr = playersByTeam.get(p.team_id) ?? []
     arr.push(p)
