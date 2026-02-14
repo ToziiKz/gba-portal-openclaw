@@ -91,7 +91,12 @@ export default function Home() {
           </h2>
           <p className="mt-6 max-w-2xl mx-auto text-lg text-white/60 leading-relaxed">
             Du premier ballon touché aux matchs décisifs, nous accompagnons chaque talent. Une école
-            de la vie où grandir signifie apprendre, respecter et gagner ensemble.
+            de la vie où grandir signifie apprendre, respecter et gagner ensemble. Pour supporter le
+            club au quotidien, découvrez aussi la{' '}
+            <Link href="/shop" className="underline decoration-white/30 hover:decoration-white/70">
+              boutique officielle du GBA
+            </Link>
+            .
           </p>
           <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
@@ -129,7 +134,7 @@ export default function Home() {
               href="/shop"
               className="px-6 py-2 border border-white/20 rounded-full text-sm font-bold hover:bg-white hover:text-black transition-all"
             >
-              Voir toute la boutique
+              Voir toute la boutique GBA
             </Link>
           </div>
           <div className="grid gap-6 md:grid-cols-3">
@@ -154,13 +159,20 @@ export default function Home() {
               >
                 Nos Partenaires
               </h2>
-              <p className="mt-2 text-white/50">Ils croient en nous, nous gagnons avec eux.</p>
+              <p className="mt-2 text-white/50">
+                Ils croient en nous, nous gagnons avec eux. Vous aussi, vous pouvez soutenir le club
+                via la{' '}
+                <Link href="/shop" className="underline decoration-white/20 hover:decoration-white/60">
+                  boutique officielle
+                </Link>
+                .
+              </p>
             </div>
             <Link
               href="/sponsors"
               className="px-6 py-2 border border-white/20 rounded-full text-sm font-bold hover:bg-white hover:text-black transition-all"
             >
-              Devenir Partenaire
+              Découvrir tous nos partenaires
             </Link>
           </div>
 

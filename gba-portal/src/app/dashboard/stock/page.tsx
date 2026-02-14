@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/Button'
 import { Pill } from '@/components/ui/Pill'
 import { StockMovementModal } from '@/components/dashboard/StockMovementModal'
+import { usePermissions } from '@/components/PermissionsProvider'
+import { createApprovalRequest } from '@/lib/approvals'
 
 import {
   dashboardStockMock,
@@ -96,6 +98,8 @@ function lowLabel(isLow: boolean) {
 }
 
 export default function DashboardStockPage() {
+  const { role } = usePermissions()
+  const isAdmin = role === 'admin'
   const [isLoading, setIsLoading] = React.useState(true)
 
   // Filters
@@ -205,6 +209,7 @@ export default function DashboardStockPage() {
     type,
     amount,
     reason,
+    note,
   }: {
     type: 'entry' | 'exit'
     amount: number
@@ -213,12 +218,25 @@ export default function DashboardStockPage() {
   }) => {
     if (!selectedItem) return
 
-    if (type === 'entry') {
-      dispatch({ type: 'inc', id: selectedItem.id, amount })
-      setToast(`+${amount} (${reason})`)
+    const delta = type === 'entry' ? amount : -amount
+
+    if (isAdmin) {
+      // Admin: Apply directly
+      dispatch({ type: type === 'entry' ? 'inc' : 'dec', id: selectedItem.id, amount })
+      setToast(`Validé (${reason})`)
     } else {
-      dispatch({ type: 'dec', id: selectedItem.id, amount })
-      setToast(`-${amount} (${reason})`)
+      // Non-admin: Send for approval
+      createApprovalRequest({
+        authorRole: role,
+        action: 'stock.movement',
+        payload: {
+          itemId: selectedItem.id,
+          itemName: selectedItem.label,
+          delta,
+          reason: note ? `${reason} (${note})` : reason,
+        },
+      })
+      setToast('Demande envoyée pour validation')
     }
   }
 
@@ -393,7 +411,53 @@ export default function DashboardStockPage() {
               >
                 Réinitialiser
               </Button>
-              <Button size="sm" variant="ghost" disabled>
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={isLoading || rows.length === 0}
+                onClick={() => {
+                  const headers = ['label', 'sku', 'qty', 'minQty', 'pole', 'location', 'kind', 'updatedAt']
+
+                  const escape = (val: unknown) => {
+                    const s = String(val ?? '')
+                    // RFC4180-ish: wrap in quotes when needed, escape quotes.
+                    const needsQuotes = /[",\n\r;]/.test(s)
+                    const cleaned = s.replaceAll('"', '""')
+                    return needsQuotes ? `"${cleaned}"` : cleaned
+                  }
+
+                  const lines = [headers.join(';')]
+                  for (const r of rows) {
+                    lines.push(
+                      [
+                        r.label,
+                        r.sku ?? '',
+                        r.qty,
+                        r.minQty,
+                        r.pole,
+                        r.location,
+                        r.kind,
+                        r.updatedAtLabel,
+                      ]
+                        .map(escape)
+                        .join(';')
+                    )
+                  }
+
+                  const csv = `${lines.join('\n')}\n`
+                  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement('a')
+                  const date = new Date().toISOString().slice(0, 10)
+                  a.href = url
+                  a.download = `gba-stock-${date}.csv`
+                  document.body.appendChild(a)
+                  a.click()
+                  a.remove()
+                  window.setTimeout(() => URL.revokeObjectURL(url), 500)
+                  setToast('Export CSV téléchargé')
+                }}
+              >
                 Export CSV
               </Button>
             </div>

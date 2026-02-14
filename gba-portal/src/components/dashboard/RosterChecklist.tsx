@@ -2,12 +2,14 @@
 
 import * as React from 'react'
 import { Button } from '@/components/ui/Button'
-import { dashboardPlayersMock } from '@/lib/mocks/dashboardPlayers'
-import { attendanceSessionsMock, type AttendanceStatus } from '@/lib/mocks/dashboardAttendance'
+import { createClient } from '@/lib/supabase/client'
+
+export type AttendanceStatus = 'present' | 'late' | 'absent' | 'excused'
 
 type RosterChecklistProps = {
-  planningSessionId: string
-  team: string
+  sessionId: string
+  teamId: string
+  teamLabel: string
   onBack: () => void
   onClose: () => void
 }
@@ -35,48 +37,162 @@ const statusOptions: { value: AttendanceStatus; label: string; color: string }[]
 ]
 
 export function RosterChecklist({
-  planningSessionId,
-  team,
+  sessionId,
+  teamId,
+  teamLabel,
   onBack,
   onClose,
 }: RosterChecklistProps) {
   const [rows, setRows] = React.useState<LocalAttendance[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [isSaving, setIsSaving] = React.useState(false)
+  const [playerStats, setPlayerStats] = React.useState<Record<string, { pct: number; presentLike: number; total: number }>>({})
+  const [statsMeta, setStatsMeta] = React.useState<{ sessionsUsed: number } | null>(null)
 
   React.useEffect(() => {
-    // Simulate fetch
-    const t = window.setTimeout(() => {
-      const existing = attendanceSessionsMock.find((a) => a.planningSessionId === planningSessionId)
+    let cancelled = false
 
-      let data: LocalAttendance[] = []
+    async function load() {
+      setIsLoading(true)
+      const supabase = createClient()
 
-      if (existing) {
-        data = existing.rows.map((r) => ({
-          playerId: r.playerId,
-          name: r.playerName,
-          status: r.status,
-          note: r.note || '',
-        }))
-      } else {
-        // Build from players mock
-        const teamPlayers = dashboardPlayersMock.filter((p) => p.team === team)
-        // Fallback if no players found for that exact team string
-        const pool = teamPlayers.length > 0 ? teamPlayers : dashboardPlayersMock.slice(0, 10)
+      try {
+        // 1. Get team details to find its category
+        const { data: teamData, error: teamError } = await supabase
+          .from('teams')
+          .select('category')
+          .eq('id', teamId)
+          .single()
 
-        data = pool.map((p) => ({
-          playerId: p.id,
-          name: `${p.firstName} ${p.lastName}`,
-          status: 'present',
-          note: '',
-        }))
+        if (teamError || !teamData) {
+          console.error('Team fetch error:', teamError)
+          setIsLoading(false)
+          return
+        }
+
+        // 2. Fetch players matching that category (fuzzy match)
+        const [playersResult, attendanceResult] =
+          await Promise.all([
+            supabase
+              .from('players')
+              .select('id, firstname, lastname, category')
+              .ilike('category', `${teamData.category}%`)
+              .order('lastname'),
+            supabase
+              .from('attendance')
+              .select('player_id, status, note')
+              .eq('session_id', sessionId),
+          ])
+
+        if (cancelled) return
+
+        const { data: players, error: playersError } = playersResult
+        const { data: attendance, error: attError } = attendanceResult
+
+        if (playersError || attError) {
+          console.error('Data fetch error:', playersError, attError)
+          setRows([])
+          setIsLoading(false)
+          return
+        }
+
+        const attendanceMap = new Map<string, { status: AttendanceStatus; note: string }>()
+        for (const row of attendance ?? []) {
+          attendanceMap.set(row.player_id, {
+            status: row.status as AttendanceStatus,
+            note: row.note ?? '',
+          })
+        }
+
+        const data: LocalAttendance[] = (players ?? []).map((p: any) => {
+          const existing = attendanceMap.get(p.id)
+          return {
+            playerId: p.id,
+            name: `${p.firstname} ${p.lastname}`,
+            status: existing?.status ?? 'present',
+            note: existing?.note ?? '',
+          }
+        })
+
+        setRows(data)
+
+        // 3. Compute simple per-player attendance stats over last N sessions for this team
+        // We infer "last sessions" from attendance.updated_at since planning_sessions has no date.
+        const N = 6
+        const playerIds = (players ?? []).map((p: any) => p.id)
+
+        const { data: teamSessions } = await supabase
+          .from('planning_sessions')
+          .select('id')
+          .eq('team_id', teamId)
+
+        const sessionIds = (teamSessions ?? []).map((s: any) => s.id)
+        if (sessionIds.length === 0 || playerIds.length === 0) {
+          setPlayerStats({})
+          setStatsMeta({ sessionsUsed: 0 })
+          return
+        }
+
+        const { data: histAttendance, error: histErr } = await supabase
+          .from('attendance')
+          .select('session_id, player_id, status, updated_at')
+          .in('session_id', sessionIds)
+          .in('player_id', playerIds)
+
+        if (histErr) {
+          console.error('History attendance fetch error:', histErr)
+          setPlayerStats({})
+          setStatsMeta({ sessionsUsed: 0 })
+          return
+        }
+
+        const latestBySession = new Map<string, number>()
+        for (const r of histAttendance ?? []) {
+          const sid = String((r as any).session_id)
+          const ts = Date.parse((r as any).updated_at ?? '')
+          if (!Number.isFinite(ts)) continue
+          const prev = latestBySession.get(sid) ?? 0
+          if (ts > prev) latestBySession.set(sid, ts)
+        }
+
+        const lastSessionIds = Array.from(latestBySession.entries())
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, N)
+          .map(([sid]) => sid)
+
+        const stats: Record<string, { pct: number; presentLike: number; total: number }> = {}
+        for (const pid of playerIds) {
+          let total = 0
+          let presentLike = 0
+
+          for (const r of histAttendance ?? []) {
+            if (String((r as any).player_id) !== String(pid)) continue
+            if (!lastSessionIds.includes(String((r as any).session_id))) continue
+
+            total += 1
+            const st = (r as any).status as AttendanceStatus
+            if (st === 'present' || st === 'late') presentLike += 1
+          }
+
+          const pct = total > 0 ? Math.round((presentLike / total) * 100) : 0
+          stats[String(pid)] = { pct, presentLike, total }
+        }
+
+        setStatsMeta({ sessionsUsed: lastSessionIds.length })
+        setPlayerStats(stats)
+      } catch (err) {
+        console.error('Unexpected error in load:', err)
+      } finally {
+        if (!cancelled) setIsLoading(false)
       }
-      setRows(data)
-      setIsLoading(false)
-    }, 400)
+    }
 
-    return () => window.clearTimeout(t)
-  }, [planningSessionId, team])
+    load()
+
+    return () => {
+      cancelled = true
+    }
+  }, [sessionId, teamId])
 
   const handleStatusChange = (playerId: string, newStatus: AttendanceStatus) => {
     setRows((prev) =>
@@ -84,14 +200,32 @@ export function RosterChecklist({
     )
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true)
-    setTimeout(() => {
-      // Mock save logic
-      console.log('Saved roster for', planningSessionId, rows)
-      setIsSaving(false)
+    try {
+      const supabase = createClient()
+      const payload = rows.map((r) => ({
+        session_id: sessionId,
+        player_id: r.playerId,
+        status: r.status,
+        note: r.note || null,
+        updated_at: new Date().toISOString(),
+      }))
+
+      const { error } = await supabase
+        .from('attendance')
+        .upsert(payload, { onConflict: 'session_id,player_id' })
+
+      if (error) {
+        // keep modal open
+        setIsSaving(false)
+        return
+      }
+
       onClose()
-    }, 600)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   if (isLoading) {
@@ -114,15 +248,43 @@ export function RosterChecklist({
     absent: rows.filter((r) => r.status === 'absent').length,
   }
 
+  const total = rows.length
+  const attendancePct = total > 0 ? Math.round(((counts.present + counts.late) / total) * 100) : 0
+
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-white">Feuille de présence</h3>
-        <div className="flex gap-2 text-[10px] uppercase tracking-wider font-bold">
-          <span className="text-green-400">{counts.present} P</span>
-          <span className="text-yellow-400">{counts.late} R</span>
-          <span className="text-blue-400">{counts.excused} E</span>
-          <span className="text-red-400">{counts.absent} A</span>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h3 className="text-lg font-bold text-white">Feuille de présence</h3>
+          <p className="mt-1 text-sm text-white/60">{teamLabel}</p>
+        </div>
+
+        <div className="flex flex-wrap gap-2 text-[10px] uppercase tracking-wider font-bold">
+          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-white/75">
+            Total {total}
+          </span>
+          <span className="text-green-400">{counts.present} Présents</span>
+          <span className="text-yellow-400">{counts.late} Retards</span>
+          <span className="text-blue-400">{counts.excused} Excusés</span>
+          <span className="text-red-400">{counts.absent} Absents</span>
+        </div>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/55">Taux présence</p>
+          <p className="mt-2 text-3xl font-black tracking-tight text-white">{attendancePct}%</p>
+          <p className="mt-1 text-xs text-white/45">Présent + retard / total</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/55">Absences</p>
+          <p className="mt-2 text-3xl font-black tracking-tight text-white">{counts.absent}</p>
+          <p className="mt-1 text-xs text-white/45">À relancer si besoin</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/55">Excusés</p>
+          <p className="mt-2 text-3xl font-black tracking-tight text-white">{counts.excused}</p>
+          <p className="mt-1 text-xs text-white/45">Info coach</p>
         </div>
       </div>
 
@@ -130,11 +292,25 @@ export function RosterChecklist({
         {rows.map((row) => (
           <div
             key={row.playerId}
-            className="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 p-3 transition hover:bg-white/10"
+            className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/5 p-3 transition hover:bg-white/10"
           >
-            <span className="text-sm font-medium text-white truncate max-w-[120px] sm:max-w-none">
-              {row.name}
-            </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-white truncate max-w-[180px] sm:max-w-none">
+                  {row.name}
+                </span>
+                {statsMeta?.sessionsUsed ? (
+                  <span className="shrink-0 rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/65">
+                    {playerStats[row.playerId]?.pct ?? 0}%
+                  </span>
+                ) : null}
+              </div>
+              {statsMeta?.sessionsUsed ? (
+                <p className="mt-1 text-[11px] text-white/45">
+                  Assiduité sur {statsMeta.sessionsUsed} séance(s)
+                </p>
+              ) : null}
+            </div>
 
             <div className="flex gap-1">
               {statusOptions.map((opt) => (

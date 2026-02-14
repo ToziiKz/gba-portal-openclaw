@@ -33,6 +33,14 @@ function defaultSelectedId() {
   return dashboardCategoriesMock[0]?.id ?? null
 }
 
+const STORAGE_KEY = 'gba.dashboard.categories.state.v1'
+
+type StoredState = {
+  query?: string
+  pole?: CategoryPole | 'all'
+  selectedId?: string | null
+}
+
 export default function DashboardCategoriesPage() {
   const [isLoading, setIsLoading] = React.useState(true)
   const [query, setQuery] = React.useState('')
@@ -40,6 +48,22 @@ export default function DashboardCategoriesPage() {
   const [selectedId, setSelectedId] = React.useState<string | null>(null)
 
   React.useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY)
+      if (raw) {
+        const parsed = JSON.parse(raw) as StoredState
+        if (typeof parsed.query === 'string') setQuery(parsed.query)
+        if (parsed.pole && (parsed.pole === 'all' || dashboardCategoryPoles.includes(parsed.pole))) {
+          setPole(parsed.pole)
+        }
+        if (typeof parsed.selectedId === 'string' || parsed.selectedId === null) {
+          setSelectedId(parsed.selectedId)
+        }
+      }
+    } catch {
+      // ignore localStorage / parsing errors
+    }
+
     const t = window.setTimeout(() => {
       setIsLoading(false)
       setSelectedId((prev) => prev ?? defaultSelectedId())
@@ -72,6 +96,18 @@ export default function DashboardCategoriesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory?.id])
 
+  React.useEffect(() => {
+    if (isLoading) return
+
+    const payload: StoredState = { query, pole, selectedId }
+
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+    } catch {
+      // ignore quota / privacy mode
+    }
+  }, [isLoading, pole, query, selectedId])
+
   const stats = React.useMemo(() => {
     return filtered.reduce(
       (acc, c) => {
@@ -93,8 +129,7 @@ export default function DashboardCategoriesPage() {
           Catégories
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-white/70">
-          Vue “staff” des catégories (U6→U18, seniors…) avec responsables, volumes (équipes/joueurs)
-          et notes. Données mock + state local uniquement.
+          Vue “staff” des catégories (U6→U18, seniors…) avec responsables, volumes (équipes/joueurs) et notes.
         </p>
       </div>
 
@@ -190,6 +225,22 @@ export default function DashboardCategoriesPage() {
                 }}
               >
                 Réinitialiser
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  try {
+                    window.localStorage.removeItem(STORAGE_KEY)
+                  } catch {
+                    // ignore
+                  }
+                  setQuery('')
+                  setPole('all')
+                  setSelectedId(defaultSelectedId())
+                }}
+              >
+                Oublier filtres
               </Button>
               <Button size="sm" variant="ghost" disabled>
                 Ajouter (bientôt)

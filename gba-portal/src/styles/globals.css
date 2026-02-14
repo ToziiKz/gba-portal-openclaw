@@ -7,6 +7,53 @@
     color-scheme: dark;
   }
 
+  /* Local scope helper (dashboard passes the class on its root container). */
+  .theme-light {
+    color-scheme: light;
+    background-color: var(--ui-bg);
+    color: var(--ui-fg);
+  }
+
+  /* Tailwind utility overrides to make legacy "dark" dashboard classes render correctly on white.
+     (We keep the public site dark; only the dashboard root gets `.theme-light`.) */
+  .theme-light .text-white {
+    color: var(--ui-fg) !important;
+  }
+
+  .theme-light .text-white\/85,
+  .theme-light .text-white\/80,
+  .theme-light .text-white\/70 {
+    color: var(--ui-muted) !important;
+  }
+
+  .theme-light .text-white\/60,
+  .theme-light .text-white\/55,
+  .theme-light .text-white\/45,
+  .theme-light .text-white\/35 {
+    color: var(--ui-muted-2) !important;
+  }
+
+  .theme-light .bg-white\/5 {
+    background-color: var(--ui-surface) !important;
+  }
+
+  .theme-light .bg-white\/10 {
+    background-color: var(--ui-surface-2) !important;
+  }
+
+  .theme-light .border-white\/10,
+  .theme-light .border-white\/15,
+  .theme-light .border-white\/20,
+  .theme-light .border-white\/25,
+  .theme-light .border-white\/30 {
+    border-color: var(--ui-border) !important;
+  }
+
+  .theme-light .bg-black\/20,
+  .theme-light .bg-black\/30 {
+    background-color: var(--ui-surface-2) !important;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
@@ -225,114 +272,74 @@
   .card-shell {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.06),
-      rgba(255, 255, 255, 0.025) 35%,
-      rgba(255, 255, 255, 0.008) 60%,
-      transparent 78%
-    );
-    box-shadow: 0 14px 44px rgba(0, 0, 0, 0.42);
-    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.08); /* More subtle border */
+    background: rgba(20, 20, 22, 0.6); /* Flat semi-transparent dark */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Softer shadow */
+    backdrop-filter: blur(8px);
+  }
+
+  /* Card shell variant for white dashboard */
+  .theme-light .card-shell {
+    border: 1px solid rgba(7, 10, 17, 0.08);
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(8px);
   }
 
   .card-shell::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    pointer-events: none;
-    opacity: 0.35;
-    background:
-      radial-gradient(circle at 18% 15%, rgba(0, 255, 255, 0.08), transparent 48%),
-      radial-gradient(circle at 82% 10%, rgba(0, 161, 255, 0.08), transparent 55%);
+    display: none; /* Remove internal gradient noise */
+  }
+
+  .theme-light .card-shell::before {
+    display: none;
   }
 
   .card-shell::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.18;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), transparent 58%);
-    mix-blend-mode: overlay;
+    display: none; /* Remove overlay */
+  }
+
+  .theme-light .card-shell::after {
+    display: none;
   }
 
   .premium-card {
     position: relative;
     transition:
-      transform 260ms ease,
-      border-color 260ms ease,
-      background-color 260ms ease,
-      box-shadow 260ms ease;
-    will-change: transform;
+      border-color 200ms ease,
+      box-shadow 200ms ease;
+    will-change: auto;
   }
 
+  /* Remove the sweeping light effect on hover */
   .premium-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    opacity: 0;
-    background: linear-gradient(
-      110deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.14) 45%,
-      rgba(255, 255, 255, 0.28) 50%,
-      rgba(255, 255, 255, 0.14) 55%,
-      transparent 100%
-    );
-    transform: translateX(-20%);
-    transition:
-      opacity 220ms ease,
-      transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+    display: none;
   }
 
   .premium-card::after {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 260ms ease;
-    background:
-      radial-gradient(circle at 20% 20%, rgba(0, 161, 255, 0.35), transparent 45%),
-      radial-gradient(circle at 80% 10%, rgba(0, 255, 255, 0.22), transparent 55%);
+    display: none;
   }
 
   @media (hover: hover) and (pointer: fine) {
     .premium-card:hover {
-      transform: translateY(-1px);
-      border-color: rgba(255, 255, 255, 0.16);
-      box-shadow: 0 18px 56px rgba(0, 0, 0, 0.48);
-    }
-
-    .premium-card:hover::before {
-      opacity: 0.55;
-      transform: translateX(12%);
-    }
-
-    .premium-card:hover::after {
-      opacity: 0.55;
+      transform: none; /* No movement */
+      border-color: rgba(255, 255, 255, 0.2); /* Just slightly lighter border */
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
   }
 
   /* Keyboard parity: keep the premium lift when tabbing into interactive content inside cards */
   .premium-card:focus-within {
-    transform: translateY(-1px);
+    transform: none; /* No movement */
     border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 18px 56px rgba(0, 0, 0, 0.48);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   }
 
   .premium-card:focus-within::before {
-    opacity: 0.55;
-    transform: translateX(12%);
+    display: none;
   }
 
   .premium-card:focus-within::after {
-    opacity: 0.55;
+    display: none;
   }
 
   .hero-grain {

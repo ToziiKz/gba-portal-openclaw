@@ -31,7 +31,7 @@ export function CardTitle({ className, ...props }: CardTitleProps) {
 export type CardDescriptionProps = React.HTMLAttributes<HTMLParagraphElement>
 
 export function CardDescription({ className, ...props }: CardDescriptionProps) {
-  return <p className={cn('text-sm text-white/70', className)} {...props} />
+  return <p className={cn('text-sm text-[color:var(--ui-muted)]', className)} {...props} />
 }
 
 export type CardContentProps = React.HTMLAttributes<HTMLDivElement>

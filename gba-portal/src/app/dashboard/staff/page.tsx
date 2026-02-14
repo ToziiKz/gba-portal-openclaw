@@ -5,7 +5,9 @@ import * as React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Pill } from '@/components/ui/Pill'
+import { Modal } from '@/components/ui/Modal'
 import { usePermissions } from '@/components/PermissionsProvider'
+import { createApprovalRequest } from '@/lib/approvals'
 
 import {
   dashboardStaffMock,
@@ -17,11 +19,20 @@ import {
   type StaffRole,
 } from '@/lib/mocks/dashboardStaff'
 
+const STAFF_OVERRIDES_KEY = 'gba-dashboard-staff-overrides-v1'
+
 type AvailabilityFilter = StaffAvailability | 'all'
 
 type LocalState = {
   onDuty: boolean
   updatedAtLabel: string
+}
+
+type StaffOverride = {
+  id: string
+  email?: string
+  phone?: string
+  note?: string
 }
 
 function inputBaseClassName() {
@@ -78,7 +89,7 @@ function stats(members: DashboardStaffMember[], local: Record<string, LocalState
 }
 
 export default function DashboardStaffPage() {
-  const { canEdit } = usePermissions()
+  const { canEdit, role: userRole } = usePermissions()
   const [isLoading, setIsLoading] = React.useState(true)
 
   // Filters
@@ -103,15 +114,33 @@ export default function DashboardStaffPage() {
     )
   )
 
+  // Overrides from validations
+  const [overrides, setOverrides] = React.useState<Record<string, StaffOverride>>({})
+
+  // Modal State
+  const [isEditing, setIsEditing] = React.useState(false)
+  const [editForm, setEditForm] = React.useState({ email: '', phone: '', note: '' })
+  const [pendingToast, setPendingToast] = React.useState<string | null>(null)
+
   const didLoadPersisted = React.useRef(false)
 
   // Load from localStorage
   React.useEffect(() => {
     if (typeof window === 'undefined') return
     try {
-      const saved = window.localStorage.getItem('gba-dashboard-staff-state-v1')
-      if (saved) {
-        setLocalState((prev) => ({ ...prev, ...JSON.parse(saved) }))
+      const savedState = window.localStorage.getItem('gba-dashboard-staff-state-v1')
+      if (savedState) {
+        setLocalState((prev) => ({ ...prev, ...JSON.parse(savedState) }))
+      }
+
+      const savedOverrides = window.localStorage.getItem(STAFF_OVERRIDES_KEY)
+      if (savedOverrides) {
+        const parsed = JSON.parse(savedOverrides) as StaffOverride[]
+        const map: Record<string, StaffOverride> = {}
+        parsed.forEach((o) => {
+          map[o.id] = o
+        })
+        setOverrides(map)
       }
     } catch (e) {
       console.warn('Failed to load staff state', e)
@@ -124,6 +153,26 @@ export default function DashboardStaffPage() {
     if (!didLoadPersisted.current || typeof window === 'undefined') return
     window.localStorage.setItem('gba-dashboard-staff-state-v1', JSON.stringify(localState))
   }, [localState])
+
+  // Listen for override updates
+  React.useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === STAFF_OVERRIDES_KEY) {
+         const savedOverrides = window.localStorage.getItem(STAFF_OVERRIDES_KEY)
+         if (savedOverrides) {
+           const parsed = JSON.parse(savedOverrides) as StaffOverride[]
+           const map: Record<string, StaffOverride> = {}
+           parsed.forEach((o) => {
+             map[o.id] = o
+           })
+           setOverrides(map)
+         }
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [])
+
 
   // Loading simulation
   React.useEffect(() => {
@@ -138,6 +187,15 @@ export default function DashboardStaffPage() {
     const q = query.trim().toLowerCase()
 
     return dashboardStaffMock
+      .map((m) => {
+        const ov = overrides[m.id]
+        return {
+          ...m,
+          email: ov?.email ?? m.email,
+          phone: ov?.phone ?? m.phone,
+          note: ov?.note ?? m.note,
+        }
+      })
       .filter((m) => (pole === 'all' ? true : m.pole === pole))
       .filter((m) => (role === 'all' ? true : m.role === role))
       .filter((m) => (availability === 'all' ? true : m.availability === availability))
@@ -148,7 +206,7 @@ export default function DashboardStaffPage() {
         return hay.includes(q)
       })
       .sort((a, b) => a.fullName.localeCompare(b.fullName))
-  }, [query, pole, role, availability])
+  }, [query, pole, role, availability, overrides])
 
   const selected = React.useMemo(() => {
     return filtered.find((m) => m.id === selectedId) ?? filtered[0] ?? null
@@ -171,6 +229,37 @@ export default function DashboardStaffPage() {
     }))
   }
 
+  function handleEdit() {
+    if (!selected) return
+    setEditForm({
+      email: selected.email ?? '',
+      phone: selected.phone ?? '',
+      note: selected.note ?? '',
+    })
+    setIsEditing(true)
+  }
+
+  function handleSave() {
+    if (!selected) return
+
+    let authorRole: 'admin' | 'coach' | 'viewer' = 'viewer'
+    if (userRole === 'admin') authorRole = 'admin'
+    if (userRole === 'coach') authorRole = 'coach'
+
+    createApprovalRequest({
+      action: 'staff.update',
+      authorRole,
+      payload: {
+        id: selected.id,
+        ...editForm,
+      },
+    })
+
+    setPendingToast('Demande de modification envoyée aux admins.')
+    setIsEditing(false)
+    setTimeout(() => setPendingToast(null), 3000)
+  }
+
   return (
     <div className="grid gap-6">
       <div>
@@ -179,7 +268,7 @@ export default function DashboardStaffPage() {
           Staff (annuaire)
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-white/70">
-          Annuaire staff (mock) avec persistance locale du statut &quot;On Duty&quot;.
+          Annuaire staff avec persistance locale et validations admin.
         </p>
       </div>
 
@@ -370,7 +459,15 @@ export default function DashboardStaffPage() {
         </Card>
 
         {/* Fiche Détail */}
-        <Card className="premium-card card-shell rounded-3xl h-[600px] flex flex-col">
+        <Card className="premium-card card-shell rounded-3xl h-[600px] flex flex-col relative">
+          {pendingToast && (
+            <div className="absolute top-4 left-4 right-4 z-20 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="rounded-xl bg-green-500/90 px-4 py-3 text-sm font-bold text-black shadow-lg backdrop-blur-md">
+                ✓ {pendingToast}
+              </div>
+            </div>
+          )}
+
           {isLoading || !selected ? (
             <div className="flex h-full items-center justify-center p-8 text-center text-white/40">
               <div className="grid place-items-center gap-4">
@@ -513,8 +610,12 @@ export default function DashboardStaffPage() {
                         <Button variant="ghost" disabled className="w-full justify-start">
                           <span className="mr-2">✉️</span> Envoyer un message (bientôt)
                         </Button>
-                        <Button variant="ghost" disabled className="w-full justify-start">
-                          <span className="mr-2">✏️</span> Modifier la fiche (bientôt)
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={handleEdit}
+                        >
+                          <span className="mr-2">✏️</span> Modifier la fiche
                         </Button>
                       </div>
                     ) : (
@@ -529,6 +630,51 @@ export default function DashboardStaffPage() {
           )}
         </Card>
       </div>
+
+      <Modal
+        isOpen={isEditing}
+        onClose={() => setIsEditing(false)}
+        title="Modifier la fiche"
+        description={selected ? `Édition: ${selected.fullName}` : undefined}
+      >
+        <div className="grid gap-4">
+          <label className="grid gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-widest text-white/60">Email</span>
+            <input
+              value={editForm.email}
+              onChange={(e) => setEditForm((prev) => ({ ...prev, email: e.target.value }))}
+              className={inputBaseClassName()}
+              placeholder="email@example.com"
+            />
+          </label>
+
+          <label className="grid gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-widest text-white/60">Téléphone</span>
+            <input
+              value={editForm.phone}
+              onChange={(e) => setEditForm((prev) => ({ ...prev, phone: e.target.value }))}
+              className={inputBaseClassName()}
+              placeholder="+33 6..."
+            />
+          </label>
+
+          <label className="grid gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-widest text-white/60">Note interne</span>
+            <textarea
+              value={editForm.note}
+              onChange={(e) => setEditForm((prev) => ({ ...prev, note: e.target.value }))}
+              className={inputBaseClassName()}
+              rows={3}
+              placeholder="Note visible uniquement par le staff..."
+            />
+          </label>
+
+          <div className="mt-4 flex justify-end gap-3">
+             <Button variant="ghost" onClick={() => setIsEditing(false)}>Annuler</Button>
+             <Button variant="secondary" onClick={handleSave}>Valider modification</Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }

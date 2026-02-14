@@ -1,11 +1,19 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
+import { unstable_noStore as noStore } from 'next/cache'
 
-import { DashboardNav } from '@/components/DashboardNav'
+import { createClient } from '@/lib/supabase/server'
 import { PermissionsProvider } from '@/components/PermissionsProvider'
+
+import { DashboardShell } from '@/components/dashboard/DashboardShell'
+import { getDashboardScope } from '@/lib/dashboard/getDashboardScope'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export const metadata: Metadata = {
   title: 'Dashboard',
-  description: 'Espace staff GBA (données mock, sans base de données pour l’instant).',
+  description: 'Espace staff GBA.',
   robots: {
     index: false,
     follow: false,
@@ -15,30 +23,35 @@ export const metadata: Metadata = {
   },
 }
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-b from-[#020202] via-[#050505] to-[#000000] px-4 py-10 md:px-8">
-      <div className="mx-auto w-full max-w-6xl">
-        <div className="mb-8">
-          <p className="text-xs uppercase tracking-[0.6em] text-white/60">Espace staff</p>
-          <h1 className="mt-3 font-[var(--font-teko)] text-4xl font-black tracking-[0.06em] text-white md:text-5xl">
-            Dashboard
-          </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/70">
-            UI premium, sans base de données : on itère module par module avec des mocks. Les
-            accès/permissions restent des placeholders.
-          </p>
-        </div>
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  noStore()
+  const supabase = await createClient()
 
-        <div className="grid gap-6 md:grid-cols-[260px_1fr]">
-          <aside className="md:sticky md:top-24 md:self-start">
-            <DashboardNav />
-          </aside>
-          <section aria-label="Contenu du dashboard" className="min-w-0">
-            <PermissionsProvider>{children}</PermissionsProvider>
-          </section>
-        </div>
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
+  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+
+  const userProfile = profile || {
+    full_name: user.user_metadata.full_name || user.email,
+    role: 'viewer',
+    email: user.email!,
+  }
+
+  const scope = await getDashboardScope()
+
+  return (
+    <DashboardShell userProfile={userProfile} scope={scope}>
+      <div className="mx-auto w-full max-w-6xl">
+        <section aria-label="Contenu du dashboard" className="min-w-0">
+          <PermissionsProvider role={scope.role}>{children}</PermissionsProvider>
+        </section>
       </div>
-    </div>
+    </DashboardShell>
   )
 }

@@ -74,14 +74,14 @@ function buildMessage(row: DashboardReminderRow) {
     return [
       `Bonjour ${row.contactName},`,
       '',
-      `Petit rappel (mock) pour la licence de ${row.playerName} (${row.team}, ${row.category}).`,
+      `Petit rappel pour la licence de ${row.playerName} (${row.team}, ${row.category}).`,
       `Montant restant : ${amount}${due}.`,
       '',
       'Merci de nous confirmer le règlement ou la date prévue.',
       'Sportivement,',
       'GBA — Staff',
       '',
-      '(UI-only : aucun envoi réel, pas de DB. Message à copier/coller.)',
+      '',
     ].join('\n')
   }
 
@@ -91,14 +91,14 @@ function buildMessage(row: DashboardReminderRow) {
   return [
     `Bonjour ${row.contactName},`,
     '',
-    `On prépare la dotation équipement (mock) pour ${row.playerName} (${row.team}, ${row.category}).`,
+    `On prépare la dotation équipement pour ${row.playerName} (${row.team}, ${row.category}).`,
     todo,
     '',
     'Pouvez-vous nous confirmer la/les taille(s) manquante(s) si besoin ?',
     'Merci !',
     'GBA — Staff',
     '',
-    '(UI-only : aucun envoi réel, pas de DB. Message à copier/coller.)',
+    '',
   ].join('\n')
 }
 

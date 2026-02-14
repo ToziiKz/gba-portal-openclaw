@@ -5,6 +5,7 @@ import * as React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Pill } from '@/components/ui/Pill'
+import { readLocal, writeLocal } from '@/lib/dashboard/storage'
 import {
   dashboardEquipmentMock,
   equipmentItemLabels,
@@ -15,6 +16,16 @@ import {
 } from '@/lib/mocks/dashboardEquipment'
 
 type DeliveryFilter = 'all' | 'todo' | 'complete'
+
+type PersistedFilters = {
+  query: string
+  pole: EquipmentPole | 'all'
+  deliveryFilter: DeliveryFilter
+  selectedId: string | null
+}
+
+const STORAGE_KEY_PLAYERS = 'gba-dashboard-equipements-players-v1'
+const STORAGE_KEY_FILTERS = 'gba-dashboard-equipements-filters-v1'
 
 function inputBaseClassName() {
   return 'w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20'
@@ -59,6 +70,22 @@ function formatItemLine(itemType: EquipmentItemType, size: string | null) {
   return size ? `${label} · ${size}` : `${label} · taille ?`
 }
 
+function buildShareUrl(filters: PersistedFilters) {
+  if (typeof window === 'undefined') return ''
+  const sp = new URLSearchParams(window.location.search)
+
+  if (filters.pole !== 'all') sp.set('pole', filters.pole)
+  else sp.delete('pole')
+
+  if (filters.deliveryFilter !== 'todo') sp.set('delivery', filters.deliveryFilter)
+  else sp.delete('delivery')
+
+  if (filters.query.trim()) sp.set('q', filters.query.trim())
+  else sp.delete('q')
+
+  return `${window.location.pathname}?${sp.toString()}`
+}
+
 export default function DashboardEquipementsPage() {
   const [isLoading, setIsLoading] = React.useState(true)
   const [players, setPlayers] = React.useState<DashboardEquipmentPlayer[]>(dashboardEquipmentMock)
@@ -69,9 +96,32 @@ export default function DashboardEquipementsPage() {
   const [selectedId, setSelectedId] = React.useState<string | null>(null)
 
   const didInitFromUrl = React.useRef(false)
+  const didInitFromStorage = React.useRef(false)
 
+  // Restore persisted state (players + filters)
+  React.useEffect(() => {
+    if (didInitFromStorage.current) return
+
+    const savedPlayers = readLocal<DashboardEquipmentPlayer[]>(STORAGE_KEY_PLAYERS, dashboardEquipmentMock)
+    const savedFilters = readLocal<PersistedFilters | null>(STORAGE_KEY_FILTERS, null)
+
+    setPlayers(savedPlayers)
+
+    if (savedFilters) {
+      setQuery(savedFilters.query ?? '')
+      setPole((savedFilters.pole ?? 'all') as EquipmentPole | 'all')
+      setDeliveryFilter((savedFilters.deliveryFilter ?? 'todo') as DeliveryFilter)
+      setSelectedId(savedFilters.selectedId ?? null)
+    }
+
+    didInitFromStorage.current = true
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Init from URL (deep links) - only if filters weren't restored
   React.useEffect(() => {
     if (didInitFromUrl.current) return
+    if (!didInitFromStorage.current) return
 
     const sp = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search)
 
@@ -90,14 +140,27 @@ export default function DashboardEquipementsPage() {
     didInitFromUrl.current = true
   }, [])
 
+  // Fake loading
   React.useEffect(() => {
     const t = window.setTimeout(() => {
       setIsLoading(false)
-      setSelectedId((prev) => prev ?? defaultSelected(dashboardEquipmentMock))
+      setSelectedId((prev) => prev ?? defaultSelected(players))
     }, 520)
 
     return () => window.clearTimeout(t)
-  }, [])
+  }, [players])
+
+  // Persist
+  React.useEffect(() => {
+    if (isLoading) return
+    writeLocal(STORAGE_KEY_PLAYERS, players)
+  }, [players, isLoading])
+
+  React.useEffect(() => {
+    if (isLoading) return
+    const next: PersistedFilters = { query, pole, deliveryFilter, selectedId }
+    writeLocal(STORAGE_KEY_FILTERS, next)
+  }, [query, pole, deliveryFilter, selectedId, isLoading])
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -149,6 +212,18 @@ export default function DashboardEquipementsPage() {
     )
   }
 
+  async function copyShareLink() {
+    const next: PersistedFilters = { query, pole, deliveryFilter, selectedId }
+    const url = buildShareUrl(next)
+    if (!url) return
+
+    try {
+      await window.navigator.clipboard.writeText(window.location.origin + url)
+    } catch {
+      // ignore (some contexts block clipboard without permissions)
+    }
+  }
+
   return (
     <div className="grid gap-6">
       <div>
@@ -157,8 +232,7 @@ export default function DashboardEquipementsPage() {
           Équipements
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-white/70">
-          Suivi des dotations (tailles, remis / non remis). Données mock + state local ; l’objectif
-          est de figer l’UX.
+          Suivi des dotations (tailles, remis / non remis).
         </p>
       </div>
 
@@ -170,7 +244,7 @@ export default function DashboardEquipementsPage() {
             </CardDescription>
             <CardTitle className="text-3xl font-black tracking-tight text-white">
               {counts.players}
-              <span className="ml-2 text-xs font-semibold text-white/45">(mock)</span>
+              <span className="ml-2 text-xs font-semibold text-white/45"></span>
             </CardTitle>
           </CardHeader>
         </Card>
@@ -271,6 +345,9 @@ export default function DashboardEquipementsPage() {
               >
                 Réinitialiser
               </Button>
+              <Button size="sm" variant="ghost" onClick={copyShareLink}>
+                Copier le lien
+              </Button>
               <Button size="sm" variant="ghost" disabled>
                 Export CSV (bientôt)
               </Button>
@@ -353,7 +430,7 @@ export default function DashboardEquipementsPage() {
         <Card className="premium-card card-shell rounded-3xl">
           <CardHeader>
             <CardTitle>Détails</CardTitle>
-            <CardDescription>Checklist des pièces + actions de remise (UI-only).</CardDescription>
+            <CardDescription>Checklist des pièces + actions de remise.</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -401,7 +478,7 @@ export default function DashboardEquipementsPage() {
                             </p>
                             <p className="mt-1 text-xs text-white/45">
                               {it.given
-                                ? `Remis le ${it.givenAt ?? '(date mock)'}`
+                                ? `Remis le ${it.givenAt ?? ''}`
                                 : it.size
                                   ? 'À remettre'
                                   : 'Taille à confirmer'}

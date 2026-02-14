@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Pill } from '@/components/ui/Pill'
 import { usePermissions } from '@/components/PermissionsProvider'
+// role comes from usePermissions (server-provided)
+import { createApprovalRequest } from '@/lib/approvals'
 import { LicencePaymentModal } from '@/components/dashboard/LicencePaymentModal'
 import type { LicencePaymentStatus, LicenceRow, PaymentMethod } from '@/lib/mocks/dashboardLicences'
 import { licenceRowsMock } from '@/lib/mocks/dashboardLicences'
@@ -109,10 +111,24 @@ function inputBaseClassName() {
   return 'h-10 w-full rounded-[var(--ui-radius-sm)] border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-white/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/25'
 }
 
+function buildFilterSearchParams(
+  query: string,
+  poleFilter: LicenceRow['pole'] | 'all',
+  statusFilter: StatusFilter
+) {
+  const sp = new URLSearchParams()
+  const q = query.trim()
+  if (q) sp.set('q', q)
+  if (poleFilter !== 'all') sp.set('pole', poleFilter)
+  if (statusFilter !== 'all') sp.set('status', statusFilter)
+  return sp
+}
+
 const STORAGE_KEY = 'gba-dashboard-licences-state-v1'
 
 export default function DashboardLicencesPage() {
-  const { canEdit, canViewMoney } = usePermissions()
+  const { canEdit, canViewMoney, role } = usePermissions()
+  const isAdmin = role === 'admin'
   const [query, setQuery] = React.useState('')
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all')
   const [poleFilter, setPoleFilter] = React.useState<LicenceRow['pole'] | 'all'>('all')
@@ -140,15 +156,24 @@ export default function DashboardLicencesPage() {
 
   // Restore from localStorage
   React.useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        dispatch({ type: 'restore', state: parsed })
+    const load = () => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY)
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          dispatch({ type: 'restore', state: parsed })
+        }
+      } catch (e) {
+        console.error('Failed to load licence state', e)
       }
-    } catch (e) {
-      console.error('Failed to load licence state', e)
     }
+    load()
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) load()
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
   }, [])
 
   // Save to localStorage
@@ -179,6 +204,27 @@ export default function DashboardLicencesPage() {
 
     didInitFromUrl.current = true
   }, [])
+
+  // Keep URL in sync with filters (shareable links).
+  const urlSyncTimer = React.useRef<number | null>(null)
+
+  React.useEffect(() => {
+    if (!didInitFromUrl.current) return
+    if (typeof window === 'undefined') return
+
+    if (urlSyncTimer.current) window.clearTimeout(urlSyncTimer.current)
+
+    urlSyncTimer.current = window.setTimeout(() => {
+      const sp = buildFilterSearchParams(query, poleFilter, statusFilter)
+      const qs = sp.toString()
+      const nextUrl = `${window.location.pathname}${qs ? `?${qs}` : ''}`
+      window.history.replaceState(null, '', nextUrl)
+    }, 250)
+
+    return () => {
+      if (urlSyncTimer.current) window.clearTimeout(urlSyncTimer.current)
+    }
+  }, [query, poleFilter, statusFilter])
 
   React.useEffect(() => {
     if (!toast) return
@@ -261,6 +307,23 @@ export default function DashboardLicencesPage() {
   ) => {
     if (!openRowId || !openRow) return
 
+    if (!isAdmin) {
+      createApprovalRequest({
+        authorRole: role,
+        action: 'licence.payment',
+        payload: {
+          licenceId: openRowId,
+          playerName: openRow.playerName,
+          amountEur,
+          method,
+          note,
+        },
+      })
+      setToast('Demande de paiement envoyée (en attente de validation)')
+      setOpenRowId(null)
+      return
+    }
+
     dispatch({ type: 'addPayment', id: openRowId, amountEur, method })
 
     const nextPaid = openRow.amountPaidEur + amountEur
@@ -271,6 +334,28 @@ export default function DashboardLicencesPage() {
     setToast(sendReceipt ? `Paiement enregistré + reçu “envoyé” (mock)` : 'Paiement enregistré')
 
     setOpenRowId(null)
+  }
+
+  const resetFilters = () => {
+    setQuery('')
+    setPoleFilter('all')
+    setStatusFilter('all')
+    setToast('Filtres réinitialisés')
+  }
+
+  const copyLink = async () => {
+    if (typeof window === 'undefined') return
+
+    const sp = buildFilterSearchParams(query, poleFilter, statusFilter)
+    const qs = sp.toString()
+    const url = `${window.location.origin}${window.location.pathname}${qs ? `?${qs}` : ''}`
+
+    try {
+      await navigator.clipboard.writeText(url)
+      setToast('Lien copié')
+    } catch {
+      setToast("Impossible de copier le lien (autorisation navigateur)")
+    }
   }
 
   return (
@@ -360,6 +445,19 @@ export default function DashboardLicencesPage() {
             </select>
           </div>
         </div>
+
+        <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
+          <Button size="sm" variant="ghost" onClick={resetFilters}>
+            Réinitialiser les filtres
+          </Button>
+          <Button size="sm" variant="secondary" onClick={copyLink}>
+            Copier le lien
+          </Button>
+        </div>
+
+        <p className="mt-2 text-xs text-white/45">
+          Astuce : les filtres mettent à jour l’URL (q, pole, status) pour partager un état de vue.
+        </p>
       </Card>
 
       <Card className="premium-card card-shell rounded-3xl p-0">
@@ -382,9 +480,7 @@ export default function DashboardLicencesPage() {
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div className="min-w-0 space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="truncate text-sm font-semibold text-white">
-                          {row.playerName}
-                        </p>
+                        <p className="truncate text-sm font-semibold text-white">{row.playerName}</p>
                         <Pill variant={statusToPillVariant(row.status, row.isOverdue)}>
                           {statusLabel(row.status, row.isOverdue)}
                         </Pill>
@@ -402,19 +498,13 @@ export default function DashboardLicencesPage() {
                     <div className="flex flex-col gap-2 md:items-end">
                       <div className="flex flex-wrap items-baseline gap-2">
                         <p className="text-sm font-semibold text-white">{formatEur(remaining)}</p>
-                        <p className="text-xs text-white/45">
-                          dus (sur {formatEur(row.amountTotalEur)})
-                        </p>
+                        <p className="text-xs text-white/45">dus (sur {formatEur(row.amountTotalEur)})</p>
                       </div>
 
                       <div className="flex flex-wrap gap-2">
                         {canEdit && (
                           <>
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              onClick={() => setOpenRowId(row.id)}
-                            >
+                            <Button size="sm" variant="secondary" onClick={() => setOpenRowId(row.id)}>
                               Gérer / Payer
                             </Button>
                             {row.status !== 'paid' && row.amountPaidEur > 0 && (

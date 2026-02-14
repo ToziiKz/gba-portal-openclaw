@@ -19,6 +19,8 @@ export function Navbar() {
   const pathname = usePathname()
   const isLogin = pathname === '/login'
 
+  if (pathname.startsWith('/dashboard')) return null
+
   return (
     <nav
       aria-label="Navigation principale"
