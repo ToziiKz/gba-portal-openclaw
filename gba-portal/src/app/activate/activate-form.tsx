@@ -26,7 +26,7 @@ export function ActivateForm({ invitationId, token }: { invitationId?: string; t
 
       {state.ok ? (
         <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-100">
-          Compte activé. Vous pouvez maintenant vous connecter.
+          Compte créé. Vérifiez votre boîte mail et confirmez votre adresse, puis connectez-vous.
         </div>
       ) : null}
       {state.error ? (

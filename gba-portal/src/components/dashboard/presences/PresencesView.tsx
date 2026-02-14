@@ -50,13 +50,15 @@ function inputBaseClassName() {
 export function PresencesView({ sessions }: Props) {
   const scope = useDashboardScope()
 
-  const [viewMode, setViewMode] = React.useState<'my' | 'club'>(() => (scope.role === 'coach' ? 'my' : 'club'))
   const [pole, setPole] = React.useState<string | 'all'>('all')
   const [teamId, setTeamId] = React.useState<string | 'all'>('all')
   const [query, setQuery] = React.useState('')
   const [selectedSession, setSelectedSession] = React.useState<PresenceSession | null>(null)
 
-  const coachTeamIds = scope.role === 'coach' ? scope.editableTeamIds : []
+  const coachTeamIds = React.useMemo(
+    () => (scope.role === 'coach' ? scope.editableTeamIds : []),
+    [scope.role, scope.editableTeamIds]
+  )
 
   // Default focus: coach → first of their teams when possible
   React.useEffect(() => {
@@ -83,8 +85,6 @@ export function PresencesView({ sessions }: Props) {
 
     return sessions
       .filter((s) => {
-        // View mode
-        if (viewMode === 'club') return true
         if (scope.role !== 'coach') return true
         const tid = s.team?.id
         return tid ? coachTeamIds.includes(tid) : false
@@ -100,7 +100,7 @@ export function PresencesView({ sessions }: Props) {
           .toLowerCase()
         return hay.includes(q)
       })
-  }, [sessions, scope.role, viewMode, pole, teamId, query, coachTeamIds])
+  }, [sessions, scope.role, pole, teamId, query, coachTeamIds])
 
   const sessionsByDay = React.useMemo(() => groupByDay(filtered), [filtered])
 
@@ -139,25 +139,12 @@ export function PresencesView({ sessions }: Props) {
           {scope.role === 'coach' ? (
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant={viewMode === 'my' ? 'primary' : 'secondary'}
-                  onClick={() => setViewMode('my')}
-                >
+                <Button size="sm" variant="primary">
                   Mes équipes
-                </Button>
-                <Button
-                  size="sm"
-                  variant={viewMode === 'club' ? 'primary' : 'secondary'}
-                  onClick={() => setViewMode('club')}
-                >
-                  Tout le club
                 </Button>
               </div>
 
-              <p className="text-sm text-white/60">
-                {viewMode === 'my' ? 'Focus équipes coachées' : 'Vue club'} • {filtered.length} séance(s)
-              </p>
+              <p className="text-sm text-white/60">Focus équipes coachées • {filtered.length} séance(s)</p>
             </div>
           ) : (
             <p className="text-sm text-white/60">{filtered.length} séance(s)</p>
@@ -205,7 +192,6 @@ export function PresencesView({ sessions }: Props) {
               size="sm"
               variant="secondary"
               onClick={() => {
-                if (scope.role === 'coach') setViewMode('my')
                 setPole('all')
                 setTeamId('all')
                 setQuery('')

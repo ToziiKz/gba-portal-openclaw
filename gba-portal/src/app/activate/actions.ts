@@ -52,6 +52,20 @@ export async function activateCoachAccount(_prevState: unknown, formData: FormDa
     return { ok: false as const, error: signUpErr?.message || 'Impossible de créer le compte.' }
   }
 
+  const usedAt = new Date().toISOString()
+
+  const { error: markUsedErr } = await supabase
+    .from('coach_invitations')
+    .update({ used_at: usedAt, used_by: signUp.user.id })
+    .eq('id', inv.id)
+
+  if (markUsedErr) {
+    return {
+      ok: false as const,
+      error: 'Compte créé mais invitation non marquée comme utilisée. Contactez un admin.',
+    }
+  }
+
   const { error: profileErr } = await supabase
     .from('profiles')
     .update({ full_name: fullName, role: inv.role })
@@ -61,14 +75,9 @@ export async function activateCoachAccount(_prevState: unknown, formData: FormDa
     return {
       ok: false as const,
       error:
-        'Compte créé mais rôle non appliqué. Vérifiez les policies SQL (voir supabase_coach_access_workflow.sql).',
+        'Compte créé mais rôle non appliqué. Vérifiez le patch SQL de workflow (trigger role).',
     }
   }
-
-  await supabase
-    .from('coach_invitations')
-    .update({ used_at: new Date().toISOString(), used_by: signUp.user.id })
-    .eq('id', inv.id)
 
   return { ok: true as const }
 }

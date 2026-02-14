@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 import { createClient } from '@/lib/supabase/server'
+import { getDashboardScope } from '@/lib/dashboard/getDashboardScope'
 
 const createSchema = z.object({
   teamId: z.string().uuid(),
@@ -44,7 +45,20 @@ export async function createPlanningSession(prevState: unknown, formData: FormDa
 
   if (!user) return { message: 'Non authentifié' }
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, is_active')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.is_active === false) return { message: 'Compte suspendu' }
+
+  if (profile?.role === 'coach') {
+    const scope = await getDashboardScope()
+    if (!scope.editableTeamIds.includes(parsed.data.teamId)) {
+      return { message: 'Vous ne pouvez créer une séance que pour vos équipes.' }
+    }
+  }
 
   const payload = {
     team_id: parsed.data.teamId,
@@ -90,7 +104,28 @@ export async function deletePlanningSession(formData: FormData): Promise<void> {
 
   if (!user) throw new Error('Non authentifié')
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, is_active')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.is_active === false) throw new Error('Compte suspendu')
+
+  if (profile?.role === 'coach') {
+    const { data: session } = await supabase
+      .from('planning_sessions')
+      .select('team_id')
+      .eq('id', id)
+      .single()
+
+    if (!session?.team_id) throw new Error('Séance introuvable')
+
+    const scope = await getDashboardScope()
+    if (!scope.editableTeamIds.includes(String(session.team_id))) {
+      throw new Error('Vous ne pouvez pas supprimer une séance hors de vos équipes')
+    }
+  }
 
   if (profile?.role === 'admin') {
     const { error } = await supabase.from('planning_sessions').delete().eq('id', id)

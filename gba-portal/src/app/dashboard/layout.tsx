@@ -37,10 +37,27 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
 
-  const userProfile = profile || {
+  const rawUserProfile = profile || {
     full_name: user.user_metadata.full_name || user.email,
     role: 'viewer',
     email: user.email!,
+    is_active: true,
+  }
+
+  const normalizedRole = String(rawUserProfile.role ?? 'viewer').trim().toLowerCase()
+  const userProfile = {
+    ...rawUserProfile,
+    role:
+      normalizedRole === 'admin' ||
+      normalizedRole === 'staff' ||
+      normalizedRole === 'coach' ||
+      normalizedRole === 'viewer'
+        ? normalizedRole
+        : 'viewer',
+  }
+
+  if (userProfile.is_active === false) {
+    redirect('/login?disabled=1')
   }
 
   const scope = await getDashboardScope()

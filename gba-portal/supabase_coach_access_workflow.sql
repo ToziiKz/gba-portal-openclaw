@@ -83,12 +83,45 @@ create policy "Admin can manage coach invitations"
     )
   );
 
-drop policy if exists "Authenticated can read own invitation by email" on public.coach_invitations;
-create policy "Authenticated can read own invitation by email"
+drop policy if exists "Users can read invitations for activation" on public.coach_invitations;
+create policy "Users can read invitations for activation"
   on public.coach_invitations for select
-  using (auth.role() = 'authenticated');
+  using (auth.role() in ('anon','authenticated'));
 
--- 3) Harden profiles role updates
+-- 3) Coach account lifecycle + audit
+alter table public.profiles add column if not exists is_active boolean not null default true;
+
+create table if not exists public.access_admin_events (
+  id uuid primary key default gen_random_uuid(),
+  actor_id uuid references public.profiles(id),
+  action text not null,
+  target_type text not null,
+  target_id text not null,
+  meta jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+alter table public.access_admin_events enable row level security;
+
+drop policy if exists "Admin insert access events" on public.access_admin_events;
+create policy "Admin insert access events"
+  on public.access_admin_events for insert
+  with check (
+    exists (
+      select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'
+    )
+  );
+
+drop policy if exists "Admin read access events" on public.access_admin_events;
+create policy "Admin read access events"
+  on public.access_admin_events for select
+  using (
+    exists (
+      select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'
+    )
+  );
+
+-- 4) Harden profiles role updates
 -- Existing policy allows any user to update own row (including role). Keep profile edits, block role change for non-admin.
 create or replace function public.guard_profile_role_update()
 returns trigger
@@ -97,9 +130,25 @@ security definer
 as $$
 begin
   if new.role is distinct from old.role then
-    if not exists (
+    -- Admin can always change roles
+    if exists (
       select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'
     ) then
+      null;
+    -- Self activation path: viewer -> coach/staff if a valid invitation was just consumed
+    elsif auth.uid() = old.id
+      and old.role = 'viewer'
+      and new.role in ('coach','staff')
+      and exists (
+        select 1
+        from public.coach_invitations i
+        where i.used_by = auth.uid()
+          and i.used_at is not null
+          and i.role = new.role
+          and i.used_at > timezone('utc', now()) - interval '10 minutes'
+      ) then
+      null;
+    else
       raise exception 'Only admin can change roles';
     end if;
   end if;

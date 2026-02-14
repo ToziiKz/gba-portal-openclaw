@@ -15,7 +15,13 @@ export const metadata: Metadata = {
   },
 }
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ disabled?: string }>
+}) {
+  const params = (await searchParams) ?? {}
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#020202] via-[#050505] to-[#000000] px-6 py-24">
       <div className="mx-auto w-full max-w-md rounded-[2.5rem] border border-white/10 bg-white/5 p-8 shadow-[0_25px_90px_rgba(0,0,0,0.65)] backdrop-blur md:p-10">
@@ -26,6 +32,12 @@ export default function LoginPage() {
         <p className="mt-4 text-sm text-white/70">
           Connectez-vous pour gérer les équipes, le planning et les licences.
         </p>
+
+        {params.disabled === '1' ? (
+          <div className="mt-6 rounded-2xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-100">
+            Votre compte coach est actuellement suspendu. Contactez un administrateur.
+          </div>
+        ) : null}
 
         <div className="mt-8">
           <LoginForm />

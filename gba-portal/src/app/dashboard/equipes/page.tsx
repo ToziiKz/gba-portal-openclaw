@@ -19,9 +19,11 @@ export default async function TeamsPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { data: profile } = user
-    ? await supabase.from('profiles').select('role').eq('id', user.id).single()
-    : { data: null as any }
+  let profile: { role?: string | null } | null = null
+  if (user) {
+    const result = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    profile = result.data
+  }
 
   const role = toDashboardRole(profile?.role)
 
@@ -43,9 +45,13 @@ export default async function TeamsPage() {
     )
     .order('name')
 
-  // Coaches: can view all teams in their pole(s)
-  if (role === 'coach' && scope.viewablePoles && scope.viewablePoles.length > 0) {
-    query = query.in('pole', scope.viewablePoles)
+  // Non-admin/staff are restricted to their viewable scope.
+  if (scope.role !== 'admin' && scope.role !== 'staff') {
+    if (scope.viewableTeamIds && scope.viewableTeamIds.length > 0) {
+      query = query.in('id', scope.viewableTeamIds)
+    } else {
+      query = query.eq('id', '__none__')
+    }
   }
 
   const { data: teams } = await query

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { getDashboardScope } from '@/lib/dashboard/getDashboardScope'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -31,12 +32,27 @@ export async function createPlayer(prevState: unknown, formData: FormData) {
 
   if (!user) return { message: 'Non authentifié' }
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, is_active')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.is_active === false) {
+    return { message: 'Compte suspendu' }
+  }
 
   const payload = {
     first_name: parsed.data.firstName,
     last_name: parsed.data.lastName,
     team_id: parsed.data.teamId,
+  }
+
+  if (profile?.role === 'coach') {
+    const scope = await getDashboardScope()
+    if (!scope.editableTeamIds.includes(parsed.data.teamId)) {
+      return { message: 'Vous ne pouvez pas créer un joueur hors de vos équipes.' }
+    }
   }
 
   if (profile?.role === 'admin') {

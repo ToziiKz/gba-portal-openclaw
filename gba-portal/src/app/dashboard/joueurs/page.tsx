@@ -14,9 +14,14 @@ export default async function PlayersPage() {
   let playersQuery = supabase.from('players').select('*').order('lastname')
   let teamsQuery = supabase.from('teams').select('id, name').order('name')
 
-  if (scope.role === 'coach' && scope.viewableTeamIds && scope.viewableTeamIds.length > 0) {
-    playersQuery = playersQuery.in('team_id', scope.viewableTeamIds)
-    teamsQuery = teamsQuery.in('id', scope.viewableTeamIds)
+  if (scope.role !== 'admin' && scope.role !== 'staff') {
+    if (scope.viewableTeamIds && scope.viewableTeamIds.length > 0) {
+      playersQuery = playersQuery.in('team_id', scope.viewableTeamIds)
+      teamsQuery = teamsQuery.in('id', scope.viewableTeamIds)
+    } else {
+      playersQuery = playersQuery.eq('team_id', '__none__')
+      teamsQuery = teamsQuery.eq('id', '__none__')
+    }
   }
 
   const { data: players } = await playersQuery

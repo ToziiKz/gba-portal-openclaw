@@ -10,7 +10,7 @@ type ActionState = { ok: boolean; error?: string }
 
 const initialState: ActionState = { ok: false }
 
-export function CoachAccessForm() {
+export function CoachAccessForm({ teamOptions }: { teamOptions: string[] }) {
   const [state, formAction, isPending] = useActionState(submitCoachAccessRequest, initialState)
 
   return (
@@ -48,32 +48,32 @@ export function CoachAccessForm() {
         />
       </label>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <label className="grid gap-2">
-          <span className="text-xs uppercase tracking-widest text-white/60">Téléphone</span>
-          <input
-            name="phone"
-            className="w-full rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-sm text-white/85 outline-none placeholder:text-white/30 focus:border-white/30 focus:ring-2 focus:ring-[#00A1FF]"
-            placeholder="06..."
-          />
-        </label>
-        <label className="grid gap-2">
-          <span className="text-xs uppercase tracking-widest text-white/60">Pôle</span>
-          <input
-            name="requestedPole"
-            className="w-full rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-sm text-white/85 outline-none placeholder:text-white/30 focus:border-white/30 focus:ring-2 focus:ring-[#00A1FF]"
-            placeholder="Pré-formation"
-          />
-        </label>
-      </div>
+      <label className="grid gap-2">
+        <span className="text-xs uppercase tracking-widest text-white/60">Téléphone</span>
+        <input
+          name="phone"
+          className="w-full rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-sm text-white/85 outline-none placeholder:text-white/30 focus:border-white/30 focus:ring-2 focus:ring-[#00A1FF]"
+          placeholder="06..."
+        />
+      </label>
 
       <label className="grid gap-2">
         <span className="text-xs uppercase tracking-widest text-white/60">Équipe souhaitée</span>
-        <input
+        <select
           name="requestedTeam"
-          className="w-full rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-sm text-white/85 outline-none placeholder:text-white/30 focus:border-white/30 focus:ring-2 focus:ring-[#00A1FF]"
-          placeholder="U15 A"
-        />
+          defaultValue=""
+          disabled={teamOptions.length === 0}
+          className="w-full rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-sm text-white/85 outline-none focus:border-white/30 focus:ring-2 focus:ring-[#00A1FF] disabled:opacity-60"
+        >
+          <option value="">
+            {teamOptions.length === 0 ? 'Aucune équipe disponible' : 'Sélectionner une équipe'}
+          </option>
+          {teamOptions.map((team) => (
+            <option key={team} value={team}>
+              {team}
+            </option>
+          ))}
+        </select>
       </label>
 
       <label className="grid gap-2">

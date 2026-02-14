@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 import { createClient } from '@/lib/supabase/server'
+import { getDashboardScope } from '@/lib/dashboard/getDashboardScope'
 import { PresencesView, type PresenceSession } from '@/components/dashboard/presences/PresencesView'
 
 export const metadata: Metadata = {
@@ -11,11 +12,10 @@ export const metadata: Metadata = {
 export default async function PresencesPage() {
   const supabase = await createClient()
 
-  // Everyone can browse all sessions, but the UI will default-focus coaches on their teams.
-  const { data: sessions } = await supabase
-    .from('planning_sessions')
-    .select(
-      `
+  const scope = await getDashboardScope()
+
+  let query = supabase.from('planning_sessions').select(
+    `
       id,
       day,
       pole,
@@ -30,7 +30,17 @@ export default async function PresencesPage() {
         category
       )
     `
-    )
+  )
+
+  if (scope.role === 'coach') {
+    if (scope.viewableTeamIds && scope.viewableTeamIds.length > 0) {
+      query = query.in('team_id', scope.viewableTeamIds)
+    } else {
+      query = query.eq('team_id', '__none__')
+    }
+  }
+
+  const { data: sessions } = await query
 
   return (
     <div className="grid gap-6">

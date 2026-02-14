@@ -100,6 +100,7 @@ function lowLabel(isLow: boolean) {
 export default function DashboardStockPage() {
   const { role } = usePermissions()
   const isAdmin = role === 'admin'
+  const canManageStock = role === 'admin' || role === 'staff'
   const [isLoading, setIsLoading] = React.useState(true)
 
   // Filters
@@ -217,6 +218,11 @@ export default function DashboardStockPage() {
     note: string
   }) => {
     if (!selectedItem) return
+
+    if (!canManageStock) {
+      setToast('Action réservée au staff/admin')
+      return
+    }
 
     const delta = type === 'entry' ? amount : -amount
 
@@ -492,7 +498,13 @@ export default function DashboardStockPage() {
               <StockRowLine
                 key={row.id}
                 row={row}
-                onAction={() => handleOpenModal(row)}
+                onAction={() => {
+                  if (!canManageStock) {
+                    setToast('Action réservée au staff/admin')
+                    return
+                  }
+                  handleOpenModal(row)
+                }}
                 onReset={() => {
                   if (confirm('Réinitialiser le stock par défaut pour cet article ?')) {
                     dispatch({ type: 'reset', id: row.id })

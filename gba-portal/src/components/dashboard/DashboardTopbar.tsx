@@ -54,7 +54,7 @@ export function DashboardTopbar({ role, userName, userEmail, onOpenSpotlight }: 
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
-            <div className="hidden flex-col items-end md:flex">
+            <div className="flex flex-col items-end">
               <p className="text-sm font-bold text-[color:var(--ui-fg)]">
                 {userName ?? 'Utilisateur'}
               </p>
@@ -65,9 +65,9 @@ export function DashboardTopbar({ role, userName, userEmail, onOpenSpotlight }: 
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-[color:var(--ui-muted)]">
                   {role}
                 </p>
-                {assignedTeamsLabel ? (
+                {role === 'coach' ? (
                   <span className="rounded-full border border-[color:var(--ui-border)] bg-[color:var(--ui-surface-2)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[color:var(--ui-muted)]">
-                    {assignedTeamsLabel}
+                    {assignedTeamsLabel ?? 'Aucune équipe assignée'}
                   </span>
                 ) : null}
               </div>

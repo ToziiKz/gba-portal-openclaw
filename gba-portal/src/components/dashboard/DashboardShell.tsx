@@ -25,9 +25,15 @@ function formatDisplayName(fullName: string | null) {
   return `${first} ${last}`
 }
 
+function normalizeRole(role: string): DashboardRole {
+  const raw = String(role ?? 'viewer').trim().toLowerCase()
+  if (raw === 'admin' || raw === 'staff' || raw === 'coach' || raw === 'viewer') return raw
+  return 'viewer'
+}
+
 export function DashboardShell({ children, userProfile, scope }: Props) {
   const [spotlightOpen, setSpotlightOpen] = React.useState(false)
-  const role = (userProfile.role as DashboardRole) ?? 'viewer'
+  const role = normalizeRole(scope.role)
 
   React.useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

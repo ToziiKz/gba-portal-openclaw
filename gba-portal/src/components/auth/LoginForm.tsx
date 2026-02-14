@@ -11,11 +11,16 @@ export function LoginForm() {
   const [password, setPassword] = React.useState('')
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const [resent, setResent] = React.useState(false)
+  const [resendLoading, setResendLoading] = React.useState(false)
+
+  const isEmailNotConfirmed = (error ?? '').toLowerCase().includes('email not confirmed')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    setResent(false)
 
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({
@@ -32,6 +37,30 @@ export function LoginForm() {
     }
   }
 
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      setError('Saisis ton email pour renvoyer la confirmation.')
+      return
+    }
+
+    setResendLoading(true)
+    setResent(false)
+
+    const supabase = createClient()
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+    })
+
+    if (error) {
+      setError(error.message)
+    } else {
+      setResent(true)
+    }
+
+    setResendLoading(false)
+  }
+
   return (
     <form onSubmit={handleLogin} className="flex flex-col gap-4">
       {error && (
@@ -39,7 +68,22 @@ export function LoginForm() {
           {error}
         </div>
       )}
-      
+
+      {isEmailNotConfirmed ? (
+        <div className="rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-100">
+          <p>Ton email n’est pas confirmé. Clique ci-dessous pour renvoyer l’email.</p>
+          <button
+            type="button"
+            onClick={handleResendConfirmation}
+            disabled={resendLoading}
+            className="mt-2 rounded-full border border-amber-400/40 px-3 py-1 text-xs font-semibold hover:bg-amber-500/20 disabled:opacity-60"
+          >
+            {resendLoading ? 'Envoi...' : 'Renvoyer l’email de confirmation'}
+          </button>
+          {resent ? <p className="mt-2 text-xs text-amber-200">Email renvoyé ✅</p> : null}
+        </div>
+      ) : null}
+
       <div className="space-y-2">
         <label className="text-xs uppercase tracking-widest text-white/50" htmlFor="email">
           Email
