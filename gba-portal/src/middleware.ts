@@ -17,7 +17,7 @@ const protectedRoutes: Array<{ prefix: string; minRole: Role }> = [
   { prefix: '/dashboard/licences', minRole: 'staff' },
   { prefix: '/dashboard/stock', minRole: 'staff' },
   { prefix: '/dashboard/relances', minRole: 'staff' },
-  { prefix: '/dashboard/effectif', minRole: 'staff' },
+  { prefix: '/dashboard/effectif', minRole: 'coach' },
 ]
 
 export async function middleware(request: NextRequest) {

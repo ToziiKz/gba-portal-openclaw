@@ -6,19 +6,22 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
-import { navItems, canAccess, isActivePath } from '@/lib/dashboard/nav'
+import { getVisibleNavItems, isActivePath } from '@/lib/dashboard/nav'
 import type { DashboardRole } from '@/lib/dashboardRole'
 
 type Props = {
   role: DashboardRole
 }
 
+const matchSubItems = [
+  { label: 'Composition', href: '/dashboard/tactique' },
+  { label: 'Convocations', href: '/dashboard/convocations' },
+]
+
 export function DashboardSidebar({ role }: Props) {
   const pathname = usePathname()
 
-  const items = React.useMemo(() => {
-    return navItems.filter((item) => item.status === 'ready' && canAccess(role, item))
-  }, [role])
+  const items = React.useMemo(() => getVisibleNavItems(role), [role])
 
   return (
     <aside className="fixed left-0 top-0 z-50 hidden h-full w-64 shrink-0 flex-col border-r border-[color:var(--ui-border)] bg-[color:var(--ui-surface)]/50 backdrop-blur-xl lg:flex">
@@ -42,6 +45,12 @@ export function DashboardSidebar({ role }: Props) {
         <ul className="space-y-1">
           {items.map((item) => {
             const active = isActivePath(pathname ?? '', item.href)
+            const isMatchModule = item.href === '/dashboard/match'
+            const showMatchSubs =
+              isMatchModule &&
+              role === 'coach' &&
+              (active || pathname?.startsWith('/dashboard/tactique') || pathname?.startsWith('/dashboard/convocations'))
+
             return (
               <li key={item.href}>
                 <Link
@@ -57,6 +66,28 @@ export function DashboardSidebar({ role }: Props) {
                     <div className="h-1.5 w-1.5 rounded-full bg-[color:var(--ui-ring)] shadow-[0_0_8px_currentColor]" />
                   )}
                 </Link>
+
+                {showMatchSubs ? (
+                  <ul className="mt-1 grid gap-1 pl-3">
+                    {matchSubItems.map((sub) => {
+                      const subActive = isActivePath(pathname ?? '', sub.href)
+                      return (
+                        <li key={sub.href}>
+                          <Link
+                            href={sub.href}
+                            className={`block rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                              subActive
+                                ? 'bg-[color:var(--ui-surface-2)] text-[color:var(--ui-fg)]'
+                                : 'text-[color:var(--ui-muted)] hover:bg-[color:var(--ui-surface)] hover:text-[color:var(--ui-fg)]'
+                            }`}
+                          >
+                            {sub.label}
+                          </Link>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                ) : null}
               </li>
             )
           })}

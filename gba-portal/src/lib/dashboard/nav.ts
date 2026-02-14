@@ -24,6 +24,14 @@ export const roleOrder: Record<DashboardRole, number> = {
 
 export const navItems: NavItem[] = [
   { label: 'Vue d’ensemble', href: '/dashboard', status: 'ready', minRole: 'viewer' },
+  { label: 'Match', href: '/dashboard/match', status: 'ready', note: 'composition + convocations', minRole: 'coach' },
+  {
+    label: 'Composition',
+    href: '/dashboard/tactique',
+    status: 'ready',
+    note: 'compo & terrain',
+    minRole: 'coach',
+  },
   {
     label: 'Rapports',
     href: '/dashboard/rapports',
@@ -39,6 +47,7 @@ export const navItems: NavItem[] = [
     minRole: 'staff',
   },
   { label: 'Équipes', href: '/dashboard/equipes', status: 'ready', minRole: 'coach' },
+  { label: 'Effectif', href: '/dashboard/effectif', status: 'ready', note: 'équipes + joueurs', minRole: 'coach' },
   {
     label: 'Catégories',
     href: '/dashboard/categories',
@@ -47,7 +56,7 @@ export const navItems: NavItem[] = [
     minRole: 'coach',
   },
   { label: 'Joueurs', href: '/dashboard/joueurs', status: 'ready', minRole: 'coach' },
-  { label: 'Planning (pôles)', href: '/dashboard/planning', status: 'ready', minRole: 'coach' },
+  { label: 'Planning hebdomadaire', href: '/dashboard/planning', status: 'ready', minRole: 'coach' },
   {
     label: 'Présences',
     href: '/dashboard/presences',
@@ -87,9 +96,23 @@ export const navItems: NavItem[] = [
   },
 ]
 
+const coachPrimaryHrefs = new Set([
+  '/dashboard',
+  '/dashboard/effectif',
+  '/dashboard/planning',
+  '/dashboard/presences',
+  '/dashboard/match',
+])
+
 export function canAccess(role: DashboardRole, item: NavItem) {
   const min = item.minRole ?? 'viewer'
   return roleOrder[role] >= roleOrder[min]
+}
+
+export function getVisibleNavItems(role: DashboardRole) {
+  const base = navItems.filter((item) => item.status === 'ready' && canAccess(role, item))
+  if (role !== 'coach') return base
+  return base.filter((item) => coachPrimaryHrefs.has(item.href))
 }
 
 export function normalizePath(pathname: string | null) {

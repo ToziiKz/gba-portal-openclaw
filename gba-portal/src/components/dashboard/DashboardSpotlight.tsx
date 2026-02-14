@@ -6,7 +6,7 @@ import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 
 import type { DashboardRole } from '@/lib/dashboardRole'
-import { navItems, canAccess } from '@/lib/dashboard/nav'
+import { getVisibleNavItems } from '@/lib/dashboard/nav'
 
 type Props = {
   role: DashboardRole
@@ -30,9 +30,7 @@ export function DashboardSpotlight({ role, isOpen, onClose }: Props) {
 
   const results = React.useMemo(() => {
     const q = query.trim().toLowerCase()
-    const base = navItems
-      .filter((i) => i.status === 'ready')
-      .filter((i) => canAccess(role, i))
+    const base = getVisibleNavItems(role)
 
     if (!q) return base
 

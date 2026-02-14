@@ -30,6 +30,7 @@ type Team = {
   id: string
   name: string
   category: string
+  pole?: string | null
 }
 
 type Slot = {
@@ -519,6 +520,8 @@ export default function TactiquePage() {
   const [teams, setTeams] = React.useState<Team[]>([])
   const [selectedTeamId, setSelectedTeamId] = React.useState<string>('')
   const [isLoading, setIsLoading] = React.useState(true)
+  const [isCoach, setIsCoach] = React.useState(false)
+  const [includePoleTeams, setIncludePoleTeams] = React.useState(false)
 
   const selectedTeam = React.useMemo(
     () => teams.find((t) => t.id === selectedTeamId) ?? null,
@@ -544,19 +547,69 @@ export default function TactiquePage() {
     })
   )
 
-  // Load teams
+  // Load teams (coach: only assigned teams, optionally same pole)
   React.useEffect(() => {
     async function loadTeams() {
       const supabase = createClient()
-      const { data } = await supabase.from('teams').select('id, name, category').order('name')
-      if (data) {
-        setTeams(data)
-        if (data.length > 0) setSelectedTeamId(data[0].id)
+      setIsLoading(true)
+
+      const { data: authData } = await supabase.auth.getUser()
+      const userId = authData.user?.id
+
+      if (!userId) {
+        const { data } = await supabase.from('teams').select('id, name, category, pole').order('name')
+        const safeTeams = (data ?? []) as Team[]
+        setIsCoach(false)
+        setTeams(safeTeams)
+        setSelectedTeamId((prev) => (safeTeams.some((t) => t.id === prev) ? prev : (safeTeams[0]?.id ?? '')))
+        setIsLoading(false)
+        return
       }
+
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).single()
+      const role = String(profile?.role ?? '').trim().toLowerCase()
+
+      if (role === 'coach') {
+        setIsCoach(true)
+
+        const { data: ownTeamsData } = await supabase
+          .from('teams')
+          .select('id, name, category, pole')
+          .eq('coach_id', userId)
+          .order('name')
+
+        const ownTeams = (ownTeamsData ?? []) as Team[]
+        let visibleTeams = ownTeams
+
+        if (includePoleTeams) {
+          const poles = Array.from(new Set(ownTeams.map((t) => t.pole).filter(Boolean))) as string[]
+          if (poles.length > 0) {
+            const { data: poleTeamsData } = await supabase
+              .from('teams')
+              .select('id, name, category, pole')
+              .in('pole', poles)
+              .order('name')
+            const merged = [...ownTeams, ...((poleTeamsData ?? []) as Team[])]
+            const byId = new Map(merged.map((t) => [t.id, t]))
+            visibleTeams = Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name))
+          }
+        }
+
+        setTeams(visibleTeams)
+        setSelectedTeamId((prev) => (visibleTeams.some((t) => t.id === prev) ? prev : (visibleTeams[0]?.id ?? '')))
+        setIsLoading(false)
+        return
+      }
+
+      setIsCoach(false)
+      const { data } = await supabase.from('teams').select('id, name, category, pole').order('name')
+      const safeTeams = (data ?? []) as Team[]
+      setTeams(safeTeams)
+      setSelectedTeamId((prev) => (safeTeams.some((t) => t.id === prev) ? prev : (safeTeams[0]?.id ?? '')))
       setIsLoading(false)
     }
     loadTeams()
-  }, [])
+  }, [includePoleTeams])
 
   // Load players for selected team
   React.useEffect(() => {
@@ -570,10 +623,10 @@ export default function TactiquePage() {
         .eq('team_id', selectedTeamId)
         .order('lastname')
 
-      const formatted: Player[] = (data ?? []).map((p: any) => ({
+      const formatted: Player[] = (data ?? []).map((p: { id: string; firstname: string | null; lastname: string | null; category: string | null }) => ({
         id: String(p.id),
         name: `${p.firstname ?? ''} ${(p.lastname ?? '').slice(0, 1)}.`.trim(),
-        category: p.category,
+        category: p.category ?? '',
       }))
 
       setPlayers(formatted)
@@ -701,17 +754,31 @@ export default function TactiquePage() {
                 <p className="text-sm text-white/60">{labelForFormat(format)} • Glisser-déposer</p>
               </div>
 
-              <select
-                value={selectedTeamId}
-                onChange={(e) => setSelectedTeamId(e.target.value)}
-                className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                {teams.map((t) => (
-                  <option key={t.id} value={t.id} className="text-black">
-                    {t.name}
-                  </option>
-                ))}
-              </select>
+              <div className="flex flex-col items-end gap-2">
+                <select
+                  value={selectedTeamId}
+                  onChange={(e) => setSelectedTeamId(e.target.value)}
+                  className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  {teams.map((t) => (
+                    <option key={t.id} value={t.id} className="text-black">
+                      {t.name}
+                    </option>
+                  ))}
+                </select>
+
+                {isCoach ? (
+                  <label className="inline-flex items-center gap-2 text-xs text-white/70">
+                    <input
+                      type="checkbox"
+                      checked={includePoleTeams}
+                      onChange={(e) => setIncludePoleTeams(e.target.checked)}
+                      className="h-3.5 w-3.5"
+                    />
+                    Inclure les équipes de mon pôle
+                  </label>
+                ) : null}
+              </div>
             </div>
 
             <div className="mt-5 flex flex-wrap gap-2">
