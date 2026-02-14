@@ -22,3 +22,8 @@
 
 # local tools
 qmd/
+
+# local workspace data (do not version)
+memory/
+skills/
+reference_site/
