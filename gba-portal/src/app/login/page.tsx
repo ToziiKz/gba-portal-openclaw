@@ -31,13 +31,23 @@ export default function LoginPage() {
           <LoginForm />
         </div>
 
-        <div className="mt-8 text-center">
-          <Link
-            href="/"
-            className="text-xs font-semibold text-white/40 hover:text-white hover:underline"
-          >
-            Retour au site public
-          </Link>
+        <div className="mt-8 text-center space-y-2">
+          <p>
+            <Link
+              href="/coach-access"
+              className="text-xs font-semibold text-white/70 hover:text-white hover:underline"
+            >
+              Demander un accès coach
+            </Link>
+          </p>
+          <p>
+            <Link
+              href="/"
+              className="text-xs font-semibold text-white/40 hover:text-white hover:underline"
+            >
+              Retour au site public
+            </Link>
+          </p>
         </div>
       </div>
     </div>

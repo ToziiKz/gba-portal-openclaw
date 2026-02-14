@@ -78,6 +78,13 @@ export const navItems: NavItem[] = [
     note: 'file d’approbation',
     minRole: 'admin',
   },
+  {
+    label: 'Accès coachs',
+    href: '/dashboard/acces',
+    status: 'ready',
+    note: 'invitations',
+    minRole: 'admin',
+  },
 ]
 
 export function canAccess(role: DashboardRole, item: NavItem) {
