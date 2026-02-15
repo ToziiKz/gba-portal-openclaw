@@ -1,5 +1,6 @@
 'use server'
 
+import { requireRole } from '@/lib/dashboard/authz'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
@@ -18,11 +19,8 @@ export type Category = {
 
 export async function getCategories() {
   const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .order('name')
-  
+  const { data, error } = await supabase.from('categories').select('*').order('name')
+
   if (error) {
     console.error('Error fetching categories:', error)
     return []
@@ -31,15 +29,15 @@ export async function getCategories() {
 }
 
 export async function createCategory(formData: FormData) {
-  const supabase = await createClient()
-  
+  const { supabase } = await requireRole('staff')
+
   const name = formData.get('name') as string
   const pole = formData.get('pole') as string
   const age_range_label = formData.get('age_range_label') as string
   const teams_label = formData.get('teams_label') as string
   const notes = formData.get('notes') as string
-  const teams_count = parseInt(formData.get('teams_count') as string || '0')
-  const players_estimate = parseInt(formData.get('players_estimate') as string || '0')
+  const teams_count = parseInt((formData.get('teams_count') as string) || '0')
+  const players_estimate = parseInt((formData.get('players_estimate') as string) || '0')
 
   const { error } = await supabase.from('categories').insert({
     name,
@@ -49,7 +47,7 @@ export async function createCategory(formData: FormData) {
     teams_count,
     players_estimate,
     notes,
-    lead_staff: [] // Initialize empty staff
+    lead_staff: [], // Initialize empty staff
   })
 
   if (error) {
@@ -61,26 +59,29 @@ export async function createCategory(formData: FormData) {
 }
 
 export async function updateCategory(id: string, formData: FormData) {
-  const supabase = await createClient()
-  
+  const { supabase } = await requireRole('staff')
+
   const name = formData.get('name') as string
   const pole = formData.get('pole') as string
   const age_range_label = formData.get('age_range_label') as string
   const teams_label = formData.get('teams_label') as string
   const notes = formData.get('notes') as string
-  const teams_count = parseInt(formData.get('teams_count') as string || '0')
-  const players_estimate = parseInt(formData.get('players_estimate') as string || '0')
+  const teams_count = parseInt((formData.get('teams_count') as string) || '0')
+  const players_estimate = parseInt((formData.get('players_estimate') as string) || '0')
 
-  const { error } = await supabase.from('categories').update({
-    name,
-    pole,
-    age_range_label,
-    teams_label,
-    teams_count,
-    players_estimate,
-    notes,
-    updated_at: new Date().toISOString()
-  }).eq('id', id)
+  const { error } = await supabase
+    .from('categories')
+    .update({
+      name,
+      pole,
+      age_range_label,
+      teams_label,
+      teams_count,
+      players_estimate,
+      notes,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id)
 
   if (error) {
     console.error('Error updating category:', error)
@@ -91,12 +92,12 @@ export async function updateCategory(id: string, formData: FormData) {
 }
 
 export async function deleteCategory(id: string) {
-    const supabase = await createClient()
-    const { error } = await supabase.from('categories').delete().eq('id', id)
-    
-    if (error) {
-        console.error('Error deleting category:', error)
-        throw new Error('Failed to delete category')
-    }
-    revalidatePath('/dashboard/categories')
+  const { supabase } = await requireRole('staff')
+  const { error } = await supabase.from('categories').delete().eq('id', id)
+
+  if (error) {
+    console.error('Error deleting category:', error)
+    throw new Error('Failed to delete category')
+  }
+  revalidatePath('/dashboard/categories')
 }

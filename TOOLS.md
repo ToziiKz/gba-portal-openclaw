@@ -38,3 +38,10 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 ---
 
 Add whatever helps you do your job. This is your cheat sheet.
+
+## Standards d’exécution (upgrade v1)
+
+- Toujours finir par preuves: commande + résultat clé
+- Toujours inclure rollback sur changements risqués
+- Pour demandes “polish/nettoyage”: exécuter d’abord lint strict + build
+- Pour demandes vagues: convertir en plan mesurable (checklist)

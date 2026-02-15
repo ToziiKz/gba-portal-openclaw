@@ -1,5 +1,6 @@
 'use server'
 
+import { requireRole } from '@/lib/dashboard/authz'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
@@ -16,11 +17,8 @@ export type Competition = {
 
 export async function getCompetitions() {
   const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('competitions')
-    .select('*')
-    .order('match_date', { ascending: false })
-  
+  const { data, error } = await supabase.from('competitions').select('*').order('match_date', { ascending: false })
+
   if (error) {
     console.error('Error fetching competitions:', error)
     return []
@@ -29,14 +27,14 @@ export async function getCompetitions() {
 }
 
 export async function createCompetition(formData: FormData) {
-  const supabase = await createClient()
-  
+  const { supabase } = await requireRole('staff')
+
   const category = formData.get('category') as string
   const team_home = formData.get('team_home') as string
   const team_away = formData.get('team_away') as string
   const match_date = formData.get('match_date') as string
-  const score_home = parseInt(formData.get('score_home') as string || '0')
-  const score_away = parseInt(formData.get('score_away') as string || '0')
+  const score_home = parseInt((formData.get('score_home') as string) || '0')
+  const score_away = parseInt((formData.get('score_away') as string) || '0')
 
   const { error } = await supabase.from('competitions').insert({
     category,
@@ -44,7 +42,7 @@ export async function createCompetition(formData: FormData) {
     team_away,
     score_home,
     score_away,
-    match_date
+    match_date,
   })
 
   if (error) {
@@ -56,12 +54,12 @@ export async function createCompetition(formData: FormData) {
 }
 
 export async function deleteCompetition(id: string) {
-    const supabase = await createClient()
-    const { error } = await supabase.from('competitions').delete().eq('id', id)
-    
-    if (error) {
-        console.error('Error deleting competition:', error)
-        throw new Error('Failed to delete competition')
-    }
-    revalidatePath('/dashboard/competitions')
+  const { supabase } = await requireRole('staff')
+  const { error } = await supabase.from('competitions').delete().eq('id', id)
+
+  if (error) {
+    console.error('Error deleting competition:', error)
+    throw new Error('Failed to delete competition')
+  }
+  revalidatePath('/dashboard/competitions')
 }
