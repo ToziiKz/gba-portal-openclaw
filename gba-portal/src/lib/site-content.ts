@@ -1,41 +1,47 @@
 export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? 'contact@gba-portal.fr'
 
 export const KEY_STATS = [
-  { label: 'Passionnés', value: '350+', sub: 'Des débutants aux vétérans' },
-  { label: 'Équipes', value: '20+', sub: 'Toutes catégories représentées' },
-  { label: 'Soutiens', value: '18', sub: 'Entreprises locales engagées' },
+  { label: 'Équipes', value: '30+', sub: 'Toutes les catégories jeunes représentées' },
+  { label: 'Joueurs', value: '370+', sub: 'Du Babyfoot à U18' },
+  { label: 'Soutiens', value: '100+', sub: 'Entreprises locales engagées' },
 ]
 
 export const SPONSORS_LIST = [
   {
-    name: 'Boulangerie Martin',
-    role: 'Alimentation / événementiel',
-    impact: 'Soutien régulier aux journées jeunes.',
+    name: 'Céramique +',
+    role: 'Magasin carrelage',
+    impact: 'Partenaire local engagé pour les infrastructures et la vie du club.',
+    logoUrl: '/sponsors/ceramique-plus.png',
   },
   {
-    name: 'Garage de la Vallée',
-    role: 'Mobilité',
-    impact: 'Aide logistique pour les déplacements.',
+    name: 'France Pare-Brise',
+    role: 'Réparation pare-brise',
+    impact: 'Interventions rapides, prise en charge, et soutien local au club.',
+    logoUrl: '/sponsors/france-pare-brise.png',
   },
   {
-    name: 'Clinique des Trois Rivières',
-    role: 'Santé / prévention',
-    impact: 'Actions prévention et accompagnement.',
+    name: 'Restaurant Au Lion',
+    role: 'Restaurant',
+    impact: 'Partenaire convivial des moments club et des événements locaux.',
+    logoUrl: '/sponsors/restaurant-au-lion.png',
   },
   {
-    name: 'Imprimerie Ackerland',
-    role: 'Signalétique',
-    impact: 'Supports visuels club et tournois.',
+    name: 'Marka Sport',
+    role: 'Impression & distribution',
+    impact: 'Équipement, marquage et distribution — partenaire terrain du GBA.',
+    logoUrl: '/sponsors/marka-sport.png',
   },
   {
-    name: 'Brasserie du Canal',
-    role: 'Hospitalité',
-    impact: 'Soutien des événements locaux du club.',
+    name: 'LCR',
+    role: 'Constructeur immobilier',
+    impact: 'Les Constructeurs Réunis — partenaire engagé aux côtés du GBA.',
+    logoUrl: '/sponsors/lcr.png',
   },
   {
-    name: 'Banque Locale',
-    role: 'Partenaire Institutionnel',
-    impact: 'Appui aux projets structurants.',
+    name: 'Origami',
+    role: 'Agence immobilière',
+    impact: 'Partenaire local engagé aux côtés du GBA.',
+    logoUrl: '/sponsors/origami.jpg',
   },
 ]
 

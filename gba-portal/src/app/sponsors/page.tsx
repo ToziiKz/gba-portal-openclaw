@@ -1,388 +1,180 @@
 import { CONTACT_EMAIL, SPONSORS_LIST } from '@/lib/site-content'
 import type { Metadata } from 'next'
-import type { ReactNode } from 'react'
-import Link from 'next/link'
-
-export const metadata: Metadata = {
-  title: 'Sponsors',
-  description:
-    'Devenez partenaire du Groupement Bruche Ackerland : visibilité locale, impact terrain, narration premium et activations sur-mesure.',
-  alternates: {
-    canonical: '/sponsors',
-  },
-  openGraph: {
-    title: 'Sponsors · GBA Portal',
-    description:
-      'Une vitrine cinématique pour convertir des partenaires : pourquoi sponsoriser, chiffres clés, offres et contact.',
-    images: [
-      {
-        url: '/gba-logo.png',
-        width: 1200,
-        height: 630,
-        alt: 'GBA Portal — Sponsors',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Sponsors · GBA Portal',
-    description:
-      'Une vitrine cinématique pour convertir des partenaires : pourquoi sponsoriser, chiffres clés, offres et contact.',
-    images: [
-      {
-        url: '/gba-logo.png',
-        alt: 'GBA Portal — Sponsors',
-      },
-    ],
-  },
-}
-
-const reasons = [
-  {
-    title: 'Visibilité premium',
-    description:
-      'Présence en match, sur nos supports, et sur une vitrine web premium (sobre et claire).',
-  },
-  {
-    title: 'Impact local mesurable',
-    description:
-      'Vous financez du concret : équipements, déplacements, actions jeunes, et événements club.',
-  },
-  {
-    title: 'Activation sur-mesure',
-    description:
-      'Opérations terrain, contenus courts, offres partenaires : un plan simple et efficace.',
-  },
-]
+import Image from 'next/image'
 
 const stats = [
   { label: 'Licenciés', value: '350+', sub: 'École de foot → Seniors' },
-  { label: 'Équipes', value: '20+', sub: 'Jeunes, féminines, seniors' },
-  { label: 'Rendez-vous', value: 'Chaque week-end', sub: 'Présence locale régulière' },
-  { label: 'Audience', value: 'Multi-canal', sub: 'Terrain · réseau · vitrine web' },
+  { label: 'Équipes', value: '20+', sub: 'Féminines & Masculines' },
+  { label: 'Matchs / an', value: '450+', sub: 'Une visibilité constante' },
+  { label: 'Territoire', value: '2 Vallées', sub: 'Bruche & Ackerland' },
 ]
 
 const tiers = [
   {
-    name: 'Bronze',
-    price: 'Dès 300€ / an',
-    tagline: 'Entrer dans le collectif',
-    perks: ['Logo (supports club)', 'Mention sur la page Sponsors', 'Attestation partenariat'],
+    name: 'Partenaire Club',
+    price: 'Dès 300€',
+    tagline: 'Soutenez la formation locale',
+    perks: ['Logo sur le site officiel', 'Accès aux événements club', 'Attestation de mécénat'],
+    color: 'border-white/10'
   },
   {
-    name: 'Argent',
-    price: 'Dès 800€ / an',
-    tagline: 'Visibilité + activation',
-    perks: [
-      'Pack logo + emplacement prioritaire',
-      'Post réseau (1/an)',
-      'Présence événement (1/an)',
-    ],
+    name: 'Partenaire Officiel',
+    price: 'Dès 800€',
+    tagline: 'Une visibilité terrain & digitale',
+    perks: ['Logo sur équipements', 'Relais réseaux sociaux', 'Panneau stade (option)'],
     featured: true,
+    color: 'border-cyan-500/30'
   },
   {
-    name: 'Or',
-    price: 'Sur devis',
-    tagline: 'Partenariat signature',
-    perks: [
-      'Opération co-brandée',
-      'Contenus photo/vidéo',
-      'Bandeau / mise en avant premium',
-      'Reporting & bilan annuel',
-    ],
+    name: 'Partenaire Majeur',
+    price: 'Sur Mesure',
+    tagline: 'Le GBA au cœur de votre marque',
+    perks: ['Naming / Sponsoring maillot', 'Contenus vidéo dédiés', 'Reporting annuel'],
+    color: 'border-amber-500/30'
   },
 ]
 
-function Pill({ children }: { children: ReactNode }) {
-  return (
-    <span className="inline-flex items-center text-[11px] font-bold uppercase tracking-widest text-[#00A1FF]">
-      {children}
-    </span>
-  )
+export const metadata: Metadata = {
+  title: 'Sponsors — GBA Portal',
+  description: 'Devenez partenaire du Groupement Bruche Ackerland et soutenez le football local.',
 }
 
 export default function SponsorsPage() {
-  const faqJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: 'Quels types de partenariats proposez-vous ?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Trois tiers (Bronze, Argent, Or) + du sur-mesure (équipement, événements, contenus).',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'Combien de temps faut-il pour activer un partenariat ?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'En général 1 à 2 semaines selon les supports (maillots, panneaux, contenus) et vos validations.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'Fournissez-vous une attestation de partenariat ?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Oui, une attestation est incluse (au minimum dans le tier Bronze).',
-        },
-      },
-    ],
-  }
-
   return (
-    <div className="min-h-screen bg-black">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
-      <header className="px-6 pt-24 pb-16 md:pt-32">
-        <div className="mx-auto max-w-6xl">
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-wrap items-center gap-3" aria-label="Thèmes">
-              <Pill>Sponsoring</Pill>
-            </div>
-            <h1 className="max-w-4xl font-[var(--font-teko)] text-5xl font-black tracking-[0.06em] text-white sm:text-7xl">
-              Devenez sponsor. <br className="hidden sm:block" />
-              <span className="text-white/40">Prenez place dans l’histoire.</span>
-            </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-white/60">
-              Visibilité claire, investissement utile. Ensemble, finançons le terrain et la
-              formation.
-            </p>
-            <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center">
-              <a
-                href="#contact"
-                className="rounded-full bg-white px-8 py-4 text-sm font-bold text-black transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-              >
-                Proposer un partenariat
-              </a>
-              <a
-                href={`mailto:${CONTACT_EMAIL}`}
-                className="rounded-full border border-white/10 px-8 py-4 text-sm font-bold text-white transition-colors hover:border-white hover:bg-white hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-              >
-                Contacter par email
-              </a>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#03040a] text-white overflow-hidden">
+      {/* Cinematic Hero */}
+      <section className="relative pt-40 pb-32 px-6">
+        {/* Abstract Background */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-0 right-0 h-[600px] w-[600px] bg-cyan-500/10 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 left-0 h-[600px] w-[600px] bg-amber-500/5 blur-[120px] rounded-full -translate-x-1/2 translate-y-1/2" />
         </div>
-      </header>
 
-      <section id="pourquoi" className="px-6 py-20">
-        <div className="mx-auto max-w-5xl">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
-                Pourquoi nous rejoindre
-              </p>
-              <h2 className="mt-2 font-[var(--font-teko)] text-4xl font-bold uppercase tracking-wide text-white">
-                Un plan simple, une image forte
-              </h2>
+        <div className="relative z-10 mx-auto max-w-6xl">
+          <p className="text-xs font-bold uppercase tracking-[0.5em] text-cyan-400 mb-6">Partenariats 2026</p>
+          <h1 className="font-[family-name:var(--font-teko)] text-7xl font-black uppercase leading-[0.85] tracking-tight sm:text-9xl">
+            Plus qu&apos;un logo. <br />
+            <span className="text-white/20">Une ambition.</span>
+          </h1>
+          <div className="mt-12 flex flex-col md:flex-row gap-12 items-start">
+            <p className="max-w-xl text-xl text-white/60 leading-relaxed">
+              Associez votre entreprise à un projet qui forme les citoyens de demain. 
+              Le GBA offre une visibilité unique au cœur de la Bruche et de l&apos;Ackerland.
+            </p>
+            <div className="flex gap-4">
+               <a href="#contact" className="rounded-full bg-white px-8 py-4 text-sm font-black uppercase tracking-widest text-black transition-transform hover:scale-105">
+                 Nous rejoindre
+               </a>
             </div>
-          </div>
-
-          <div className="mt-12 grid gap-12 md:grid-cols-3">
-            {reasons.map((reason) => (
-              <article key={reason.title}>
-                <h3 className="text-lg font-bold text-white">{reason.title}</h3>
-                <p className="mt-2 text-sm text-white/50 leading-relaxed">{reason.description}</p>
-              </article>
-            ))}
           </div>
         </div>
       </section>
 
-      <section id="chiffres" className="px-6 py-20 border-t border-white/5">
-        <div className="mx-auto max-w-5xl">
-          <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4 text-center">
+      {/* Stats Section - Grid Layout */}
+      <section className="relative z-10 py-24 border-y border-white/5 bg-white/[0.01]">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
             {stats.map((stat) => (
-              <article key={stat.label}>
-                <p className="text-3xl font-[var(--font-teko)] font-bold text-white">
-                  {stat.value}
-                </p>
-                <p className="text-[10px] uppercase tracking-widest text-white/40 mt-1 font-bold">
-                  {stat.label}
-                </p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="offres" className="px-6 py-20">
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-12 max-w-2xl">
-            <h2 className="font-[var(--font-teko)] text-4xl font-bold uppercase tracking-wide text-white">
-              3 Tiers. 1 Objectif.
-            </h2>
-            <p className="mt-4 text-sm text-white/50">
-              Des packs clairs pour éviter les négociations interminables.
-            </p>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-3">
-            {tiers.map((tier) => (
-              <article
-                key={tier.name}
-                className={`flex flex-col rounded-2xl p-8 ${tier.featured ? 'bg-white/[0.05]' : 'bg-transparent border border-white/5'}`}
-              >
-                <div className="flex justify-between items-baseline">
-                  <h3 className="text-xl font-bold text-white">{tier.name}</h3>
-                  {tier.featured && (
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#00A1FF]">
-                      Populaire
-                    </span>
-                  )}
-                </div>
-                <p className="mt-4 text-3xl font-[var(--font-teko)] font-bold text-white">
-                  {tier.price}
-                </p>
-                <p className="mt-1 text-xs text-white/40">{tier.tagline}</p>
-
-                <ul className="mt-8 space-y-3 text-sm text-white/60 flex-1">
-                  {tier.perks.map((perk) => (
-                    <li key={perk} className="flex gap-3 items-start">
-                      <span className="mt-1.5 h-1 w-1 flex-none rounded-full bg-white/40" />
-                      <span>{perk}</span>
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="boutique-partenaires"
-        className="border-b border-white/5 px-6 py-20"
-        aria-labelledby="boutique-partenaires-title"
-      >
-        <div className="mx-auto max-w-5xl">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-white/50 font-bold">
-                Activation
-              </p>
-              <h2
-                id="boutique-partenaires-title"
-                className="mt-2 font-[var(--font-teko)] text-4xl font-bold uppercase tracking-wide text-white"
-              >
-                Boutique & éditions partenaires
-              </h2>
-              <p className="mt-4 max-w-xl text-sm text-white/60">
-                Pour certains partenaires, on peut imaginer une{' '}
-                <span className="text-white/80">série limitée</span> (co‑branding).
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/shop"
-                className="text-xs font-bold text-white border-b border-white/30 pb-0.5 hover:text-white hover:border-white transition-colors"
-                aria-label="Découvrir la boutique du club"
-              >
-                Voir la boutique
-              </Link>
-            </div>
-          </div>
-
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {[
-              {
-                id: '01',
-                title: 'Une offre claire',
-                desc: 'Produit simple, quantités maîtrisées, message “soutien formation”.',
-              },
-              {
-                id: '02',
-                title: 'Visibilité naturelle',
-                desc: 'Mise en avant sur la vitrine + la boutique, relais terrain.',
-              },
-              {
-                id: '03',
-                title: 'Impact club',
-                desc: 'Finance du concret (équipements, déplacements, événements).',
-              },
-            ].map((item) => (
-              <article key={item.id} className="rounded-3xl bg-white/[0.02] p-8">
-                <p className="text-xs font-bold text-white/30">{item.id}</p>
-                <h3 className="mt-2 text-xl font-bold text-white">{item.title}</h3>
-                <p className="mt-2 text-sm text-white/60">{item.desc}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="logos" className="px-6 py-20 border-t border-white/5">
-        <div className="mx-auto max-w-5xl">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
-            <h2 className="font-[var(--font-teko)] text-4xl font-bold text-white">
-              Partenaires actuels
-            </h2>
-            <p className="text-sm text-white/40 max-w-md text-right">
-              Ils soutiennent déjà le projet.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-x-8 gap-y-4 text-sm text-white/60">
-            {SPONSORS_LIST.map((partner) => (
-              <div key={partner.name} className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-white/20"></span>
-                <span className="font-semibold text-white/80">{partner.name}</span>
-                <span className="hidden sm:inline text-white/30">— {partner.impact}</span>
+              <div key={stat.label} className="text-center md:text-left">
+                <div className="font-[family-name:var(--font-teko)] text-6xl font-black text-white">{stat.value}</div>
+                <div className="text-xs font-bold uppercase tracking-[0.2em] text-white/30 mt-2">{stat.label}</div>
+                <div className="text-[10px] text-white/20 mt-1 uppercase">{stat.sub}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="faq" className="px-6 py-20" aria-labelledby="faq-title">
-        <div className="mx-auto max-w-3xl">
-          <h2
-            id="faq-title"
-            className="mb-12 text-center font-[var(--font-teko)] text-4xl font-bold uppercase tracking-wide text-white"
-          >
-            Questions fréquentes
-          </h2>
+      {/* Tiers Section - Card Design */}
+      <section className="relative z-10 py-32 px-6">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center mb-20">
+            <h2 className="font-[family-name:var(--font-teko)] text-5xl font-bold uppercase tracking-wide">
+              Choisissez votre impact
+            </h2>
+            <div className="h-1 w-20 bg-cyan-500 mx-auto mt-6" />
+          </div>
 
-          <div className="space-y-8">
-            <div className="space-y-2">
-              <h3 className="text-lg font-bold text-white">Quels types de partenariats ?</h3>
-              <p className="text-sm leading-relaxed text-white/50">
-                Trois tiers (Bronze, Argent, Or) + du sur-mesure (équipement, événements, contenus).
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-bold text-white">Délai d&apos;activation ?</h3>
-              <p className="text-sm leading-relaxed text-white/50">
-                En général 1 à 2 semaines selon les supports (maillots, panneaux, contenus) et vos
-                validations.
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-bold text-white">Attestation fournie ?</h3>
-              <p className="text-sm leading-relaxed text-white/50">
-                Oui, une attestation est incluse (au minimum dans le tier Bronze).
-              </p>
-            </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {tiers.map((tier) => (
+              <div 
+                key={tier.name} 
+                className={`group relative flex flex-col rounded-3xl border ${tier.color} bg-white/[0.02] p-10 transition-all hover:bg-white/[0.04]`}
+              >
+                {tier.featured && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-cyan-500 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-black">
+                    Recommandé
+                  </div>
+                )}
+                <div className="mb-8">
+                  <h3 className="font-[family-name:var(--font-teko)] text-3xl font-bold uppercase tracking-wide">{tier.name}</h3>
+                  <p className="text-white/40 text-sm mt-2">{tier.tagline}</p>
+                </div>
+                <div className="font-[family-name:var(--font-teko)] text-5xl font-black mb-8">{tier.price}</div>
+                <ul className="space-y-4 mb-12 flex-1">
+                  {tier.perks.map(perk => (
+                    <li key={perk} className="flex items-center gap-3 text-sm text-white/60">
+                      <span className="h-1 w-1 rounded-full bg-cyan-400" />
+                      {perk}
+                    </li>
+                  ))}
+                </ul>
+                <a href="#contact" className="w-full rounded-xl border border-white/10 bg-white/5 py-4 text-center text-xs font-bold uppercase tracking-widest transition-all group-hover:bg-white group-hover:text-black">
+                  En savoir plus
+                </a>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section id="contact" className="px-6 pb-20 pt-12 text-center">
-        <h2 className="font-[var(--font-teko)] text-5xl font-bold text-white mb-6 uppercase tracking-wide">
-          On commence ?
-        </h2>
-        <div className="flex justify-center gap-4">
-          <a
-            href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Partenariat sponsor — GBA')}`}
-            className="text-sm font-bold text-white border-b border-white/30 pb-0.5 hover:text-white hover:border-white transition-colors"
+      {/* Current Partners - Wall of Fame */}
+      <section className="relative z-10 py-32 px-6 bg-white/[0.01]">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="font-[family-name:var(--font-teko)] text-4xl font-bold uppercase tracking-wide mb-16 text-center md:text-left">
+            Ils nous font confiance
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+            {SPONSORS_LIST.map((partner) => (
+              <div 
+                key={partner.name} 
+                className="group relative aspect-square flex items-center justify-center rounded-2xl border border-white/5 bg-white/[0.02] p-6 grayscale transition-all hover:grayscale-0 hover:border-white/20"
+              >
+                {('logoUrl' in partner && partner.logoUrl) ? (
+                  <div className="relative h-full w-full">
+                    <Image 
+                      src={partner.logoUrl as string} 
+                      alt={partner.name} 
+                      fill 
+                      className="object-contain"
+                    />
+                  </div>
+                ) : (
+                  <span className="font-[family-name:var(--font-teko)] text-xl font-bold text-white/20 group-hover:text-white transition-colors">
+                    {partner.name}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact CTA */}
+      <section id="contact" className="relative z-10 py-40 px-6 overflow-hidden">
+        <div className="absolute inset-0 bg-cyan-600/10 pointer-events-none" />
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="font-[family-name:var(--font-teko)] text-6xl font-black uppercase tracking-tight mb-8">
+            Construisons le futur <br className="hidden md:block" /> du football local.
+          </h2>
+          <p className="text-xl text-white/50 mb-12">
+            Prenons rendez-vous pour discuter de votre visibilité et de votre impact au sein du GBA.
+          </p>
+          <a 
+            href={`mailto:${CONTACT_EMAIL}?subject=Partenariat GBA`}
+            className="inline-block rounded-full bg-white px-12 py-5 text-sm font-black uppercase tracking-[0.2em] text-black shadow-[0_20px_60px_rgba(255,255,255,0.2)] transition-transform hover:scale-105"
           >
-            {CONTACT_EMAIL}
+            Contacter le club
           </a>
         </div>
       </section>

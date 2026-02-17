@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { LoginForm } from '@/components/auth/LoginForm'
 
 export const metadata: Metadata = {
-  title: 'Connexion',
+  title: 'Accès staff',
   description: 'Accès staff GBA. Connectez-vous pour accéder au dashboard.',
   robots: {
     index: false,
@@ -27,7 +27,7 @@ export default async function LoginPage({
       <div className="mx-auto w-full max-w-md rounded-[2.5rem] border border-white/10 bg-white/5 p-8 shadow-[0_25px_90px_rgba(0,0,0,0.65)] backdrop-blur md:p-10">
         <p className="text-xs uppercase tracking-widest text-white/60">Espace staff</p>
         <h1 className="mt-4 font-[var(--font-teko)] text-4xl font-black tracking-[0.06em] text-white md:text-5xl">
-          Connexion
+          Accès staff
         </h1>
         <p className="mt-4 text-sm text-white/70">
           Connectez-vous pour gérer les équipes, le planning et les licences.

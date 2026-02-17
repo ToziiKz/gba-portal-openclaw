@@ -119,7 +119,7 @@ export function LoginForm() {
         disabled={loading}
         className="w-full rounded-full bg-gradient-to-r from-[#00a1ff] to-[#0065bd] py-6 text-base font-bold shadow-[0_15px_50px_rgba(0,161,255,0.45)] hover:opacity-90"
       >
-        {loading ? 'Connexion...' : 'Se connecter'}
+        {loading ? 'Accès staff...' : 'Accéder'}
       </Button>
     </form>
   )

@@ -12,8 +12,7 @@ const fadeStagger = {
   }),
 }
 
-const DEFAULT_HERO_AUDIO =
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+const DEFAULT_HERO_AUDIO = '/sounds/hero-voice.mp3'
 
 export function HeroShowcase() {
   const sectionRef = useRef<HTMLElement | null>(null)
@@ -172,19 +171,19 @@ export function HeroShowcase() {
         style={{ backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')" }}
       />
 
-      <div className="relative z-50 flex h-full flex-col items-center justify-center px-4 text-center pointer-events-none">
+      <div className="relative z-50 flex h-full flex-col items-center justify-center pt-32 px-4 text-center pointer-events-none">
         <motion.h1
           initial="hidden"
           animate="visible"
           custom={0.2}
           variants={fadeStagger}
-          className="font-[var(--font-teko)] text-[10vw] font-black uppercase leading-[0.88] tracking-[0.08em] text-white [text-shadow:0_8px_30px_rgba(0,0,0,0.55)] [-webkit-text-stroke:1px_rgba(255,255,255,0.2)]"
+          className="font-[var(--font-teko)] text-[10vw] font-black uppercase leading-[1.1] tracking-[0.08em] text-white [text-shadow:0_8px_30px_rgba(0,0,0,0.55)] [-webkit-text-stroke:1px_rgba(255,255,255,0.2)] pb-4"
         >
-          <span className="block bg-gradient-to-b from-white via-white to-white/70 bg-clip-text text-transparent">
-            Football Amateur
+          <span className="block bg-gradient-to-b from-white via-white to-white/70 bg-clip-text text-transparent py-2">
+            Forger l&apos;élite
           </span>
-          <span className="block bg-gradient-to-b from-white via-white to-white/70 bg-clip-text text-transparent">
-            Vision Pro
+          <span className="block bg-gradient-to-b from-white via-white to-white/70 bg-clip-text text-transparent py-2">
+            De Demain.
           </span>
         </motion.h1>
 
@@ -208,22 +207,6 @@ export function HeroShowcase() {
         </motion.button>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8, duration: 0.8 }}
-        className="pointer-events-none absolute bottom-6 left-1/2 z-10 -translate-x-1/2"
-        aria-hidden="true"
-      >
-        <motion.div
-          animate={prefersReducedMotion ? undefined : { y: [0, 7, 0], opacity: [0.7, 1, 0.7] }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-          className="flex flex-col items-center text-white/70"
-        >
-          <span className="mb-2 text-[10px] uppercase tracking-[0.24em]">Scroll</span>
-          <span className="text-lg">⌄</span>
-        </motion.div>
-      </motion.div>
     </section>
   )
 }

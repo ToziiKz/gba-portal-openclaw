@@ -82,7 +82,7 @@ export function Navbar() {
         <Link
           href="/login?next=/dashboard"
           aria-current={isLogin ? 'page' : undefined}
-          aria-label="Connexion"
+          aria-label="Accès staff"
           className={`group relative overflow-hidden rounded-full border border-white/30 bg-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.28em] text-white transition hover:border-white/60 hover:bg-white/20 whitespace-nowrap min-w-max sm:px-5 ${focusRing}`}
         >
           <span
@@ -113,7 +113,7 @@ export function Navbar() {
                 strokeLinejoin="round"
               />
             </svg>
-            <span>Connexion</span>
+            <span>Accès staff</span>
           </span>
         </Link>
       </div>

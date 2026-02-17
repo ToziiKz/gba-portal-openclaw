@@ -1,11 +1,12 @@
 import { FormationTimeline } from '@/components/FormationTimeline'
 import { HeroShowcase } from '@/components/HeroShowcase'
 import { ManifestoPanel } from '@/components/ManifestoPanel'
-import { StatsTicker } from '@/components/StatsTicker'
+// (StatsTicker removed)
 import { ProductCard } from '@/components/shop/ProductCard'
 import { featuredProducts } from '@/lib/shop-data'
 import { CONTACT_EMAIL, KEY_STATS, SPONSORS_LIST } from '@/lib/site-content'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
@@ -32,21 +33,21 @@ export const metadata: Metadata = {
 const pillars = [
   {
     title: 'Notre Histoire',
-    text: 'Né de la fusion de villages passionnés, le GBA est devenu une référence régionale. Une épopée humaine où chaque saison écrit un nouveau chapitre de gloire et de partage.',
+    text: "Né de la fusion de deux villages passionnés, le GBA s’est imposé comme une référence régionale. Un projet collectif, structuré et ambitieux, qui grandit saison après saison.",
   },
   {
     title: "L'Esprit GBA",
-    text: 'Bienveillance, Exigence, Dépassement. Ici, on ne forme pas seulement des joueurs, on construit des personnalités. Un maillot qui se porte avec fierté et humilité.',
+    text: "Bienveillance. Exigence. Dépassement. Un maillot, une responsabilité. Une équipe, une direction : se dépasser, rester humble, et construire quelque chose qui dure.",
   },
   {
     title: 'Notre Force',
-    text: "Une communauté soudée, des bénévoles en or et des supporters inconditionnels. Le GBA, c'est le cœur battant de notre territoire, vibrant au rythme de chaque match.",
+    text: "Un territoire rassemblé, une exigence partagée. Éducateurs, bénévoles, familles, supporters : le GBA avance uni — et grandit, match après match.",
   },
 ]
 
 const formationSteps = [
-  { label: "L'École de Foot", sub: 'U7 à U9 — Découverte & Sourires' },
-  { label: 'La Préformation', sub: 'U11 à U13 — Bases & Technique' },
+  { label: "L'École de Foot", sub: 'Babyfoot à U9 — Découverte & Sourires' },
+  { label: 'La Pré‑formation', sub: 'U11 à U13 — Bases & Technique' },
   { label: 'La Formation', sub: 'U15 à U18 — Compétition & Rigueur' },
   { label: 'Les Séniors', sub: 'Équipe Fanion — Ambition & Exemplarité' },
 ]
@@ -58,31 +59,66 @@ export default function Home() {
 
       <section
         id="proof"
-        className="relative overflow-hidden border-t border-white/5 px-5 py-16 sm:px-6"
+        className="relative overflow-hidden border-t border-white/5 px-5 py-32 sm:px-6"
         aria-labelledby="proof-title"
       >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(34,211,238,0.12),transparent_35%),radial-gradient(circle_at_85%_0%,rgba(99,102,241,0.16),transparent_45%)]" />
+        {/* Cinematic background (premium + inspiring) */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[#03040a]" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(0,161,255,0.18),transparent_45%),radial-gradient(circle_at_82%_18%,rgba(212,175,55,0.18),transparent_46%),radial-gradient(circle_at_50%_90%,rgba(255,255,255,0.06),transparent_55%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#03040a] via-black/35 to-[#03040a]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-[0.10] mix-blend-soft-light"
+          style={{ backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')" }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#03040a] to-transparent"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#03040a] to-transparent"
+        />
         <div className="relative mx-auto max-w-6xl">
-          <div className="flex flex-col gap-4 text-center md:flex-row md:items-end md:justify-between md:text-left">
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-cyan-100/55">Preuves</p>
+          <div className="flex flex-col gap-5 text-center md:flex-row md:items-end md:justify-between md:text-left">
+            <div className="flex-1 min-w-0">
               <h2
                 id="proof-title"
-                className="mt-3 font-[family-name:var(--font-teko)] text-4xl font-bold uppercase tracking-wide sm:text-5xl"
+                className="font-[family-name:var(--font-teko)] text-4xl font-black uppercase tracking-[0.06em] sm:text-6xl whitespace-nowrap"
               >
-                Un club structuré, visible, actif
+                La puissance d&apos;un groupement.
               </h2>
+              <p className="mt-3 text-sm leading-relaxed text-white/65 sm:text-base whitespace-nowrap overflow-hidden text-ellipsis">
+                Des racines locales. Une ambition qui dépasse les lignes.
+              </p>
             </div>
             <Link
               href="/contact"
-              className="mx-auto rounded-full border border-cyan-300/30 bg-white/[0.03] px-6 py-2 text-sm font-bold backdrop-blur-sm transition hover:border-cyan-200/70 hover:bg-cyan-300/10 md:mx-0"
+              className="mx-auto mt-3 inline-flex items-center justify-center rounded-full border border-white/15 bg-white/[0.04] px-7 py-2.5 text-sm font-black uppercase tracking-[0.18em] text-white backdrop-blur-sm transition hover:border-white/35 hover:bg-white/[0.06] md:mx-0 md:mt-0 md:translate-y-4"
             >
-              Nous contacter
+              Rejoindre le mouvement
             </Link>
           </div>
 
-          <div className="mt-10">
-            <StatsTicker stats={KEY_STATS} />
+          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            {KEY_STATS.map((stat) => (
+              <article
+                key={stat.label}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm"
+              >
+                <p className="text-[11px] font-bold uppercase tracking-[0.34em] text-white/55">{stat.label}</p>
+                <p className="mt-3 font-[family-name:var(--font-teko)] text-5xl font-black uppercase leading-none tracking-wide text-white">
+                  {stat.value}
+                </p>
+                <p className="mt-3 text-sm text-white/60">{stat.sub}</p>
+              </article>
+            ))}
           </div>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
@@ -124,26 +160,51 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="manifesto" className="relative overflow-hidden px-5 py-24 sm:px-6" aria-labelledby="manifesto-title">
-        <div className="pointer-events-none absolute inset-0 opacity-20 mix-blend-soft-light" style={{ backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')" }} />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.03] to-transparent" />
+      <section id="manifesto" className="relative overflow-hidden px-5 py-32 sm:px-6" aria-labelledby="manifesto-title">
+        {/* Background photo */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-55"
+          style={{ backgroundImage: "url('/manifesto-bg.png')" }}
+        />
+
+        {/* Premium overlays for readability */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-black/45" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(212,175,55,0.18),transparent_55%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#03040a] via-black/40 to-[#03040a]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-12 mix-blend-soft-light"
+          style={{ backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')" }}
+        />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#03040a] to-transparent" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#03040a] to-transparent" />
+
         <div className="relative mx-auto max-w-6xl text-center">
-          <p className="text-xs uppercase tracking-[0.36em] text-white/45">Manifesto</p>
+          <p className="text-xs uppercase tracking-[0.36em] text-white/45">Notre manifeste</p>
           <h2
             id="manifesto-title"
             className="mt-4 font-[family-name:var(--font-teko)] text-5xl font-black uppercase tracking-[0.04em] text-white sm:text-6xl"
           >
-            L&apos;Excellence & La Passion
+            L&apos;ambition d&apos;un territoire.
           </h2>
           <p className="mx-auto mt-5 max-w-3xl text-sm leading-relaxed text-white/65 sm:text-base">
-            Nous croyons qu&apos;une génération se construit avec de la discipline, du respect et des émotions partagées. La victoire se prépare bien avant le coup d&apos;envoi.
+            D’ici, on vise haut. Parce que l’ambition d’un territoire, c’est de faire naître l’excellence — dans le jeu, et dans la vie. Un cadre exigeant, une famille soudée, et une même direction : progresser, se dépasser, et construire quelque chose qui dure.
           </p>
 
           <ManifestoPanel items={pillars} />
         </div>
       </section>
 
-      <section id="formation" className="relative overflow-hidden bg-white/[0.02] px-5 py-24 sm:px-6">
+      <section id="formation" className="relative overflow-hidden bg-white/[0.02] px-5 py-32 sm:px-6">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#03040a] to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#03040a] to-transparent" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/70" />
         <div className="relative mx-auto max-w-6xl">
           <div className="text-center">
@@ -152,24 +213,41 @@ export default function Home() {
               La Formation GBA
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/60">
-              Du premier ballon touché aux matchs décisifs, nous accompagnons chaque talent. Une école
-              de la vie où grandir signifie apprendre, respecter et gagner ensemble. Pour supporter le
-              club au quotidien, découvrez aussi la{' '}
-              <Link href="/shop" className="underline decoration-white/30 hover:decoration-white/70">
-                boutique officielle du GBA
-              </Link>
-              .
+              Du premier ballon aux matchs décisifs, chaque joueur avance avec un cadre clair :
+              apprendre, progresser, et respecter le jeu. Ici, on grandit ensemble — avec exigence,
+              bienveillance, et l’ambition de viser plus haut.
             </p>
           </div>
 
           <div className="mt-12">
             <FormationTimeline steps={formationSteps} />
+            <p className="mx-auto mt-8 max-w-3xl text-center text-sm text-white/55">
+              Dans toutes les catégories, nos équipes évoluent au plus haut niveau district.
+            </p>
           </div>
         </div>
       </section>
 
-      <section id="shop-preview" className="border-t border-white/5 px-6 py-24">
-        <div className="mx-auto max-w-6xl">
+      <section id="shop-preview" className="relative overflow-hidden border-t border-white/5 px-6 py-32">
+        {/* Locker room background (subtle + premium) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-35"
+          style={{ backgroundImage: "url('/shop-locker.avif')" }}
+        />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-black/65" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#03040a] via-black/35 to-[#03040a]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-[0.10] mix-blend-soft-light"
+          style={{ backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')" }}
+        />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#03040a] to-transparent" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#03040a] to-transparent" />
+        <div className="relative mx-auto max-w-6xl">
           <div className="mb-16 flex flex-col items-center justify-between gap-8 md:flex-row">
             <div className="text-center md:text-left">
               <h2 className="font-[family-name:var(--font-teko)] text-4xl font-bold uppercase tracking-wide">
@@ -192,8 +270,32 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="sponsors" className="border-t border-white/5 px-6 py-24" aria-labelledby="sponsors-title">
-        <div className="mx-auto max-w-6xl">
+      <section
+        id="sponsors"
+        className="relative overflow-hidden border-t border-white/5 px-6 py-32"
+        aria-labelledby="sponsors-title"
+      >
+        {/* Cinematic background (inspiring + premium) */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[#03040a]" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(0,161,255,0.18),transparent_48%),radial-gradient(circle_at_82%_22%,rgba(212,175,55,0.16),transparent_50%),radial-gradient(circle_at_50%_88%,rgba(255,255,255,0.06),transparent_55%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#03040a] via-black/35 to-[#03040a]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-[0.10] mix-blend-soft-light"
+          style={{ backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')" }}
+        />
+
+        {/* Soften transitions top/bottom */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#03040a] to-transparent" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#03040a] to-transparent" />
+
+        <div className="relative mx-auto max-w-6xl">
           <div className="mb-16 flex flex-col items-center justify-between gap-8 text-center md:flex-row md:text-left">
             <div>
               <h2
@@ -202,13 +304,10 @@ export default function Home() {
               >
                 Nos Partenaires
               </h2>
-              <p className="mt-2 text-white/50">
-                Ils croient en nous, nous gagnons avec eux. Vous aussi, vous pouvez soutenir le club via
-                la{' '}
-                <Link href="/shop" className="underline decoration-white/20 hover:decoration-white/60">
-                  boutique officielle
-                </Link>
-                .
+              <p className="mt-2 text-white/55">
+                Un territoire qui se rassemble. Des partenaires qui s’engagent.
+                <br className="hidden md:block" />
+                Une ambition qui ne lâche rien : faire grandir le club, saison après saison.
               </p>
             </div>
             <Link
@@ -225,10 +324,24 @@ export default function Home() {
                 key={s.name}
                 className="group rounded-2xl border border-white/5 bg-white/[0.02] p-8 transition-colors hover:bg-white/[0.04]"
               >
-                <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-[#00a1ff]">{s.role}</p>
-                <h3 className="font-[family-name:var(--font-teko)] text-xl font-bold tracking-wide text-white transition-colors group-hover:text-white">
-                  {s.name}
-                </h3>
+                {/* role displayed inside card header for logo partners */}
+                {('logoUrl' in s && s.logoUrl) ? (
+                  <div className="mb-4 flex items-center gap-4">
+                    <div className="relative h-14 w-14 overflow-hidden rounded-full bg-white p-2 shadow-[0_0_0_1px_rgba(255,255,255,0.10)]">
+                      <Image src={s.logoUrl as string} alt={`Logo ${s.name}`} fill className="object-contain" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-[family-name:var(--font-teko)] text-xl font-bold tracking-wide text-white">
+                        {s.name}
+                      </h3>
+                      <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-white/50">{s.role}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <h3 className="font-[family-name:var(--font-teko)] text-xl font-bold tracking-wide text-white transition-colors group-hover:text-white">
+                    {s.name}
+                  </h3>
+                )}
                 <p className="mt-3 text-sm text-white/50">{s.impact}</p>
               </article>
             ))}
@@ -237,10 +350,34 @@ export default function Home() {
       </section>
 
       <section id="actu" className="relative overflow-hidden px-6 py-32">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#00a1ff]/10 to-transparent opacity-30" />
+        {/* Stadium background photo (subtle + premium) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-40"
+          style={{ backgroundImage: "url('/actu-stadium-bg.jpg')" }}
+        />
+
+        {/* Overlays for readability + premium blend */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-black/60" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_25%,rgba(0,161,255,0.22),transparent_55%),radial-gradient(circle_at_78%_28%,rgba(212,175,55,0.16),transparent_58%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#03040a] via-black/35 to-[#03040a]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-[0.10] mix-blend-soft-light"
+          style={{ backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')" }}
+        />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#03040a] to-transparent" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#03040a] to-transparent" />
+
         <div className="relative z-10 mx-auto max-w-4xl text-center">
           <h2 className="mb-6 font-[family-name:var(--font-teko)] text-5xl font-bold uppercase tracking-wide md:text-6xl">
-            Rejoignez la Tribu
+            Entrez dans l&apos;Histoire
           </h2>
           <p className="mx-auto mb-12 max-w-2xl text-xl leading-relaxed text-white/70">
             Vibrez au bord du terrain, portez nos couleurs, partagez nos victoires. Le GBA
@@ -267,9 +404,12 @@ export default function Home() {
       <footer id="footer" className="border-t border-white/10 bg-black px-6 py-16">
         <div className="mx-auto grid max-w-7xl gap-12 text-sm text-white/60 md:grid-cols-4">
           <div className="col-span-1 md:col-span-1">
-            <p className="mb-4 font-[family-name:var(--font-teko)] text-3xl font-bold tracking-wide text-white">
-              GBA.
-            </p>
+            <div className="mb-5 flex items-center gap-3">
+              <div className="relative h-12 w-12">
+                <Image src="/brand/logo.png" alt="Logo GBA" fill className="object-contain" />
+              </div>
+              <p className="font-[family-name:var(--font-teko)] text-3xl font-bold tracking-wide text-white">GBA.</p>
+            </div>
             <p className="leading-relaxed text-white/50">
               L&apos;esprit d&apos;équipe, la passion du jeu, la force du collectif.
             </p>
