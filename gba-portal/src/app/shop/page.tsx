@@ -1,401 +1,212 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-
-import { TrustPageShell } from '@/components/TrustPageShell'
+import Image from 'next/image'
+import { ShoppingBag, Package, Truck, ArrowUpRight } from 'lucide-react'
 import { featuredProducts, shopCategories, shopFaqs } from '@/lib/shop-data'
 
 export const metadata: Metadata = {
-  title: 'Boutique officielle · GBA Portal',
-  description:
-    'Boutique officielle du Groupement Bruche Ackerland : porter les couleurs, soutenir la formation et la vie du club. Précommandes et packs supporters.',
-  keywords: [
-    'boutique GBA',
-    'maillot GBA',
-    'écharpe GBA',
-    'pack supporter',
-    'Groupement Bruche Ackerland',
-    'football',
-  ],
-  alternates: {
-    canonical: '/shop',
-  },
-  openGraph: {
-    title: 'Boutique · GBA Portal',
-    description:
-      'Maillots, écharpes, packs supporters : porter les couleurs et soutenir le club. Précommandes et infos pratiques.',
-    url: '/shop',
-    images: [
-      {
-        url: '/gba-logo.png',
-        width: 1200,
-        height: 630,
-        alt: 'Boutique GBA Portal',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Boutique · GBA Portal',
-    description:
-      'Maillots, écharpes, packs supporters : porter les couleurs et soutenir le club. Précommandes et infos pratiques.',
-    images: [
-      {
-        url: '/gba-logo.png',
-        alt: 'Boutique GBA Portal',
-      },
-    ],
-  },
-}
-
-function toAnchorId(input: string) {
-  return input
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
+  title: 'Boutique Officielle — GBA Portal',
+  description: 'Portez nos couleurs. Soutenez la formation. Maillots, packs et accessoires officiels du Groupement Bruche Ackerland.',
 }
 
 export default function ShopPage() {
   const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? 'contact@gba-portal.fr'
   const mailtoBase = `mailto:${contactEmail}`
 
-  const categoryAnchors = shopCategories.map((category) => ({
-    ...category,
-    id: toAnchorId(category.title),
-  }))
-
-  const faqJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: shopFaqs.map((item) => ({
-      '@type': 'Question',
-      name: item.q,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: item.a,
-      },
-    })),
-  }
-
-  const breadcrumbJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Accueil',
-        item: '/',
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Boutique',
-        item: '/shop',
-      },
-    ],
-  }
-
-  const howToJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'HowTo',
-    name: 'Comment précommander sur la boutique GBA',
-    description:
-      'La boutique est en pré-lancement : les commandes sont centralisées par email. Vous recevez une confirmation de prix et de retrait.',
-    totalTime: 'PT5M',
-    step: [
-      {
-        '@type': 'HowToStep',
-        name: 'Choisir l’article',
-        text: 'Sélectionnez un article (maillot, pack supporter, écharpe) et notez la taille/quantité.',
-        url: '/shop#shop-featured',
-      },
-      {
-        '@type': 'HowToStep',
-        name: 'Envoyer l’email',
-        text: 'Envoyez une demande de précommande avec nom, article, taille, quantité et flocage éventuel.',
-        url: '/shop#shop-final-cta',
-      },
-      {
-        '@type': 'HowToStep',
-        name: 'Recevoir la confirmation',
-        text: 'Le club confirme la disponibilité, le prix exact et les modalités de retrait/livraison.',
-        url: '/shop#shop-faq',
-      },
-    ],
-  }
-
-  const itemListJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Sélection boutique GBA',
-    itemListOrder: 'https://schema.org/ItemListOrderAscending',
-    itemListElement: categoryAnchors.map((category, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      name: category.title,
-      url: `/shop#${category.id}`,
-    })),
-  }
-
-  const featuredProductsJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Offres à la une — Boutique GBA',
-    itemListOrder: 'https://schema.org/ItemListOrderAscending',
-    itemListElement: featuredProducts.map((product, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      item: {
-        '@type': 'Product',
-        name: product.name,
-        description: product.detail,
-        brand: {
-          '@type': 'Brand',
-          name: 'Groupement Bruche Ackerland',
-        },
-        offers: {
-          '@type': 'Offer',
-          url: '/shop',
-          priceCurrency: 'EUR',
-          availability: 'https://schema.org/PreOrder',
-        },
-      },
-    })),
-  }
-
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(featuredProductsJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }}
-      />
+    <div className="min-h-screen bg-[#03040a] text-white pt-40 pb-24 overflow-hidden relative">
+      {/* Dynamic Background Elements */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        {/* Cinematic Grid Pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]" 
+          style={{ 
+            backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
+            backgroundSize: '60px 60px' 
+          }}
+        />
+        
+        {/* Radial Glows */}
+        <div className="absolute top-0 right-0 h-[800px] w-[800px] bg-blue-600/10 blur-[140px] rounded-full translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 left-0 h-[800px] w-[800px] bg-cyan-600/5 blur-[140px] rounded-full -translate-x-1/2 translate-y-1/2" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[1000px] bg-indigo-500/[0.03] blur-[120px] rounded-full rotate-12" />
+        {/* Amber/Gold Accent Glow */}
+        <div className="absolute top-1/4 left-1/4 h-[400px] w-[400px] bg-amber-500/[0.02] blur-[100px] rounded-full" />
 
-      <TrustPageShell
-        eyebrow="Boutique"
-        title="Porter les couleurs"
-        lead="Maillots, accessoires, packs supporters : une boutique pensée pour soutenir la formation, les événements et la vie du Groupement Bruche Ackerland."
-        cta={
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <a
-              href={`mailto:${contactEmail}?subject=${encodeURIComponent('Précommande boutique GBA')}`}
-              className="rounded-full bg-white px-6 py-3 text-center text-xs font-bold uppercase tracking-widest text-black transition hover:bg-white/90"
-            >
-              Précommander
-            </a>
-            <Link
-              href="/contact"
-              className="rounded-full border border-white/20 bg-transparent px-6 py-3 text-center text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-white/10"
-            >
-              Questions
-            </Link>
-            <Link
-              href="/sponsors"
-              className="rounded-full border border-white/20 bg-transparent px-6 py-3 text-center text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-white/10"
-            >
-              Devenir partenaire
-            </Link>
+        {/* Noise Texture for Depth */}
+        <div className="absolute inset-0 opacity-[0.15] mix-blend-soft-light" style={{ backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')" }} />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-6xl px-6">
+        {/* Hero Section */}
+        <div className="mb-32">
+          <p className="text-xs font-bold uppercase tracking-[0.5em] text-cyan-400 mb-6">Boutique Officielle</p>
+          <h1 className="font-[family-name:var(--font-teko)] text-7xl font-black uppercase leading-[0.85] tracking-tight sm:text-9xl">
+            Portez <br />
+            <span className="text-white/20">Nos Couleurs.</span>
+          </h1>
+          <div className="mt-12 flex flex-col md:flex-row gap-12 items-end justify-between">
+            <p className="max-w-xl text-xl text-white/60 leading-relaxed">
+              Plus qu&apos;un simple maillot, une identité. Chaque achat soutient directement 
+              nos équipes de jeunes et le développement du club.
+            </p>
+            <div className="flex gap-4">
+              <span className="rounded-full border border-white/10 bg-white/5 px-6 py-2 text-[10px] font-bold uppercase tracking-widest text-white/40">
+                Pré-lancement 2026
+              </span>
+            </div>
           </div>
-        }
-      >
-        <section aria-labelledby="shop-express" className="rounded-3xl border border-white/5 p-8">
-          <h2
-            id="shop-express"
-            className="text-xs font-bold uppercase tracking-widest text-white/50"
-          >
-            Pré-lancement : commander en 2 minutes
-          </h2>
-          <ol className="mt-6 grid gap-6 text-sm text-white/70 md:grid-cols-3">
-            <li className="space-y-2">
-              <p className="text-xs font-bold text-white/30">01</p>
-              <p className="font-bold text-white">Choisir l’article</p>
-              <p className="text-xs text-white/50">Article + taille + quantité.</p>
-            </li>
-            <li className="space-y-2">
-              <p className="text-xs font-bold text-white/30">02</p>
-              <p className="font-bold text-white">Envoyer l’email</p>
-              <p className="text-xs text-white/50">Un message suffit, on centralise tout.</p>
-            </li>
-            <li className="space-y-2">
-              <p className="text-xs font-bold text-white/30">03</p>
-              <p className="font-bold text-white">Confirmation</p>
-              <p className="text-xs text-white/50">Prix exact + retrait club.</p>
-            </li>
-          </ol>
-          <p className="mt-6 text-xs text-white/30">
-            Pas de paiement en ligne pour l’instant : simple, local et fiable.
-          </p>
-        </section>
+        </div>
 
-        <section aria-labelledby="shop-featured" className="space-y-8">
-          <h2
-            id="shop-featured"
-            className="text-xs font-bold uppercase tracking-widest text-white/50"
-          >
-            Offres à la une
-          </h2>
-          <div className="grid gap-6 md:grid-cols-3">
+        {/* How to Order - Cinematic Steps */}
+        <div className="mb-32 grid md:grid-cols-3 gap-8">
+          {[
+            { id: '01', title: 'Sélectionnez', desc: 'Choisissez votre article, taille et quantité.', icon: ShoppingBag },
+            { id: '02', title: 'Commandez', desc: 'Envoyez-nous un simple email avec vos choix.', icon: Package },
+            { id: '03', title: 'Récupérez', desc: 'Retrait au club après confirmation.', icon: Truck },
+          ].map((step) => (
+            <div key={step.id} className="relative p-10 rounded-[32px] border border-white/5 bg-white/[0.02]">
+              <div className="mb-6 flex items-center justify-between">
+                <step.icon className="w-6 h-6 text-cyan-400" />
+                <span className="font-[family-name:var(--font-teko)] text-4xl font-bold text-white/10">{step.id}</span>
+              </div>
+              <h3 className="font-[family-name:var(--font-teko)] text-2xl font-bold uppercase tracking-wide mb-2">{step.title}</h3>
+              <p className="text-sm text-white/50">{step.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Featured Products */}
+        <div className="mb-32">
+          <div className="flex items-center justify-between mb-16">
+            <h2 className="font-[family-name:var(--font-teko)] text-4xl font-bold uppercase tracking-wide">
+              À la une
+            </h2>
+            <div className="h-px flex-1 bg-white/10 mx-8 hidden sm:block" />
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
             {featuredProducts.map((product) => (
-              <article
-                key={product.name}
-                className="flex flex-col justify-between rounded-3xl border border-white/10 p-6 transition-colors hover:border-white/20 bg-white/[0.02]"
-              >
-                <div>
-                  <p className="text-xs font-bold text-white/40">{product.priceHint}</p>
-                  <h3 className="mt-3 text-xl font-bold text-white font-[family-name:var(--font-teko)] tracking-wide">
+              <div key={product.name} className="group flex flex-col rounded-[32px] border border-white/10 bg-white/[0.02] overflow-hidden transition-all duration-500 hover:border-cyan-500/50 hover:bg-white/[0.04] hover:shadow-[0_0_40px_rgba(6,182,212,0.1)]">
+                <div className="aspect-square bg-white/[0.03] relative flex items-center justify-center overflow-hidden">
+                  {/* Animated Background Pattern for the product image area */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(245,158,11,0.1),transparent_70%)]" />
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+                    {/* Floating Tech Lines */}
+                    <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent -translate-y-full group-hover:animate-[shimmer_2s_infinite]" />
+                    <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent translate-y-full group-hover:animate-[shimmer_2s_infinite_1s]" />
+                  </div>
+
+                  <ShoppingBag className="w-16 h-16 text-white/5 group-hover:text-amber-400/30 group-hover:scale-125 group-hover:rotate-6 transition-all duration-700" />
+                  
+                  <div className="absolute top-6 right-6 z-10">
+                    <span className="rounded-full bg-cyan-500 px-4 py-1.5 text-[11px] font-black uppercase tracking-widest text-black shadow-[0_10px_30px_rgba(6,182,212,0.5)] transition-all duration-500 group-hover:shadow-[0_0_20px_rgba(245,158,11,0.6)] group-hover:bg-amber-500">
+                      {product.priceHint}
+                    </span>
+                  </div>
+
+                  {/* Glassmorphism Badge */}
+                  <div className="absolute bottom-6 left-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                    <span className="backdrop-blur-md bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest text-white/70">
+                      Édition 2026
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-8 flex flex-1 flex-col relative">
+                  <div className="mb-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <span className="h-px w-8 bg-cyan-500" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-500">Premium Quality</span>
+                  </div>
+                  
+                  <h3 className="font-[family-name:var(--font-teko)] text-4xl font-bold uppercase tracking-wide group-hover:text-amber-400 transition-colors duration-300">
                     {product.name}
                   </h3>
-                  <p className="mt-3 text-sm text-white/60">{product.detail}</p>
+                  <p className="mt-4 text-sm text-white/50 leading-relaxed mb-8 flex-1 group-hover:text-white/70 transition-colors">
+                    {product.detail}
+                  </p>
+                  
+                  <a 
+                    href={`${mailtoBase}?subject=${encodeURIComponent(`Précommande — ${product.name}`)}`}
+                    className="relative flex items-center justify-center gap-3 w-full rounded-2xl bg-white px-6 py-5 text-xs font-black uppercase tracking-widest text-black transition-all duration-300 hover:bg-cyan-400 hover:shadow-[0_10px_30px_rgba(6,182,212,0.4)] group-active:scale-95"
+                  >
+                    Réserver l&apos;article <ArrowUpRight className="w-4 h-4" />
+                  </a>
                 </div>
-                <a
-                  className="mt-6 inline-flex w-full items-center justify-center rounded-full border border-white/10 px-5 py-3 text-center text-xs font-bold text-white transition hover:bg-white hover:text-black uppercase tracking-widest"
-                  href={`${mailtoBase}?subject=${encodeURIComponent(`Précommande — ${product.name}`)}&body=${encodeURIComponent(
-                    `Bonjour,\n\nJe souhaite précommander : ${product.name}.\n\n- Nom :\n- Article : ${product.name}\n- Taille (si applicable) :\n- Quantité :\n- Flocage (optionnel) :\n- Téléphone (optionnel) :\n\nMerci !`
-                  )}`}
-                >
-                  {product.cta}
-                </a>
-              </article>
+              </div>
             ))}
           </div>
-        </section>
+        </div>
 
-        <section aria-labelledby="shop-categories">
-          <h2
-            id="shop-categories"
-            className="text-xs font-bold uppercase tracking-widest text-white/50"
-          >
-            Sélection
+        {/* Categories Section */}
+        <div className="mb-32">
+          <h2 className="font-[family-name:var(--font-teko)] text-4xl font-bold uppercase tracking-wide mb-16">
+            Catégories
           </h2>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2">
-            {categoryAnchors.map((category) => (
-              <article
-                key={category.title}
-                id={category.id}
-                className="scroll-mt-28 rounded-3xl border border-white/10 p-8 transition-colors hover:border-white/20"
-              >
-                <h3 className="text-2xl font-bold text-white font-[family-name:var(--font-teko)] tracking-wide">
-                  {category.title}
-                </h3>
-                <p className="mt-3 text-sm text-white/60">{category.detail}</p>
-                <p className="mt-4 text-xs uppercase tracking-widest text-white/30">
-                  {category.note}
-                </p>
-
-                <a
-                  className="mt-8 inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-transparent px-5 py-3 text-center text-xs font-bold text-white transition hover:bg-white hover:text-black uppercase tracking-widest"
-                  href={`${mailtoBase}?subject=${encodeURIComponent(`Boutique — ${category.title}`)}&body=${encodeURIComponent(
-                    `Bonjour,\n\nJe souhaite commander / précommander (catégorie) : ${category.title}.\n\n- Nom :\n- Article (détail) :\n- Taille (si applicable) :\n- Quantité :\n- Flocage (optionnel) :\n- Téléphone (optionnel) :\n\nMerci !`
-                  )}`}
-                >
-                  {category.cta}
-                </a>
-              </article>
+          <div className="grid sm:grid-cols-2 gap-8">
+            {shopCategories.map((category) => (
+              <div key={category.title} className="group relative p-10 rounded-[32px] border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] hover:border-white/20 transition-all duration-500 overflow-hidden">
+                {/* Decorative Tech Circle */}
+                <div className="absolute -right-8 -top-8 w-32 h-32 border border-white/[0.03] rounded-full group-hover:border-cyan-500/20 group-hover:scale-150 transition-all duration-700" />
+                
+                <div className="absolute -right-16 -top-16 w-48 h-48 bg-cyan-500/5 rounded-full blur-[60px] group-hover:bg-cyan-500/10 transition-colors" />
+                
+                <div className="relative z-10">
+                  <div className="flex justify-between items-start mb-6">
+                    <h3 className="font-[family-name:var(--font-teko)] text-5xl font-bold uppercase tracking-wide group-hover:text-cyan-400 transition-colors">{category.title}</h3>
+                    <span className="backdrop-blur-sm bg-white/5 px-3 py-1 rounded-full text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] border border-white/5">{category.note}</span>
+                  </div>
+                  <p className="text-white/50 text-base mb-10 leading-relaxed group-hover:text-white/70 transition-colors max-w-md">{category.detail}</p>
+                  <a 
+                    href={`${mailtoBase}?subject=${encodeURIComponent(`Info Boutique — ${category.title}`)}`}
+                    className="inline-flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-white/40 group-hover:text-white transition-all"
+                  >
+                    Explorer la gamme <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  </a>
+                </div>
+              </div>
             ))}
           </div>
-        </section>
+        </div>
 
-        <section aria-labelledby="shop-why" className="space-y-8">
-          <h2 id="shop-why" className="text-xs font-bold uppercase tracking-widest text-white/50">
-            Pourquoi la boutique existe
-          </h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            <article className="rounded-3xl border border-white/5 p-6">
-              <p className="text-xs font-bold text-white/30">Formation</p>
-              <p className="mt-3 text-sm text-white/60">
-                Les bénéfices soutiennent l’encadrement et le matériel.
-              </p>
-            </article>
-            <article className="rounded-3xl border border-white/5 p-6">
-              <p className="text-xs font-bold text-white/30">Événements</p>
-              <p className="mt-3 text-sm text-white/60">
-                Finance ce qui crée du lien (tournois, déplacements).
-              </p>
-            </article>
-            <article className="rounded-3xl border border-white/5 p-6">
-              <p className="text-xs font-bold text-white/30">Identité</p>
-              <p className="mt-3 text-sm text-white/60">
-                Afficher une fierté commune sur les terrains.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section id="shop-faq" aria-labelledby="shop-faq-title" className="space-y-8">
-          <h2
-            id="shop-faq-title"
-            className="text-xs font-bold uppercase tracking-widest text-white/50"
-          >
-            FAQ
+        {/* FAQ Section */}
+        <div className="mb-32 max-w-3xl mx-auto">
+          <h2 className="font-[family-name:var(--font-teko)] text-4xl font-bold uppercase tracking-wide mb-16 text-center">
+            Questions fréquentes
           </h2>
           <div className="space-y-4">
-            {shopFaqs.map((item) => (
-              <details
-                key={item.q}
-                className="group rounded-3xl border border-white/5 p-6 open:bg-white/5"
-              >
-                <summary className="cursor-pointer list-none text-sm font-semibold text-white/80 group-open:text-white">
-                  {item.q}
-                  <span className="float-right text-xs text-white/30 group-open:rotate-45 transition-transform">
-                    +
-                  </span>
+            {shopFaqs.map((faq) => (
+              <details key={faq.q} className="group rounded-3xl border border-white/5 bg-white/[0.01] p-8 transition-all open:bg-white/[0.03]">
+                <summary className="list-none flex justify-between items-center cursor-pointer font-bold text-lg">
+                  {faq.q}
+                  <ArrowUpRight className="w-5 h-5 text-white/20 group-open:rotate-45 transition-transform" />
                 </summary>
-                <p className="mt-4 text-sm leading-relaxed text-white/60">{item.a}</p>
+                <p className="mt-6 text-white/50 text-sm leading-relaxed border-t border-white/5 pt-6">
+                  {faq.a}
+                </p>
               </details>
             ))}
           </div>
-        </section>
+        </div>
 
-        <section aria-labelledby="shop-final-cta" className="space-y-8">
-          <h2
-            id="shop-final-cta"
-            className="text-xs font-bold uppercase tracking-widest text-white/50"
-          >
-            Prêt à commander ?
+        {/* Final CTA */}
+        <div className="relative p-12 md:p-20 rounded-[40px] border border-white/10 bg-white/[0.02] overflow-hidden text-center">
+          <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-transparent pointer-events-none" />
+          <h2 className="font-[family-name:var(--font-teko)] text-6xl font-black uppercase tracking-tight mb-8">
+            Prêt à porter <br /> l&apos;esprit GBA ?
           </h2>
-          <div className="rounded-3xl border border-white/5 bg-white/[0.05] p-8">
-            <p className="text-sm text-white/70">
-              Envoyez un email avec <span className="font-semibold text-white">article</span>,{' '}
-              <span className="font-semibold text-white">taille</span>,{' '}
-              <span className="font-semibold text-white">quantité</span>. On confirme prix et
-              retrait.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <a
-                href={`mailto:${contactEmail}?subject=${encodeURIComponent('Commande boutique GBA')}&body=${encodeURIComponent(
-                  'Bonjour,\n\nJe souhaite commander / précommander :\n\n- Nom :\n- Article :\n- Taille (si applicable) :\n- Quantité :\n- Flocage (optionnel) :\n- Téléphone (optionnel) :\n\nMerci !'
-                )}`}
-                className="rounded-full bg-white px-8 py-3 text-center text-xs font-bold uppercase tracking-widest text-black transition hover:bg-white/90"
-              >
-                Commander par email
-              </a>
-              <Link
-                href="/contact"
-                className="rounded-full border border-white/10 bg-transparent px-8 py-3 text-center text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-white/10"
-              >
-                Une question
-              </Link>
-            </div>
-          </div>
-        </section>
-      </TrustPageShell>
-    </>
+          <p className="text-xl text-white/50 mb-12 max-w-xl mx-auto">
+            Envoyez votre demande par email. Nous confirmons la disponibilité et les modalités de retrait sous 24h.
+          </p>
+          <a 
+            href={`mailto:${contactEmail}?subject=Commande Boutique GBA`}
+            className="inline-block rounded-full bg-white px-12 py-5 text-sm font-black uppercase tracking-[0.2em] text-black shadow-[0_20px_60px_rgba(255,255,255,0.2)] transition-transform hover:scale-105"
+          >
+            Lancer une commande
+          </a>
+        </div>
+      </div>
+    </div>
   )
 }

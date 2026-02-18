@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 
 export default function NewsPage() {
   return (
-    <div className="min-h-screen bg-[#03040a] text-white pt-32 pb-24">
+    <div className="min-h-screen bg-[#03040a] text-white pt-40 pb-24 overflow-hidden">
       {/* Background Ambience */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-[10%] -left-[10%] h-[40%] w-[40%] rounded-full bg-blue-500/10 blur-[120px]" />
@@ -47,12 +47,13 @@ export default function NewsPage() {
       </div>
 
       <div className="relative mx-auto max-w-6xl px-6">
-        <div className="mb-20">
-          <p className="text-xs font-bold uppercase tracking-[0.4em] text-white/40 mb-4">Le Fil d&apos;Actu</p>
-          <h1 className="font-[family-name:var(--font-teko)] text-6xl font-black uppercase tracking-tight sm:text-8xl">
-            Moments <span className="text-white/20">Forts.</span>
+        <div className="mb-24">
+          <p className="text-xs font-bold uppercase tracking-[0.5em] text-cyan-400 mb-6">Le Fil d&apos;Actu</p>
+          <h1 className="font-[family-name:var(--font-teko)] text-7xl font-black uppercase leading-[0.85] tracking-tight sm:text-9xl">
+            Moments <br />
+            <span className="text-white/20">Forts.</span>
           </h1>
-          <p className="mt-6 max-w-2xl text-lg text-white/60 leading-relaxed">
+          <p className="mt-12 max-w-2xl text-xl text-white/60 leading-relaxed">
             Ici bat le cœur du club. Entre victoires sur le terrain, engagements locaux et vie associative, 
             découvrez tout ce qui fait l&apos;ADN du GBA.
           </p>

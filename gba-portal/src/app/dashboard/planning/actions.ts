@@ -66,7 +66,7 @@ export async function createPlanningSession(prevState: unknown, formData: FormDa
     pole: parsed.data.pole,
     start_time: parsed.data.startTime,
     end_time: parsed.data.endTime,
-    location: parsed.data.location,
+    location: `${formData.get('site')} - ${parsed.data.location}`,
     staff: staffList,
     note: parsed.data.note ? parsed.data.note : null,
   }

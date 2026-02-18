@@ -40,6 +40,7 @@ type Slot = {
   label: string
   number: number
   playerId: string | null
+  isBench?: boolean
 }
 
 type GameFormat = 11 | 8 | 5 | 4
@@ -450,16 +451,18 @@ function SlotView({
     <div
       className={
         `absolute -translate-x-1/2 -translate-y-1/2 z-10 touch-none ` +
-        (isOver ? 'scale-110' : '')
+        (isOver ? 'scale-110' : '') +
+        (slot.isBench ? ' !static !translate-x-0 !translate-y-0' : '')
       }
-      style={{ left: `${slot.x}%`, top: `${slot.y}%` }}
+      style={slot.isBench ? {} : { left: `${slot.x}%`, top: `${slot.y}%` }}
     >
       {/* Hit area larger than the visible chip */}
       <div
         ref={setNodeRef}
         className={
-          "pointer-events-auto flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-2xl " +
-          (isOver ? "bg-emerald-400/10 outline outline-2 outline-emerald-400/50" : "")
+          "pointer-events-auto flex flex-col items-center justify-center gap-1 rounded-2xl " +
+          (slot.isBench ? "h-12 w-12" : "h-24 w-24") +
+          (isOver ? " bg-emerald-400/10 outline outline-2 outline-emerald-400/50" : "")
         }
       >
 
@@ -504,7 +507,10 @@ function SlotView({
           ) : null}
         </div>
         {playerName ? (
-          <div className="px-2.5 py-1 rounded-lg bg-black/85 border border-white/30 !text-white text-[12px] font-extrabold shadow-lg whitespace-nowrap max-w-[190px]">
+          <div className={
+            "px-2.5 py-1 rounded-lg bg-black/85 border border-white/30 !text-white text-[12px] font-extrabold shadow-lg whitespace-nowrap max-w-[190px] " +
+            (slot.isBench ? "absolute top-12 left-1/2 -translate-x-1/2" : "")
+          }>
             <span className="block truncate drop-shadow !text-white">{playerName}</span>
           </div>
         ) : null}
@@ -535,6 +541,11 @@ export default function TactiquePage() {
 
   const [formation, setFormation] = React.useState<string>('4-3-3 à plat')
   const [slots, setSlots] = React.useState<Slot[]>(() => makeSlots(11, '4-3-3 à plat'))
+  const [benchSlots, setBenchSlots] = React.useState<Slot[]>([
+    { id: 'sub1', x: 25, y: 0, label: 'R', number: 12, playerId: null, isBench: true },
+    { id: 'sub2', x: 50, y: 0, label: 'R', number: 13, playerId: null, isBench: true },
+    { id: 'sub3', x: 75, y: 0, label: 'R', number: 14, playerId: null, isBench: true },
+  ])
 
   const pitchRef = React.useRef<HTMLDivElement>(null)
 
@@ -614,7 +625,11 @@ export default function TactiquePage() {
     return ['1-1-1', '1-2', '2-1']
   }, [format])
 
-  const placedPlayerIds = React.useMemo(() => new Set(slots.map((s) => s.playerId).filter(Boolean) as string[]), [slots])
+  const placedPlayerIds = React.useMemo(() => {
+    const onField = slots.map((s) => s.playerId)
+    const onBench = benchSlots.map((s) => s.playerId)
+    return new Set([...onField, ...onBench].filter(Boolean) as string[])
+  }, [slots, benchSlots])
   const bench = React.useMemo(() => players.filter((p) => !placedPlayerIds.has(p.id)), [players, placedPlayerIds])
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -627,21 +642,33 @@ export default function TactiquePage() {
 
     if (!over) return
 
-    // playerId/overId already computed above for debug
-
-    // Dropped on bench => remove from any slot
+    // Dropped on bench (list) => remove from any slot (field or substitutes)
     if (overId === 'bench') {
       setSlots((prev) => prev.map((s) => (s.playerId === playerId ? { ...s, playerId: null } : s)))
+      setBenchSlots((prev) => prev.map((s) => (s.playerId === playerId ? { ...s, playerId: null } : s)))
       return
     }
 
-    // Dropped on a slot
+    // Dropped on a substitute slot
+    if (overId.startsWith('sub')) {
+      // Remove player from any other slot first
+      setSlots((prev) => prev.map((s) => (s.playerId === playerId ? { ...s, playerId: null } : s)))
+      setBenchSlots((prev) => {
+        const next = prev.map((s) => (s.playerId === playerId ? { ...s, playerId: null } : s))
+        return next.map((s) => (s.id === overId ? { ...s, playerId } : s))
+      })
+      return
+    }
+
+    // Dropped on a field slot
     setSlots((prev) => {
       const target = prev.find((s) => s.id === overId)
       if (!target) return prev
 
-      // remove player from any other slot
+      // remove player from any other field slot
       const next = prev.map((s) => (s.playerId === playerId ? { ...s, playerId: null } : s))
+      // also remove from bench slots
+      setBenchSlots((prevB) => prevB.map((s) => (s.playerId === playerId ? { ...s, playerId: null } : s)))
 
       // if slot has someone, push that someone back to bench (just overwrite)
       return next.map((s) => (s.id === overId ? { ...s, playerId } : s))
@@ -658,6 +685,79 @@ export default function TactiquePage() {
       let i = 0
       return nextSlots.map((s) => ({ ...s, playerId: currentPlayers[i++] ?? null }))
     })
+  }
+
+  const saveComposition = async () => {
+    const supabase = (await import('@/lib/supabase/client')).createClient()
+    const { data: authData } = await supabase.auth.getUser()
+    const userId = authData.user?.id
+
+    if (!userId) {
+      alert('Vous devez être connecté pour enregistrer une composition.')
+      return
+    }
+
+    const gameDate = window.prompt('Date du match (AAAA-MM-DD) :', new Date().toISOString().split('T')[0])
+    if (!gameDate) return
+
+    const opponent = window.prompt('Adversaire :', '')
+    if (!opponent) return
+
+    setIsLoading(true)
+    try {
+      // 1. Créer le match
+      const { data: match, error: matchError } = await supabase
+        .from('matches')
+        .insert({
+          team_id: selectedTeamId,
+          coach_id: userId,
+          game_date: gameDate,
+          opponent,
+          formation,
+          status: 'scheduled'
+        })
+        .select()
+        .single()
+
+      if (matchError) throw matchError
+
+      // 2. Préparer les joueurs (titulaires + remplaçants)
+      const lineup = [
+        ...slots
+          .filter(s => s.playerId)
+          .map(s => ({
+            match_id: match.id,
+            player_id: s.playerId,
+            position_label: s.label,
+            jersey_number: s.number,
+            is_starter: true
+          })),
+        ...benchSlots
+          .filter(s => s.playerId)
+          .map(s => ({
+            match_id: match.id,
+            player_id: s.playerId,
+            position_label: 'R',
+            jersey_number: s.number,
+            is_starter: false
+          }))
+      ]
+
+      if (lineup.length > 0) {
+        const { error: lineupError } = await supabase
+          .from('match_lineups')
+          .insert(lineup)
+        
+        if (lineupError) throw lineupError
+      }
+
+      alert('Feuille de match enregistrée avec succès !')
+    } catch (err: any) {
+      console.error('Save error:', err)
+      alert('Erreur : ' + err.message)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const exportImage = async () => {
@@ -737,8 +837,33 @@ export default function TactiquePage() {
 
             <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
               <div className="flex items-baseline justify-between">
-                <p className="text-xs font-bold uppercase tracking-[0.35em] text-white/55">Banc</p>
-                <p className="text-xs text-white/45">{bench.length} dispo</p>
+                <p className="text-xs font-bold uppercase tracking-[0.35em] text-white/55">Remplaçants (Match)</p>
+                <p className="text-xs text-white/45">3 slots</p>
+              </div>
+              <div className="mt-4 flex justify-around gap-2">
+                {benchSlots.map((s) => {
+                  const name = s.playerId ? players.find((p) => p.id === s.playerId)?.name ?? null : null
+                  return (
+                    <div key={s.id} className="relative flex flex-col items-center gap-2 group">
+                      <div className="relative h-12 w-12 rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-white/5 group-hover:border-cyan-500/50 transition-colors overflow-visible">
+                        <SlotView
+                          slot={{ ...s, x: 50, y: 50 }}
+                          playerName={name}
+                          onClear={() => setBenchSlots((prev) => prev.map((x) => (x.id === s.id ? { ...x, playerId: null } : x)))}
+                          onSetNumber={(n) => setBenchSlots((prev) => prev.map((x) => (x.id === s.id ? { ...x, number: n } : x)))}
+                        />
+                      </div>
+                      <span className="text-[10px] font-bold text-white/40 uppercase">R{s.id.slice(-1)}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div className="flex items-baseline justify-between">
+                <p className="text-xs font-bold uppercase tracking-[0.35em] text-white/55">Effectif disponible</p>
+                <p className="text-xs text-white/45">{bench.length} joueurs</p>
               </div>
 
               {isLoading ? (
@@ -824,9 +949,14 @@ export default function TactiquePage() {
             })}
           </div>
 
-          <Button onClick={exportImage} className="w-full max-w-[420px] py-6 rounded-2xl font-black uppercase tracking-[0.3em]">
-            Télécharger l'image
-          </Button>
+          <div className="flex gap-4 w-full max-w-[420px]">
+            <Button onClick={exportImage} className="flex-1 py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-sm">
+              Télécharger
+            </Button>
+            <Button onClick={saveComposition} variant="primary" className="flex-1 py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-sm bg-emerald-600 hover:bg-emerald-500">
+              Valider & Sauver
+            </Button>
+          </div>
         </div>
       </div>
     </DndContext>

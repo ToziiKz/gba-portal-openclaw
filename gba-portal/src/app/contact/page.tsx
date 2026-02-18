@@ -1,101 +1,131 @@
 import type { Metadata } from 'next'
-import { TrustPageShell } from '@/components/TrustPageShell'
+import { Mail, MessageSquare, ShieldCheck, Trophy, ArrowUpRight } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Contact',
-  description:
-    'Contactez GBA Portal : demande de démo, sponsoring, accès staff et questions produit.',
-  alternates: {
-    canonical: '/contact',
-  },
+  title: 'Contact — GBA Portal',
+  description: 'Prenez contact avec le Groupement Bruche Ackerland : Sponsoring, Presse, Inscriptions ou Support.',
 }
 
 const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? 'contact@gba-portal.fr'
 
-const quickCards = [
+const topics = [
   {
-    title: 'Démo club',
-    description: 'Présentation guidée du site public + dashboard staff.',
-    subject: 'Démo GBA Portal',
+    title: 'Partenariats',
+    description: 'Devenez sponsor et associez votre marque à l&apos;ambition du GBA.',
+    icon: Trophy,
+    color: 'text-amber-500',
+    bg: 'bg-amber-500/10',
+    subject: 'Partenariat Sponsor GBA'
   },
   {
-    title: 'Partenariat sponsor',
-    description: 'Visibilité locale, activations et formats de présence.',
-    subject: 'Partenariat sponsor GBA',
+    title: 'Support Staff',
+    description: 'Aide à la connexion, droits d&apos;accès et outils numériques.',
+    icon: ShieldCheck,
+    color: 'text-cyan-500',
+    bg: 'bg-cyan-500/10',
+    subject: 'Support Accès Dashboard'
   },
   {
-    title: 'Support accès',
-    description: 'Comptes coach, droits dashboard, activation et sécurité.',
-    subject: 'Support accès dashboard',
-  },
+    title: 'Inscriptions',
+    description: 'Rejoindre le club, licences jeunes et seniors, informations pratiques.',
+    icon: MessageSquare,
+    color: 'text-blue-500',
+    bg: 'bg-blue-500/10',
+    subject: 'Demande Inscription / Licence'
+  }
 ]
 
 export default function ContactPage() {
   return (
-    <TrustPageShell
-      eyebrow=""
-      title="Contact"
-      lead="Parlons concret. Une demande claire, une réponse rapide, et un suivi utile."
-      showTopNav={false}
-      cta={
-        <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-[#081421] via-[#0b1b2b] to-[#0a1623] p-5 sm:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-white/50">Canal principal</p>
-              <p className="mt-2 text-lg font-semibold text-white">{contactEmail}</p>
-            </div>
-            <a
-              href={`mailto:${contactEmail}?subject=${encodeURIComponent('Contact GBA Portal')}`}
-              className="inline-flex items-center justify-center rounded-full border border-white/35 bg-gradient-to-r from-[#00a1ff] to-[#0065bd] px-6 py-3 text-xs font-black uppercase tracking-[0.35em] text-white shadow-[0_15px_45px_rgba(0,161,255,0.4)]"
-            >
-              Envoyer un email
-            </a>
-          </div>
-        </div>
-      }
-    >
-      <div className="grid gap-4 sm:grid-cols-3">
-        {quickCards.map((item) => (
-          <a
-            key={item.title}
-            href={`mailto:${contactEmail}?subject=${encodeURIComponent(item.subject)}`}
-            className="rounded-3xl border border-white/10 bg-black/35 p-5 transition hover:-translate-y-[1px] hover:border-white/25 hover:bg-black/45"
-          >
-            <p className="text-xs uppercase tracking-[0.3em] text-white/45">Contact rapide</p>
-            <h2 className="mt-3 text-lg font-bold text-white">{item.title}</h2>
-            <p className="mt-2 text-sm text-white/65">{item.description}</p>
-          </a>
-        ))}
+    <div className="min-h-screen bg-[#03040a] text-white pt-40 pb-24 overflow-hidden">
+      {/* Background Ambience */}
+      <div className="pointer-events-none fixed inset-0">
+        <div className="absolute top-0 right-0 h-[500px] w-[500px] bg-blue-600/10 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 left-0 h-[500px] w-[500px] bg-cyan-600/5 blur-[120px] rounded-full -translate-x-1/2 translate-y-1/2" />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-3xl border border-white/10 bg-black/30 p-6">
-          <p className="text-xs uppercase tracking-[0.35em] text-white/45">Pour gagner du temps</p>
-          <ul className="mt-4 space-y-2 text-sm text-white/70">
-            <li>• Objet clair : Démo / Sponsor / Support</li>
-            <li>• Contexte en 2-3 lignes</li>
-            <li>• Équipe concernée (si besoin)</li>
-            <li>• Date cible ou urgence</li>
-          </ul>
-        </div>
-
-        <div className="rounded-3xl border border-white/10 bg-black/30 p-6">
-          <p className="text-xs uppercase tracking-[0.35em] text-white/45">Réponse</p>
-          <p className="mt-4 text-sm text-white/70">
-            On privilégie des réponses courtes, actionnables et structurées. Tu sais rapidement quoi faire ensuite.
+      <div className="relative mx-auto max-w-6xl px-6">
+        <div className="mb-24">
+          <p className="text-xs font-bold uppercase tracking-[0.5em] text-cyan-400 mb-6">Contact & Support</p>
+          <h1 className="font-[family-name:var(--font-teko)] text-7xl font-black uppercase leading-[0.85] tracking-tight sm:text-9xl">
+            Parlons <br />
+            <span className="text-white/20">Projet.</span>
+          </h1>
+          <p className="mt-12 max-w-2xl text-xl text-white/60 leading-relaxed">
+            Une question sur le club, une envie de partenariat ou un besoin technique ? 
+            Notre équipe est là pour vous répondre précisément.
           </p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            {['Démo', 'Sponsor', 'Support'].map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-white/70"
-              >
-                {tag}
-              </span>
-            ))}
+        </div>
+
+        {/* Main Email Action */}
+        <div className="mb-20 group">
+          <a 
+            href={`mailto:${contactEmail}`}
+            className="relative flex flex-col md:flex-row items-center justify-between p-10 md:p-16 rounded-[40px] border border-white/10 bg-white/[0.02] overflow-hidden transition-all hover:border-cyan-500/30"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/0 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            
+            <div className="relative z-10 mb-8 md:mb-0 text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-4 mb-4">
+                <div className="p-3 rounded-2xl bg-white/5">
+                  <Mail className="w-6 h-6 text-cyan-400" />
+                </div>
+                <span className="text-xs font-bold uppercase tracking-widest text-white/40">Email Principal</span>
+              </div>
+              <p className="text-2xl sm:text-4xl font-bold tracking-tight text-white group-hover:text-cyan-400 transition-colors">
+                {contactEmail}
+              </p>
+            </div>
+
+            <div className="relative z-10 flex items-center gap-4 rounded-full bg-white px-10 py-5 text-sm font-black uppercase tracking-widest text-black transition-transform group-hover:scale-105">
+              Écrire au club
+              <ArrowUpRight className="w-5 h-5" />
+            </div>
+          </a>
+        </div>
+
+        {/* Rapid Topics Grid */}
+        <div className="grid md:grid-cols-3 gap-8">
+          {topics.map((topic) => (
+            <a 
+              key={topic.title}
+              href={`mailto:${contactEmail}?subject=${encodeURIComponent(topic.subject)}`}
+              className="group relative p-10 rounded-[32px] border border-white/5 bg-white/[0.01] transition-all hover:bg-white/[0.03] hover:border-white/10"
+            >
+              <div className={`mb-8 inline-flex p-4 rounded-2xl ${topic.bg}`}>
+                <topic.icon className={`w-6 h-6 ${topic.color}`} />
+              </div>
+              <h2 className="font-[family-name:var(--font-teko)] text-3xl font-bold uppercase tracking-wide mb-4 group-hover:text-cyan-400 transition-colors">
+                {topic.title}
+              </h2>
+              <p className="text-white/50 text-sm leading-relaxed mb-8">
+                {topic.description}
+              </p>
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 group-hover:text-white transition-colors">
+                Ouvrir un ticket <ArrowUpRight className="w-4 h-4" />
+              </div>
+            </a>
+          ))}
+        </div>
+
+        {/* Footer Info */}
+        <div className="mt-24 grid md:grid-cols-2 gap-8">
+          <div className="p-10 rounded-[32px] bg-white/[0.02] border border-white/5">
+            <h3 className="font-[family-name:var(--font-teko)] text-2xl font-bold uppercase tracking-wide mb-6">Réponse rapide</h3>
+            <p className="text-sm text-white/50 leading-relaxed italic">
+              &quot;Nous privilégions des échanges directs et efficaces. 
+              Vous recevrez généralement un retour sous 24h à 48h ouvrées.&quot;
+            </p>
+          </div>
+          <div className="p-10 rounded-[32px] bg-white/[0.02] border border-white/5">
+            <h3 className="font-[family-name:var(--font-teko)] text-2xl font-bold uppercase tracking-wide mb-6">Localisation</h3>
+            <p className="text-sm text-white/50 leading-relaxed">
+              Basé au cœur de la vallée de la Bruche et de l&apos;Ackerland. <br />
+              Entraînements et matchs sur nos complexes partenaires.
+            </p>
           </div>
         </div>
       </div>
-    </TrustPageShell>
+    </div>
   )
 }
