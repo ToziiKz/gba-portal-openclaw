@@ -16,6 +16,10 @@
 # OpenClaw / agent runtime
 **/.agent/runtime/
 
+# Next.js devserver scratch files (created by local tooling)
+**/.devserver.log
+**/.dev-server.log
+
 # IDE
 .vscode/
 .idea/
