@@ -1,35 +1,23 @@
-# Global
+# OpenClaw Internal
+memory/*.log
+memory/heartbeat-state.json
+.openclaw/
+
+# Environment
+.env*
+!.env.example
+
+# Dependencies
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# System
 .DS_Store
-*.log
-*.pid
+Thumbs.db
 
-# Next.js / Node
-**/node_modules/
-**/.next/
-**/out/
-**/dist/
-
-# Env
-**/.env
-**/.env.*
-
-# OpenClaw / agent runtime
-**/.agent/runtime/
-
-# Next.js devserver scratch files (created by local tooling)
-**/.devserver.log
-**/.dev-server.log
-
-# IDE
-.vscode/
-.idea/
-
-# local tools
-qmd/
-
-# local workspace data (do not version)
-memory/
-skills/
-reference_site/
-backups/
-/package.json
+# Project Specific
+gba-portal/.next/
+gba-portal/node_modules/

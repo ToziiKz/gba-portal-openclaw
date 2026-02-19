@@ -103,7 +103,7 @@ export function CreatePlanningSessionModal({ isOpen, onClose, teams }: Props) {
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className={labelClassName()}>Jour</label>
                 <select name="day" className={inputClassName()} defaultValue="Lun" required>
@@ -111,6 +111,10 @@ export function CreatePlanningSessionModal({ isOpen, onClose, teams }: Props) {
                     <option key={d} value={d} className="text-black">{d}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className={labelClassName()}>Date (optionnel)</label>
+                <input name="sessionDate" type="date" className={inputClassName()} />
               </div>
               <div>
                 <label className={labelClassName()}>Pôle (Auto)</label>

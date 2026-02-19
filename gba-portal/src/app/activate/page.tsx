@@ -10,6 +10,20 @@ export default async function ActivatePage({
   searchParams?: Promise<{ inv?: string; token?: string }>
 }) {
   const params = (await searchParams) ?? {}
+  const supabase = await createClient()
+
+  let initialFullName = ''
+  if (params.inv) {
+    const { data: inv } = await supabase
+      .from('coach_invitations')
+      .select('full_name')
+      .eq('id', params.inv)
+      .single()
+    
+    if (inv?.full_name) {
+      initialFullName = inv.full_name
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#020202] via-[#050505] to-[#000000] px-6 py-24">
@@ -23,7 +37,11 @@ export default async function ActivatePage({
         </p>
 
         <div className="mt-8">
-          <ActivateForm invitationId={params.inv} token={params.token} />
+          <ActivateForm 
+            invitationId={params.inv} 
+            token={params.token} 
+            initialFullName={initialFullName}
+          />
         </div>
       </div>
     </div>

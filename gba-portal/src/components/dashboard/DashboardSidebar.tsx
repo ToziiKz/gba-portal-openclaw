@@ -1,10 +1,21 @@
 'use client'
 
 import * as React from 'react'
-
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { 
+  LayoutDashboard, 
+  Users, 
+  Calendar, 
+  CheckSquare, 
+  Trophy, 
+  ShieldCheck, 
+  Settings,
+  ChevronRight,
+  LogOut,
+  HelpCircle
+} from 'lucide-react'
 
 import { getVisibleNavItems, isActivePath } from '@/lib/dashboard/nav'
 import type { DashboardRole } from '@/lib/dashboardRole'
@@ -13,86 +24,89 @@ type Props = {
   role: DashboardRole
 }
 
+const iconMap: Record<string, any> = {
+  '/dashboard': LayoutDashboard,
+  '/dashboard/effectif': Users,
+  '/dashboard/planning': Calendar,
+  '/dashboard/presences': CheckSquare,
+  '/dashboard/match': Trophy,
+  '/dashboard/acces': ShieldCheck,
+  '/dashboard/joueurs': Users,
+  '/dashboard/equipes': Trophy,
+}
+
 export function DashboardSidebar({ role }: Props) {
   const pathname = usePathname()
   const items = React.useMemo(() => getVisibleNavItems(role), [role])
 
   return (
-    <aside className="fixed left-0 top-0 z-50 hidden h-full w-64 shrink-0 flex-col border-r border-[color:var(--ui-border)] bg-[color:var(--ui-surface)]/50 backdrop-blur-xl lg:flex">
-      <div className="flex h-20 items-center px-6">
-        <Link href="/dashboard" className="flex items-center gap-2 focus:outline-none">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[color:var(--ui-border)] bg-white/5 overflow-hidden">
-            <Image src="/brand/logo.png" alt="GBA" width={40} height={40} className="h-10 w-10 object-contain" priority />
+    <aside className="fixed left-0 top-0 z-50 hidden h-full w-64 shrink-0 flex-col border-r border-[color:var(--ui-border)] bg-white lg:flex shadow-sm">
+      {/* Brand Header */}
+      <div className="flex h-24 items-center px-6 border-b border-slate-50">
+        <Link href="/dashboard" className="flex items-center gap-3 focus:outline-none group">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 shadow-lg shadow-blue-200 transition-transform group-hover:scale-105">
+            <Image src="/brand/logo.png" alt="GBA" width={32} height={32} className="object-contain brightness-0 invert" priority />
           </div>
-          <div className="leading-tight text-center">
-            <span className="block font-[var(--font-teko)] text-2xl font-black uppercase tracking-wider text-[color:var(--ui-fg)]">
-              ESPACE GBA
+          <div className="leading-tight">
+            <span className="block font-[var(--font-teko)] text-2xl font-black uppercase tracking-wider text-slate-900 leading-none">
+              GBA PORTAL
             </span>
-            <span className="block text-[10px] font-bold uppercase tracking-[0.35em] text-[color:var(--ui-muted-2)]">
-              Groupement Bruche Ackerland
+            <span className="block text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 mt-1">
+              Command Center
             </span>
           </div>
         </Link>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-4 py-6">
-        <ul className="space-y-1">
+      {/* Navigation Main */}
+      <nav className="flex-1 overflow-y-auto px-4 py-8">
+        <p className="px-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-4">Menu Principal</p>
+        <ul className="space-y-1.5">
           {items.map((item) => {
+            const Icon = iconMap[item.href] || ChevronRight
             const active = isActivePath(pathname ?? '', item.href)
-            const hasActiveChild = (item.children ?? []).some((child) => isActivePath(pathname ?? '', child.href))
-            const showChildren = (item.children?.length ?? 0) > 0 && (active || hasActiveChild)
-
+            
             return (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`group flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ui-ring)] ${
+                  className={`group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all ${
                     active
-                      ? 'bg-[color:var(--ui-surface-2)] text-[color:var(--ui-fg)] shadow-[var(--ui-shadow-sm)]'
-                      : 'text-[color:var(--ui-muted)] hover:bg-[color:var(--ui-surface)] hover:text-[color:var(--ui-fg)]'
+                      ? 'bg-blue-50 text-blue-700'
+                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                   }`}
                 >
+                  <Icon className={`h-5 w-5 ${active ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'} transition-colors`} />
                   <span>{item.label}</span>
-                  {active ? (
-                    <div className="h-1.5 w-1.5 rounded-full bg-[color:var(--ui-ring)] shadow-[0_0_8px_currentColor]" />
-                  ) : null}
+                  {active && (
+                    <div className="ml-auto h-1.5 w-1.5 rounded-full bg-blue-600" />
+                  )}
                 </Link>
-
-                {showChildren ? (
-                  <ul className="mt-1 grid gap-1 pl-3">
-                    {(item.children ?? []).map((sub) => {
-                      const subActive = isActivePath(pathname ?? '', sub.href)
-                      return (
-                        <li key={sub.href}>
-                          <Link
-                            href={sub.href}
-                            className={`block rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                              subActive
-                                ? 'bg-[color:var(--ui-surface-2)] text-[color:var(--ui-fg)]'
-                                : 'text-[color:var(--ui-muted)] hover:bg-[color:var(--ui-surface)] hover:text-[color:var(--ui-fg)]'
-                            }`}
-                          >
-                            {sub.label}
-                          </Link>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                ) : null}
               </li>
             )
           })}
         </ul>
       </nav>
 
-      <div className="border-t border-[color:var(--ui-border)] p-4">
-        <div className="rounded-xl border border-[color:var(--ui-border)] bg-[color:var(--ui-surface)] p-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--ui-muted-2)]">
-            Support
-          </p>
-          <p className="mt-1 text-xs text-[color:var(--ui-muted)]">
-            Un problème ? Contacte le support technique.
-          </p>
+      {/* Footer Tools */}
+      <div className="p-4 space-y-4">
+        <div className="rounded-3xl bg-slate-50 p-6 border border-slate-100 relative overflow-hidden group">
+           <div className="absolute top-0 right-0 -mr-4 -mt-4 h-16 w-16 bg-blue-100 rounded-full opacity-20 group-hover:scale-150 transition-transform duration-500" />
+           <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-2 flex items-center gap-2">
+             <HelpCircle className="h-3 w-3" /> Support
+           </p>
+           <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
+             Besoin d&apos;aide sur le terrain ? Contacte l&apos;admin.
+           </p>
+        </div>
+
+        <div className="flex items-center justify-between px-2 pt-2">
+           <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 transition-colors">
+              <LogOut className="h-4 w-4" /> Déconnexion
+           </button>
+           <Link href="/dashboard/settings">
+              <Settings className="h-4 w-4 text-slate-400 hover:text-blue-600 transition-colors" />
+           </Link>
         </div>
       </div>
     </aside>

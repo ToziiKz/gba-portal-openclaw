@@ -75,8 +75,16 @@ export async function activateCoachAccount(_prevState: unknown, formData: FormDa
     return {
       ok: false as const,
       error:
-        'Compte créé mais rôle non appliqué. Vérifiez le patch SQL de workflow (trigger role).',
+        'Compte créé mais rôle non appliqué.',
     }
+  }
+
+  // 3. Auto-assignation des équipes si renseignées dans l'invitation
+  if (inv.target_team_ids && inv.target_team_ids.length > 0) {
+    await supabase
+      .from('teams')
+      .update({ coach_id: signUp.user.id })
+      .in('id', inv.target_team_ids)
   }
 
   return { ok: true as const }

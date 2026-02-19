@@ -9,6 +9,7 @@ import { getDashboardScope } from '@/lib/dashboard/getDashboardScope'
 const createSchema = z.object({
   teamId: z.string().uuid(),
   day: z.enum(['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']),
+  sessionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal('')),
   pole: z.string().min(2),
   startTime: z.string().regex(/^\d{2}:\d{2}$/),
   endTime: z.string().regex(/^\d{2}:\d{2}$/),
@@ -23,6 +24,7 @@ export async function createPlanningSession(prevState: unknown, formData: FormDa
   const raw = {
     teamId: formData.get('teamId'),
     day: formData.get('day'),
+    sessionDate: formData.get('sessionDate') ?? undefined,
     pole: formData.get('pole'),
     startTime: formData.get('startTime'),
     endTime: formData.get('endTime'),
@@ -63,6 +65,7 @@ export async function createPlanningSession(prevState: unknown, formData: FormDa
   const payload = {
     team_id: parsed.data.teamId,
     day: parsed.data.day,
+    session_date: parsed.data.sessionDate ? parsed.data.sessionDate : null,
     pole: parsed.data.pole,
     start_time: parsed.data.startTime,
     end_time: parsed.data.endTime,
@@ -72,8 +75,16 @@ export async function createPlanningSession(prevState: unknown, formData: FormDa
   }
 
   if (profile?.role === 'admin') {
-    const { error } = await supabase.from('planning_sessions').insert([payload])
-    if (error) return { message: 'Erreur création séance' }
+    let { error } = await supabase.from('planning_sessions').insert([payload])
+
+    // Backward compatibility if session_date column is not yet deployed in DB
+    if (error && (error.message?.includes('session_date') || error.code === 'PGRST204')) {
+      const { session_date: _ignored, ...legacyPayload } = payload
+      const retry = await supabase.from('planning_sessions').insert([legacyPayload])
+      error = retry.error
+    }
+
+    if (error) return { message: `Erreur création séance: ${error.message}` }
     revalidatePath('/dashboard/planning')
     return { success: true }
   }

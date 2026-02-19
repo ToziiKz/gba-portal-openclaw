@@ -1,9 +1,17 @@
 'use client'
 
 import * as React from 'react'
-
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { 
+  Search, 
+  Menu, 
+  User, 
+  LogOut, 
+  Globe,
+  Bell,
+  Command
+} from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { getNavLabelForPath } from '@/lib/dashboard/nav'
@@ -26,14 +34,12 @@ export function DashboardTopbar({ role, userName, userEmail, onOpenSpotlight }: 
   const assignedTeamsLabel = React.useMemo(() => {
     if (role !== 'coach') return null
     if (!scope.assignedTeams || scope.assignedTeams.length === 0) return null
-    // Display: "U13 D1" or "U13 D1 + 1" if multiple
     const primary = scope.assignedTeams[0]
     const extra = scope.assignedTeams.length - 1
-    return extra > 0 ? `${primary.name} + ${extra}` : primary.name
+    return extra > 0 ? `${primary.name} +${extra}` : primary.name
   }, [role, scope.assignedTeams])
 
   const handleLogout = async () => {
-    // Clear session
     const { createClient } = await import('@/lib/supabase/client')
     const supabase = createClient()
     await supabase.auth.signOut()
@@ -41,64 +47,86 @@ export function DashboardTopbar({ role, userName, userEmail, onOpenSpotlight }: 
   }
 
   return (
-    <div className="sticky top-6 z-40 mb-6">
-      <div className="rounded-[28px] border border-[color:var(--ui-border)] bg-[color:var(--ui-surface)] px-4 py-3 shadow-[var(--ui-shadow-sm)] backdrop-blur-xl md:px-5">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="min-w-0">
-            <p className="text-[10px] font-black uppercase tracking-[0.52em] text-[color:var(--ui-muted-2)]">
-              Quartier général
-            </p>
-            <p className="mt-2 truncate font-[var(--font-teko)] text-2xl font-black uppercase tracking-[0.08em] text-[color:var(--ui-fg)] md:text-3xl">
-              {title}
-            </p>
+    <div className="mb-8 flex items-center justify-between">
+      {/* Mobile Title Area */}
+      <div className="lg:hidden flex items-center gap-3">
+        <button className="h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 shadow-sm active:scale-95 transition-transform">
+          <Menu className="h-5 w-5" />
+        </button>
+        <div>
+          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 leading-none mb-1">Command Center</p>
+          <h1 className="text-lg font-black text-slate-900 uppercase tracking-tight leading-none">{title}</h1>
+        </div>
+      </div>
+
+      {/* Desktop Title Area */}
+      <div className="hidden lg:block">
+        <div className="flex items-center gap-3 text-slate-400 mb-1">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em]">Dashboard</span>
+          <span className="text-[10px]">/</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-600">{title}</span>
+        </div>
+        <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none font-[var(--font-teko)]">
+           Gérer <span className="text-blue-600">{title === 'Dashboard' ? 'l\'activité' : title.toLowerCase()}</span>
+        </h1>
+      </div>
+
+      {/* Global Actions Area */}
+      <div className="flex items-center gap-3 md:gap-4">
+        {/* Search Bar - Visual only for Desktop */}
+        <button 
+          onClick={onOpenSpotlight}
+          className="hidden md:flex items-center gap-10 pl-4 pr-2 py-1.5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-blue-200 transition-all group"
+        >
+          <div className="flex items-center gap-3 text-slate-400">
+            <Search className="h-4 w-4 group-hover:text-blue-600 transition-colors" />
+            <span className="text-xs font-bold uppercase tracking-widest opacity-60">Recherche...</span>
           </div>
+          <div className="px-2 py-1 rounded-lg bg-slate-50 border border-slate-100 text-[10px] font-black text-slate-400 flex items-center gap-1">
+            <Command className="h-2.5 w-2.5" /> K
+          </div>
+        </button>
 
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex flex-col items-end">
-              <p className="text-sm font-bold text-[color:var(--ui-fg)]">
-                {userName ?? 'Utilisateur'}
-              </p>
-              {userEmail ? (
-                <p className="mt-0.5 text-xs text-[color:var(--ui-muted)]">{userEmail}</p>
-              ) : null}
-              <div className="mt-1 flex items-center gap-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-[color:var(--ui-muted)]">
-                  {role}
-                </p>
-                {role === 'coach' ? (
-                  <span className="rounded-full border border-[color:var(--ui-border)] bg-[color:var(--ui-surface-2)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[color:var(--ui-muted)]">
-                    {assignedTeamsLabel ?? 'Aucune équipe assignée'}
-                  </span>
-                ) : null}
-              </div>
+        {/* Notifications (Placeholder) */}
+        <button className="h-10 w-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-blue-600 shadow-sm transition-all">
+          <Bell className="h-5 w-5" />
+        </button>
+
+        {/* User Card */}
+        <div className="flex items-center gap-3 pl-2 md:pl-4 border-l border-slate-100">
+          <div className="hidden md:flex flex-col items-end">
+            <p className="text-xs font-black text-slate-900 leading-none uppercase tracking-wide">{userName?.split(' ')[0]}</p>
+            <div className="flex items-center gap-2 mt-1">
+               <span className={`text-[8px] font-black uppercase tracking-tighter px-1.5 py-0.5 rounded ${role === 'admin' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+                 {role}
+               </span>
+               {assignedTeamsLabel && (
+                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{assignedTeamsLabel}</span>
+               )}
             </div>
-
-            <div className="h-8 w-[1px] bg-[color:var(--ui-border)] hidden md:block" />
-
-            <button
-              type="button"
-              onClick={onOpenSpotlight}
-              className="group inline-flex items-center gap-3 rounded-full border border-[color:var(--ui-border)] bg-[color:var(--ui-surface)] px-4 py-2 text-xs font-semibold text-[color:var(--ui-fg)] transition hover:bg-[color:var(--ui-surface-2)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ui-ring)]"
-              aria-label="Ouvrir la recherche (Cmd+K)"
-            >
-              <span className="text-[11px] uppercase tracking-[0.32em] text-[color:var(--ui-muted-2)]">
-                Rechercher
-              </span>
-              <span className="font-black">⌘K</span>
+          </div>
+          
+          <div className="relative group">
+            <button className="h-10 w-10 md:h-12 md:w-12 rounded-2xl bg-slate-900 border-2 border-white shadow-xl flex items-center justify-center text-white transition-transform group-hover:scale-105 active:scale-95">
+              <User className="h-5 w-5 md:h-6 md:w-6" />
             </button>
-
-            <Link
-              href="/"
-              className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-[var(--ui-radius-sm)] px-3 text-sm font-medium text-[color:var(--ui-fg)] transition-colors hover:bg-[color:var(--ui-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ui-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--ui-bg)] md:inline-flex"
-              aria-label="Retourner au site public"
-              title="Site public"
-            >
-              Site public
-            </Link>
-
-            <Button size="sm" variant="secondary" onClick={handleLogout}>
-              Déconnexion
-            </Button>
+            
+            {/* Context Dropdown (Simple Simulation) */}
+            <div className="absolute right-0 top-full pt-2 w-48 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all z-50">
+               <div className="rounded-2xl bg-white border border-slate-100 shadow-2xl p-2">
+                 <Link href="/" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors text-slate-600">
+                    <Globe className="h-4 w-4" />
+                    <span className="text-xs font-bold uppercase tracking-widest">Site Public</span>
+                 </Link>
+                 <button 
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 text-slate-600 hover:text-red-600 transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span className="text-xs font-bold uppercase tracking-widest">Déconnexion</span>
+                 </button>
+               </div>
+            </div>
           </div>
         </div>
       </div>

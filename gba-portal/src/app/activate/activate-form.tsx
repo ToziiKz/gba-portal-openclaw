@@ -8,7 +8,15 @@ import { Button } from '@/components/ui/Button'
 type ActionState = { ok: boolean; error?: string }
 const initialState: ActionState = { ok: false }
 
-export function ActivateForm({ invitationId, token }: { invitationId?: string; token?: string }) {
+export function ActivateForm({ 
+  invitationId, 
+  token,
+  initialFullName = ''
+}: { 
+  invitationId?: string; 
+  token?: string;
+  initialFullName?: string;
+}) {
   const [state, formAction, isPending] = useActionState(activateCoachAccount, initialState)
 
   if (!invitationId || !token) {
@@ -40,6 +48,7 @@ export function ActivateForm({ invitationId, token }: { invitationId?: string; t
         <input
           name="fullName"
           required
+          defaultValue={initialFullName}
           className="w-full rounded-2xl border border-white/15 bg-black/40 px-4 py-3 text-sm text-white/85 outline-none placeholder:text-white/30 focus:border-white/30 focus:ring-2 focus:ring-[#00A1FF]"
           placeholder="Prénom Nom"
         />

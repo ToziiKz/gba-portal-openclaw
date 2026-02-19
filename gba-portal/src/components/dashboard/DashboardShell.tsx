@@ -52,17 +52,19 @@ export function DashboardShell({ children, userProfile, scope }: Props) {
 
   return (
     <DashboardScopeProvider scope={scope}>
-      <div className="theme-light min-h-screen bg-[color:var(--ui-bg)]">
+      <div className="theme-light min-h-screen bg-slate-50">
         <DashboardSidebar role={role} />
         <div className="flex-1 lg:pl-64">
-          <div className="min-h-[calc(100vh-4rem)] px-4 py-10 md:px-8">
+          <div className="min-h-screen px-4 py-8 md:px-10">
             <DashboardTopbar
               role={role}
               userName={formatDisplayName(userProfile.full_name) || userProfile.email}
               userEmail={userProfile.email}
               onOpenSpotlight={() => setSpotlightOpen(true)}
             />
-            {children}
+            <main id="dashboard-content" className="max-w-7xl mx-auto">
+               {children}
+            </main>
           </div>
         </div>
         <DashboardSpotlight

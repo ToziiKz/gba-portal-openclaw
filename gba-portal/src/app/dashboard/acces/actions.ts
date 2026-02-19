@@ -91,6 +91,54 @@ export async function approveCoachRequest(formData: FormData) {
   redirect(`/dashboard/acces?invite=${encodeURIComponent(inviteUrl)}`)
 }
 
+export async function createDirectInvitation(formData: FormData) {
+  const { supabase, user } = await requireAdmin()
+
+  const email = String(formData.get('email') ?? '').trim().toLowerCase()
+  const fullName = String(formData.get('fullName') ?? '').trim()
+  const role = String(formData.get('role') ?? 'coach')
+  const targetTeamIds = formData.getAll('targetTeamIds').map(id => String(id)).filter(Boolean)
+
+  if (!email || !fullName) {
+    throw new Error('Email et Nom complet sont obligatoires.')
+  }
+
+  const token = randomBytes(24).toString('hex')
+  const tokenHash = createHash('sha256').update(token).digest('hex')
+  const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString()
+
+  const { data: inv, error: invErr } = await supabase
+    .from('coach_invitations')
+    .insert([
+      {
+        email,
+        full_name: fullName,
+        role,
+        token_hash: tokenHash,
+        expires_at: expiresAt,
+        created_by: user.id,
+        target_team_ids: targetTeamIds // Ajout des équipes cibles
+      },
+    ])
+    .select('id')
+    .single()
+
+  if (invErr || !inv) {
+    console.error('Insert error:', invErr)
+    throw new Error('Impossible de créer l’invitation.')
+  }
+
+  await logAccessEvent(supabase, user.id, 'invitation.create_direct', 'coach_invitation', inv.id, {
+    email,
+    role,
+  })
+
+  revalidatePath('/dashboard/acces')
+
+  const inviteUrl = buildInviteUrl(inv.id, token)
+  redirect(`/dashboard/acces?invite=${encodeURIComponent(inviteUrl)}`)
+}
+
 export async function regenerateCoachInvitation(formData: FormData) {
   const { supabase, user } = await requireAdmin()
 

@@ -95,6 +95,9 @@ export function HeroShowcase() {
     video.muted = true
     video.volume = 0
 
+    // Force play in case autoPlay was blocked
+    video.play().catch(e => console.error("Autoplay failed:", e))
+
     audio.loop = true
     audio.preload = 'metadata'
     audio.volume = 0
@@ -146,8 +149,8 @@ export function HeroShowcase() {
         loop
         muted
         playsInline
-        preload="metadata"
-        poster="/gba-logo.png"
+        preload="auto"
+        poster="/brand/logo.png"
         disablePictureInPicture
         disableRemotePlayback
         controls={false}
@@ -162,8 +165,8 @@ export function HeroShowcase() {
 
       <audio ref={audioRef} src={audioSrc} preload="metadata" aria-hidden="true" />
 
-      <div className="pointer-events-none absolute inset-0 bg-black/55" />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/35 via-black/45 to-black/85" />
+      <div className="pointer-events-none absolute inset-0 bg-black/45" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/75" />
 
       <div
         aria-hidden="true"

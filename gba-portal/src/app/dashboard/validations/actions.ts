@@ -46,18 +46,27 @@ export async function approveRequest(formData: FormData): Promise<void> {
     ])
     applyError = error
   } else if (action === 'planning_sessions.create') {
-    const { error } = await supabase.from('planning_sessions').insert([
-      {
-        team_id: payload.team_id as string,
-        day: payload.day as string,
-        pole: payload.pole as string,
-        start_time: payload.start_time as string,
-        end_time: payload.end_time as string,
-        location: payload.location as string,
-        staff: (payload.staff as string[]) ?? [],
-        note: (payload.note as string) ?? null,
-      },
-    ])
+    const insertPayload = {
+      team_id: payload.team_id as string,
+      day: payload.day as string,
+      session_date: (payload.session_date as string) ?? null,
+      pole: payload.pole as string,
+      start_time: payload.start_time as string,
+      end_time: payload.end_time as string,
+      location: payload.location as string,
+      staff: (payload.staff as string[]) ?? [],
+      note: (payload.note as string) ?? null,
+    }
+
+    let { error } = await supabase.from('planning_sessions').insert([insertPayload])
+
+    // Backward compatibility if session_date column not yet deployed
+    if (error && (error.message?.includes('session_date') || error.code === 'PGRST204')) {
+      const { session_date: _ignored, ...legacyInsertPayload } = insertPayload
+      const retry = await supabase.from('planning_sessions').insert([legacyInsertPayload])
+      error = retry.error
+    }
+
     applyError = error
   } else if (action === 'planning_sessions.delete') {
     const { error } = await supabase

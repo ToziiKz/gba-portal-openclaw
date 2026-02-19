@@ -18,6 +18,7 @@ type PlayerLite = {
 type SessionLite = {
   id: string
   day: string | null
+  session_date?: string | null
   pole: string | null
   start_time: string | null
   end_time: string | null
@@ -71,6 +72,7 @@ export async function getScopedPlanningData() {
     `
       id,
       day,
+      session_date,
       pole,
       start_time,
       end_time,
@@ -97,7 +99,39 @@ export async function getScopedPlanningData() {
     }
   }
 
-  const [{ data: sessions }, { data: teams }] = await Promise.all([sessionsQuery, teamsQuery])
+  let [{ data: sessions, error: sessionsError }, { data: teams }] = await Promise.all([sessionsQuery, teamsQuery])
+
+  // Backward compatibility if session_date column is not deployed yet
+  if (sessionsError && (sessionsError.message?.includes('session_date') || sessionsError.code === 'PGRST204')) {
+    let legacySessionsQuery = supabase.from('planning_sessions').select(
+      `
+        id,
+        day,
+        pole,
+        start_time,
+        end_time,
+        location,
+        staff,
+        note,
+        team:team_id (
+          id,
+          name,
+          category
+        )
+      `
+    )
+
+    if (scope.role !== 'admin' && scope.role !== 'staff') {
+      if (scope.viewableTeamIds && scope.viewableTeamIds.length > 0) {
+        legacySessionsQuery = legacySessionsQuery.in('team_id', scope.viewableTeamIds)
+      } else {
+        legacySessionsQuery = legacySessionsQuery.eq('team_id', '__none__')
+      }
+    }
+
+    const { data: legacySessions } = await legacySessionsQuery
+    sessions = legacySessions as typeof sessions
+  }
 
   return {
     scope,

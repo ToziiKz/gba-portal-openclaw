@@ -104,6 +104,10 @@ export default async function ValidationsPage() {
                                     <span>Jour : <span className="text-white font-medium">{payload.day} ({payload.start_time}-{payload.end_time})</span></span>
                                   </div>
                                   <div className="flex items-center gap-2 text-sm text-white/60">
+                                    <Calendar className="w-4 h-4 text-white/20" />
+                                    <span>Date : <span className="text-white font-medium">{payload.session_date ?? 'Récurrent (hebdo)'}</span></span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-sm text-white/60">
                                     <MapPin className="w-4 h-4 text-white/20" />
                                     <span>Lieu : <span className="text-white font-medium">{payload.location}</span></span>
                                   </div>
