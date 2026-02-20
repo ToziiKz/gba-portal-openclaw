@@ -1,30 +1,45 @@
-# MEMORY.md - Operational Dashboard
+# MEMORY.md - Long-term Operational Memory
 
-## 🧠 Active Context: `gba-portal` (Next.js 15)
+## Active Project
+- Project: `gba-portal` (Next.js + TypeScript + Tailwind + Supabase)
+- Workspace root: `/root/.openclaw/workspace`
+- Main app: `gba-portal/`
+- Dev server target: `http://localhost:3001` (3000 often occupied)
 
-- **Tech Stack**: Next.js 15 (App Router), Tailwind CSS (v4 setup), TypeScript.
-- **Current State**: 
-    - Landing: Showcases club values/sponsors. simplified navbar.
-    - Dashboard: Accessible via `/login` (code: DEMO), mocks implemented.
-    - Shop: `/shop` with pre-order flow.
-    - Sponsors: `/sponsors` listing partners.
-- **Git**: Repo root is workspace root. `gba-portal/` is a sub-folder but main focus.
-- **Server**: Running on `localhost:3000` (PID managed by `process`).
+## Durable Product Decisions
+- Dashboard UX target: **coach-first**, low cognitive load, fast terrain usage.
+- Visual system: **single blue accent + light neutrals** (white/gray) across dashboard.
+- Access workflow (`/dashboard/acces`):
+  - invitation pre-assignment to teams (`target_team_ids`)
+  - edit role/team/active state for existing users
+  - robust delete strategy (fallback to archive/anonymize if hard delete blocked)
+- Activation flow: prefill full name from invitation; avoid redundant input.
 
-## ⚠️ Critical Constraints
+## Data / Schema Realities (important)
+- `profiles` deletion does **not** imply deleting `auth.users` (reverse cascade only).
+- In this live DB, players naming is currently used as `firstname` / `lastname` in app logic.
+- Invitations role constraint may reject `admin` unless DB check is updated.
 
-- **LOW TOKEN MODE**: Minimize output. Group tool calls. Avoid full-file reads if possible.
-- **Autonomous**: Self-correct errors.
-- **Security**: Do not leak private data.
+## Pending Critical Checks
+- Verify migration applied: `20260219_invitation_teams.sql`
+- Verify migration/policy applied: `20260219_profiles_delete_policy.sql`
+- End-to-end QA `/dashboard/acces` after rewrites.
 
-## 📌 Pending / Next Actions
+## Memory Optimization Protocol (applies now + future sessions)
+1. Keep this file short: only stable decisions, constraints, and schema truths.
+2. Put volatile logs in `memory/YYYY-MM-DD.md` only.
+3. At end of big work blocks, write a 5-line checkpoint in daily memory:
+   - what changed
+   - what is broken
+   - what is pending
+   - proof command
+   - next action
+4. Before coding after compaction: read only
+   - `MEMORY.md`
+   - today + yesterday daily memory
+   - touched files list
+5. Prefer canonical “source of truth” bullets over narrative paragraphs.
 
-- Monitor `dev-server.log` for runtime errors.
-- Refine Dashboard features (currently mocks).
-- Optimize performance/SEO (Lighthouse audit pending).
-
-## 🛠️ Tooling & Config
-
-- **Models**: `google-gemini-cli/gemini-3-pro-preview` (Current), `openai-codex/gpt-5.3-codex` (Preferred/Fallback).
-- **Fallbacks**: Gemini -> GPT-5.1-mini.
-- **Project Map**: See `project-map.txt` for file structure.
+## Models / Execution
+- Preferred coding model for heavy implementation: `openai-codex/gpt-5.3-codex`.
+- Use concise outputs and targeted edits by default.

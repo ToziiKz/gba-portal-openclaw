@@ -1,0 +1,11 @@
+{
+  "name": "gba-workspace-root",
+  "private": true,
+  "scripts": {
+    "bootstrap": "bash scripts/bootstrap-agents.sh"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.8.0",
+    "zod": "^4.3.6"
+  }
+}
