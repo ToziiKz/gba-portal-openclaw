@@ -10,6 +10,7 @@
     "lint": "eslint \"src/**/*.{ts,tsx,js,jsx}\"",
     "lint:fix": "eslint \"src/**/*.{ts,tsx,js,jsx}\" --fix",
     "type-check": "tsc --noEmit",
+    "verify": "npm run lint && npm run type-check && npm run build",
     "format": "prettier --write .",
     "dev:reset": "bash scripts/dev-reset.sh"
   },
