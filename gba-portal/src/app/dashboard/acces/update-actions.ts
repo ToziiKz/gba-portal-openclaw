@@ -52,10 +52,7 @@ export async function deleteUserProfile(formData: FormData) {
     // 3. Détacher des planning_sessions (si créé par ou staffé)
     await supabase.from('planning_sessions').update({ created_by: null }).eq('created_by', userId)
     
-    // 4. Supprimer les memberships legacy
-    await supabase.from('staff_team_memberships').delete().eq('user_id', userId)
-
-    // 5. Supprimer le profil staff étendu (si existant)
+    // 4. Supprimer le profil staff étendu (si existant)
     await supabase.from('staff_profiles').delete().eq('user_id', userId)
 
     // 6. Tenter la suppression finale du profil public

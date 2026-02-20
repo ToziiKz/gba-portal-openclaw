@@ -1,15 +1,11 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { unstable_noStore as noStore } from 'next/cache'
 
 import { createClient } from '@/lib/supabase/server'
 import { PermissionsProvider } from '@/components/PermissionsProvider'
 
 import { DashboardShell } from '@/components/dashboard/DashboardShell'
 import { getDashboardScope } from '@/lib/dashboard/getDashboardScope'
-
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -24,7 +20,6 @@ export const metadata: Metadata = {
 }
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  noStore()
   const supabase = await createClient()
 
   const {
