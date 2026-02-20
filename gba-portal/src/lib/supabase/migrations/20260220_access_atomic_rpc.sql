@@ -43,20 +43,6 @@ begin
     where id = any(p_team_ids);
   end if;
 
-  -- Keep legacy memberships in sync when table exists.
-  begin
-    delete from public.staff_team_memberships where user_id = p_user_id;
-
-    if p_role = 'coach' and coalesce(array_length(p_team_ids, 1), 0) > 0 then
-      insert into public.staff_team_memberships(user_id, team_id, role)
-      select p_user_id, team_id, 'coach'
-      from unnest(p_team_ids) as team_id;
-    end if;
-  exception
-    when undefined_table then
-      null;
-  end;
-
   if p_role = 'coach' then
     select count(*) into v_assigned_count
     from public.teams

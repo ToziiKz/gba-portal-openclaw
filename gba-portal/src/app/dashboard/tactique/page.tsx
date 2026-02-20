@@ -16,6 +16,7 @@ import {
 } from '@dnd-kit/core'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { Modal } from '@/components/ui/Modal'
 import { toPng } from 'html-to-image'
 import { fetchPlayersByTeam, fetchVisibleTacticalTeams } from '@/lib/dashboard/tactical-data'
 import { Loader2 } from 'lucide-react'
@@ -530,6 +531,11 @@ export default function TactiquePage() {
   const [isCoach, setIsCoach] = React.useState(false)
   const [includePoleTeams, setIncludePoleTeams] = React.useState(false)
 
+  // Save Modal State
+  const [isSaveModalOpen, setIsSaveModalOpen] = React.useState(false)
+  const [saveDate, setSaveDate] = React.useState('')
+  const [saveOpponent, setSaveOpponent] = React.useState('')
+
   const selectedTeam = React.useMemo(
     () => teams.find((t) => t.id === selectedTeamId) ?? null,
     [teams, selectedTeamId]
@@ -688,7 +694,16 @@ export default function TactiquePage() {
     })
   }
 
-  const saveComposition = async () => {
+  const openSaveModal = () => {
+    setSaveDate(new Date().toISOString().split('T')[0])
+    setSaveOpponent('')
+    setIsSaveModalOpen(true)
+  }
+
+  const handleConfirmSave = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSaveModalOpen(false)
+
     const supabase = (await import('@/lib/supabase/client')).createClient()
     const { data: authData } = await supabase.auth.getUser()
     const userId = authData.user?.id
@@ -698,11 +713,7 @@ export default function TactiquePage() {
       return
     }
 
-    const gameDate = window.prompt('Date du match (AAAA-MM-DD) :', new Date().toISOString().split('T')[0])
-    if (!gameDate) return
-
-    const opponent = window.prompt('Adversaire :', '')
-    if (!opponent) return
+    if (!saveDate || !saveOpponent) return
 
     setIsLoading(true)
     try {
@@ -712,8 +723,8 @@ export default function TactiquePage() {
         .insert({
           team_id: selectedTeamId,
           coach_id: userId,
-          game_date: gameDate,
-          opponent,
+          game_date: saveDate,
+          opponent: saveOpponent,
           formation,
           status: 'scheduled'
         })
@@ -954,12 +965,51 @@ export default function TactiquePage() {
             <Button onClick={exportImage} className="flex-1 py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-sm">
               Télécharger
             </Button>
-            <Button onClick={saveComposition} variant="primary" className="flex-1 py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-sm bg-emerald-600 hover:bg-emerald-500">
+            <Button onClick={openSaveModal} variant="primary" className="flex-1 py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-sm bg-emerald-600 hover:bg-emerald-500">
               Valider & Sauver
             </Button>
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        title="Enregistrer la feuille de match"
+        description="Crée un match et sauvegarde la composition actuelle."
+      >
+        <form onSubmit={handleConfirmSave} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Date du match</label>
+            <input
+              type="date"
+              required
+              value={saveDate}
+              onChange={(e) => setSaveDate(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-blue-400 focus:bg-white transition-all"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Adversaire</label>
+            <input
+              type="text"
+              required
+              placeholder="Ex: FC Geispolsheim"
+              value={saveOpponent}
+              onChange={(e) => setSaveOpponent(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-blue-400 focus:bg-white transition-all"
+            />
+          </div>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button type="button" variant="secondary" onClick={() => setIsSaveModalOpen(false)}>
+              Annuler
+            </Button>
+            <Button type="submit" className="bg-emerald-600 text-white hover:bg-emerald-700 border-none">
+              Enregistrer
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </DndContext>
   )
 }
