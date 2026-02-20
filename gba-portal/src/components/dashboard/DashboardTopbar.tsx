@@ -13,7 +13,6 @@ import {
   Command
 } from 'lucide-react'
 
-import { Button } from '@/components/ui/Button'
 import { getNavLabelForPath } from '@/lib/dashboard/nav'
 import { useDashboardScope } from '@/components/dashboard/DashboardScopeProvider'
 import type { DashboardRole } from '@/lib/dashboardRole'
@@ -25,7 +24,7 @@ type Props = {
   onOpenSpotlight: () => void
 }
 
-export function DashboardTopbar({ role, userName, userEmail, onOpenSpotlight }: Props) {
+export function DashboardTopbar({ role, userName, userEmail: _userEmail, onOpenSpotlight }: Props) {
   const router = useRouter()
   const pathname = usePathname()
   const title = React.useMemo(() => getNavLabelForPath(pathname), [pathname])
@@ -54,7 +53,7 @@ export function DashboardTopbar({ role, userName, userEmail, onOpenSpotlight }: 
           <Menu className="h-5 w-5" />
         </button>
         <div>
-          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 leading-none mb-1">Command Center</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 leading-none mb-1">Plan de match du jour</p>
           <h1 className="text-lg font-black text-slate-900 uppercase tracking-tight leading-none">{title}</h1>
         </div>
       </div>
@@ -62,12 +61,12 @@ export function DashboardTopbar({ role, userName, userEmail, onOpenSpotlight }: 
       {/* Desktop Title Area */}
       <div className="hidden lg:block">
         <div className="flex items-center gap-3 text-slate-400 mb-1">
-          <span className="text-[10px] font-black uppercase tracking-[0.3em]">Dashboard</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.3em]">Espace GBA</span>
           <span className="text-[10px]">/</span>
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-600">{title}</span>
         </div>
         <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none font-[var(--font-teko)]">
-           Gérer <span className="text-blue-600">{title === 'Dashboard' ? 'l\'activité' : title.toLowerCase()}</span>
+           Priorité <span className="text-blue-600">{title === 'Dashboard' ? 'au terrain' : title.toLowerCase()}</span>
         </h1>
       </div>
 

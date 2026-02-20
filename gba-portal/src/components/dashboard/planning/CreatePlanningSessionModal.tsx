@@ -15,8 +15,6 @@ type Props = {
   teams: TeamOption[]
 }
 
-const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'] as const
-
 function inputClassName() {
   return 'w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20'
 }
@@ -30,18 +28,6 @@ export function CreatePlanningSessionModal({ isOpen, onClose, teams }: Props) {
   const [error, setError] = React.useState<string | null>(null)
   const [success, setSuccess] = React.useState(false)
   const [selectedTeamId, setSelectedTeamId] = React.useState('')
-
-  const autoPole = React.useMemo(() => {
-    const team = teams.find(t => t.id === selectedTeamId)
-    if (!team) return 'Formation'
-    const cat = team.category.toUpperCase()
-    if (cat.includes('U6') || cat.includes('U7') || cat.includes('U8') || cat.includes('U9')) return 'École de foot'
-    if (cat.includes('U11') || cat.includes('U13')) return 'Pré-formation'
-    if (cat.includes('FÉM') || cat.includes('FEM')) return 'Féminines'
-    if (cat.includes('SENIOR')) return 'Séniors'
-    if (cat.includes('VÉT')) return 'Vétérans'
-    return 'Formation'
-  }, [selectedTeamId, teams])
 
   async function handleSubmit(formData: FormData) {
     setLoading(true)
@@ -68,8 +54,8 @@ export function CreatePlanningSessionModal({ isOpen, onClose, teams }: Props) {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Ajouter une séance"
-      description="Créez un créneau dans le planning (soumis à validation)."
+      title="Ajouter un évènement"
+      description="Créez un évènement planning (soumis à validation)."
     >
       <form action={handleSubmit} className="space-y-4">
         {error ? (
@@ -103,22 +89,22 @@ export function CreatePlanningSessionModal({ isOpen, onClose, teams }: Props) {
               </select>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelClassName()}>Jour</label>
-                <select name="day" className={inputClassName()} defaultValue="Lun" required>
-                  {days.map((d) => (
-                    <option key={d} value={d} className="text-black">{d}</option>
-                  ))}
+                <label className={labelClassName()}>Date</label>
+                <input name="sessionDate" type="date" className={inputClassName()} required />
+              </div>
+              <div>
+                <label className={labelClassName()}>Type d&apos;évènement</label>
+                <select name="eventType" className={inputClassName()} defaultValue="training" required>
+                  <option value="training" className="text-black">Séance</option>
+                  <option value="match_championnat" className="text-black">Match championnat</option>
+                  <option value="match_coupe" className="text-black">Match coupe</option>
+                  <option value="match_amical" className="text-black">Match amical</option>
+                  <option value="plateau" className="text-black">Plateau</option>
+                  <option value="competition" className="text-black">Compétition</option>
+                  <option value="event" className="text-black">Autre évènement</option>
                 </select>
-              </div>
-              <div>
-                <label className={labelClassName()}>Date (optionnel)</label>
-                <input name="sessionDate" type="date" className={inputClassName()} />
-              </div>
-              <div>
-                <label className={labelClassName()}>Pôle (Auto)</label>
-                <input name="pole" className={inputClassName()} key={autoPole} defaultValue={autoPole} required />
               </div>
             </div>
 

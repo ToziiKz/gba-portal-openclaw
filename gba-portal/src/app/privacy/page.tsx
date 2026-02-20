@@ -4,7 +4,7 @@ import { TrustPageShell } from '@/components/TrustPageShell'
 export const metadata: Metadata = {
   title: 'Politique de confidentialité',
   description:
-    'Comprendre comment GBA Portal traite les données : finalités, sécurité, droits et contact.',
+    'Comprendre comment ESPACE GBA traite les données : finalités, sécurité, droits et contact.',
   alternates: {
     canonical: '/privacy',
   },
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
       lead="On collecte le minimum utile pour faire tourner la plateforme. Pas de blabla : finalités, sécurité, et vos droits — noir sur blanc."
       cta={
         <a
-          href={`mailto:${contactEmail}?subject=${encodeURIComponent('Confidentialité — GBA Portal')}`}
+          href={`mailto:${contactEmail}?subject=${encodeURIComponent('Confidentialité — ESPACE GBA')}`}
           className="btn-ghost inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-xs font-semibold uppercase tracking-[0.5em] text-white/80 transition hover:border-white/50 hover:bg-white/10"
         >
           Question confidentialité

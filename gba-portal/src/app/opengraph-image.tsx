@@ -4,7 +4,7 @@ import { getBaseUrl } from '@/lib/site'
 
 export const runtime = 'edge'
 
-export const alt = 'GBA Portal — Le club, ses valeurs, son histoire'
+export const alt = 'ESPACE GBA — Le club, ses valeurs, son histoire'
 export const size = {
   width: 1200,
   height: 630,
@@ -44,7 +44,7 @@ export default function OpenGraphImage() {
             Groupement Bruche Ackerland
           </div>
           <div style={{ fontSize: 64, fontWeight: 900, letterSpacing: 2, marginTop: 8 }}>
-            GBA Portal
+            ESPACE GBA
           </div>
         </div>
       </div>

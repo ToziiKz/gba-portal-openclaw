@@ -6,11 +6,37 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { getDashboardScope } from '@/lib/dashboard/getDashboardScope'
 
+function dayFromIso(dateStr: string): 'Lun' | 'Mar' | 'Mer' | 'Jeu' | 'Ven' | 'Sam' | 'Dim' {
+  const d = new Date(`${dateStr}T00:00:00`)
+  const day = d.getDay()
+  const map = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'] as const
+  return map[day]
+}
+
+function poleFromTeamCategory(category?: string | null): string {
+  const cat = String(category ?? '').toUpperCase()
+  if (cat.includes('U6') || cat.includes('U7') || cat.includes('U8') || cat.includes('U9')) return 'École de foot'
+  if (cat.includes('U11') || cat.includes('U13')) return 'Pré-formation'
+  if (cat.includes('FÉM') || cat.includes('FEM')) return 'Féminines'
+  if (cat.includes('SENIOR')) return 'Séniors'
+  if (cat.includes('VÉT')) return 'Vétérans'
+  return 'Formation'
+}
+
+function eventTag(eventType: string) {
+  if (eventType === 'match_amical') return '[MATCH AMICAL]'
+  if (eventType === 'match_championnat') return '[MATCH CHAMPIONNAT]'
+  if (eventType === 'match_coupe') return '[MATCH COUPE]'
+  if (eventType === 'plateau') return '[PLATEAU]'
+  if (eventType === 'competition') return '[COMPETITION]'
+  if (eventType === 'event') return '[EVENT]'
+  return '[TRAINING]'
+}
+
 const createSchema = z.object({
   teamId: z.string().uuid(),
-  day: z.enum(['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']),
-  sessionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal('')),
-  pole: z.string().min(2),
+  sessionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  eventType: z.enum(['training', 'match_amical', 'match_championnat', 'match_coupe', 'plateau', 'competition', 'event']),
   startTime: z.string().regex(/^\d{2}:\d{2}$/),
   endTime: z.string().regex(/^\d{2}:\d{2}$/),
   location: z.string().min(2),
@@ -23,9 +49,8 @@ export async function createPlanningSession(prevState: unknown, formData: FormDa
 
   const raw = {
     teamId: formData.get('teamId'),
-    day: formData.get('day'),
-    sessionDate: formData.get('sessionDate') ?? undefined,
-    pole: formData.get('pole'),
+    sessionDate: formData.get('sessionDate'),
+    eventType: formData.get('eventType'),
     startTime: formData.get('startTime'),
     endTime: formData.get('endTime'),
     location: formData.get('location'),
@@ -62,16 +87,25 @@ export async function createPlanningSession(prevState: unknown, formData: FormDa
     }
   }
 
+  const { data: teamMeta } = await supabase
+    .from('teams')
+    .select('category')
+    .eq('id', parsed.data.teamId)
+    .single()
+
+  const derivedPole = parsed.data.eventType === 'event' ? 'Évènements' : poleFromTeamCategory(teamMeta?.category)
+  const tag = eventTag(parsed.data.eventType)
+
   const payload = {
     team_id: parsed.data.teamId,
-    day: parsed.data.day,
-    session_date: parsed.data.sessionDate ? parsed.data.sessionDate : null,
-    pole: parsed.data.pole,
+    day: dayFromIso(parsed.data.sessionDate),
+    session_date: parsed.data.sessionDate,
+    pole: derivedPole,
     start_time: parsed.data.startTime,
     end_time: parsed.data.endTime,
     location: `${formData.get('site')} - ${parsed.data.location}`,
     staff: staffList,
-    note: parsed.data.note ? parsed.data.note : null,
+    note: `${tag}${parsed.data.note ? ` ${parsed.data.note}` : ''}`,
   }
 
   if (profile?.role === 'admin') {
@@ -79,7 +113,9 @@ export async function createPlanningSession(prevState: unknown, formData: FormDa
 
     // Backward compatibility if session_date column is not yet deployed in DB
     if (error && (error.message?.includes('session_date') || error.code === 'PGRST204')) {
-      const { session_date: _ignored, ...legacyPayload } = payload
+      const legacyPayload = Object.fromEntries(
+        Object.entries(payload).filter(([key]) => key !== 'session_date')
+      )
       const retry = await supabase.from('planning_sessions').insert([legacyPayload])
       error = retry.error
     }

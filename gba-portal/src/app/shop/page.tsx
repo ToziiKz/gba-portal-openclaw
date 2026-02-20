@@ -1,11 +1,9 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
-import Image from 'next/image'
 import { ShoppingBag, Package, Truck, ArrowUpRight } from 'lucide-react'
 import { featuredProducts, shopCategories, shopFaqs } from '@/lib/shop-data'
 
 export const metadata: Metadata = {
-  title: 'Boutique Officielle — GBA Portal',
+  title: 'Boutique Officielle — ESPACE GBA',
   description: 'Portez nos couleurs. Soutenez la formation. Maillots, packs et accessoires officiels du Groupement Bruche Ackerland.',
 }
 

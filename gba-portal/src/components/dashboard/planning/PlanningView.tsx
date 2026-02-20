@@ -1,10 +1,9 @@
 'use client'
 
 import * as React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Loader2, User, Clock, MapPin } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, User, MapPin } from 'lucide-react'
 
 import { CreatePlanningSessionModal } from './CreatePlanningSessionModal'
 import { deletePlanningSession } from '@/app/dashboard/planning/actions'
@@ -37,21 +36,55 @@ function sessionTimeLabel(s: Session) {
   return `${s.start_time}–${s.end_time}`
 }
 
-function groupByDay(sessions: Session[]) {
-  const map = new Map<PlanningDay, Session[]>()
-  for (const day of planningDays) map.set(day, [])
-  for (const s of sessions) {
-    const day = s.day as PlanningDay
-    if (map.has(day)) {
-      map.get(day)?.push(s)
-    }
+function toMinutes(v: string) {
+  const [h, m] = v.split(':').map(Number)
+  return h * 60 + m
+}
+
+function buildTimeSlots(start = '08:00', end = '22:00', stepMinutes = 60) {
+  const out: string[] = []
+  let cur = toMinutes(start)
+  const max = toMinutes(end)
+  while (cur <= max) {
+    const h = String(Math.floor(cur / 60)).padStart(2, '0')
+    const m = String(cur % 60).padStart(2, '0')
+    out.push(`${h}:${m}`)
+    cur += stepMinutes
   }
-  for (const day of planningDays) {
-    const items = map.get(day)
-    if (!items) continue
-    items.sort((a, b) => a.start_time.localeCompare(b.start_time))
-  }
-  return map
+  return out
+}
+
+type SessionTone =
+  | 'training'
+  | 'event'
+  | 'plateau'
+  | 'match_championnat'
+  | 'match_coupe'
+  | 'match_amical'
+  | 'competition'
+
+function getSessionTone(s: Session): SessionTone {
+  const note = (s.note ?? '').toLowerCase()
+  const pole = (s.pole ?? '').toLowerCase()
+  const name = (s.team?.name ?? '').toLowerCase()
+
+  if (note.includes('[plateau]') || note.includes('plateau')) return 'plateau'
+  if (note.includes('championnat')) return 'match_championnat'
+  if (note.includes('coupe')) return 'match_coupe'
+  if (note.includes('amical')) return 'match_amical'
+  if (note.includes('[competition]') || note.includes('compétition') || note.includes('competition') || note.includes('[match]') || note.includes('match')) return 'competition'
+  if (note.includes('[event]') || pole.includes('évèn') || pole.includes('évén') || pole.includes('réunion') || name.includes('réunion')) return 'event'
+  return 'training'
+}
+
+function sessionKindClasses(kind: SessionTone) {
+  if (kind === 'match_championnat') return 'border-amber-300 bg-amber-100 hover:border-amber-400 hover:bg-amber-200/70'
+  if (kind === 'match_coupe') return 'border-amber-400 bg-amber-200 hover:border-amber-500 hover:bg-amber-300/70'
+  if (kind === 'match_amical') return 'border-amber-200 bg-amber-50 hover:border-amber-300 hover:bg-amber-100/70'
+  if (kind === 'plateau') return 'border-amber-500 bg-amber-300/60 hover:border-amber-600 hover:bg-amber-300/90'
+  if (kind === 'competition') return 'border-amber-300 bg-amber-100/70 hover:border-amber-400 hover:bg-amber-200/70'
+  if (kind === 'event') return 'border-emerald-200 bg-emerald-50 hover:border-emerald-300 hover:bg-emerald-100/60'
+  return 'border-blue-200 bg-blue-50 hover:border-blue-300 hover:bg-blue-100/60'
 }
 
 function getWeekNumber(d: Date) {
@@ -79,6 +112,7 @@ export function PlanningView({ sessions, teams }: Props) {
   const [currentAnchor, setCurrentAnchor] = React.useState(new Date())
   const [activeSite, setActiveSite] = React.useState<'Ittenheim' | 'Achenheim'>('Ittenheim')
   const [pole, setPole] = React.useState<string | 'all'>('all')
+  const [terrain, setTerrain] = React.useState<'all' | 'synthetique' | 'herbe' | 'clubhouse'>('all')
   const [query, setQuery] = React.useState('')
   const [selectedSession, setSelectedSession] = React.useState<Session | null>(null)
   const [modalView, setModalView] = React.useState<'details' | 'attendance'>('details')
@@ -125,6 +159,14 @@ export function PlanningView({ sessions, teams }: Props) {
       })
       .filter((s) => (pole === 'all' ? true : s.pole === pole))
       .filter((s) => {
+        if (terrain === 'all') return true
+        const loc = (s.location || '').toLowerCase()
+        if (terrain === 'synthetique') return loc.includes('synth')
+        if (terrain === 'herbe') return loc.includes('herbe')
+        if (terrain === 'clubhouse') return loc.includes('clubhouse')
+        return true
+      })
+      .filter((s) => {
         // If a specific date exists, only show it in its corresponding week
         if (!s.session_date) return true
         const d = new Date(`${s.session_date}T00:00:00`)
@@ -135,24 +177,67 @@ export function PlanningView({ sessions, teams }: Props) {
         const hay = `${s.team?.name ?? ''} ${s.team?.category ?? ''} ${s.location} ${s.staff.join(' ')} ${s.note ?? ''}`.toLowerCase()
         return hay.includes(q)
       })
-  }, [sessions, pole, query, activeSite, weekDays])
+  }, [sessions, pole, terrain, query, activeSite, weekDays])
 
   const sessionsByDay = React.useMemo(() => {
     const map = new Map<PlanningDay, Session[]>()
     for (const d of planningDays) map.set(d, [])
-    
+
     for (const s of filtered) {
       const d = s.day as PlanningDay
       if (map.has(d)) {
         map.get(d)?.push(s)
       }
     }
-    
+
     for (const d of planningDays) {
       map.get(d)?.sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''))
     }
     return map
   }, [filtered])
+
+  const timelineStart = '10:00'
+  const timelineEnd = '22:00'
+  const pxPerHour = 52
+  const slotLabels = React.useMemo(() => buildTimeSlots(timelineStart, timelineEnd, 60), [])
+  const startMin = React.useMemo(() => toMinutes(timelineStart), [])
+  const endMin = React.useMemo(() => toMinutes(timelineEnd), [])
+  const totalMinutes = endMin - startMin
+
+  const placedByDay = React.useMemo(() => {
+    const map = new Map<PlanningDay, Array<Session & { lane: number; lanes: number; top: number; height: number }>>()
+
+    for (const day of planningDays) {
+      const daySessions = (sessionsByDay.get(day) ?? []).slice().sort((a, b) => toMinutes(a.start_time) - toMinutes(b.start_time))
+      const placed: Array<Session & { lane: number; lanes: number; top: number; height: number }> = []
+
+      for (const s of daySessions) {
+        const overlaps = daySessions.filter((o) => {
+          if (o.id === s.id) return false
+          return toMinutes(s.start_time) < toMinutes(o.end_time) && toMinutes(o.start_time) < toMinutes(s.end_time)
+        })
+        const lanes = Math.min(4, overlaps.length + 1)
+
+        const used = new Set(
+          placed
+            .filter((p) => toMinutes(p.start_time) < toMinutes(s.end_time) && toMinutes(s.start_time) < toMinutes(p.end_time))
+            .map((p) => p.lane)
+        )
+
+        let lane = 0
+        while (used.has(lane) && lane < lanes - 1) lane += 1
+
+        const top = Math.max(0, ((toMinutes(s.start_time) - startMin) / 60) * pxPerHour)
+        const height = Math.max(22, ((toMinutes(s.end_time) - toMinutes(s.start_time)) / 60) * pxPerHour - 2)
+
+        placed.push({ ...s, lane, lanes, top, height })
+      }
+
+      map.set(day, placed)
+    }
+
+    return map
+  }, [sessionsByDay, startMin])
 
   return (
     <div className="grid gap-4">
@@ -186,7 +271,7 @@ export function PlanningView({ sessions, teams }: Props) {
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <div className="flex items-center gap-2 px-3 min-w-[140px] justify-center">
+            <div className="flex items-center justify-center gap-2 px-2">
               <CalendarIcon className="w-3.5 h-3.5 text-blue-500" />
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-700">Semaine {weekNumber}</span>
             </div>
@@ -202,7 +287,7 @@ export function PlanningView({ sessions, teams }: Props) {
 
         {/* Compact Filters */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="relative min-w-[200px]">
+          <div className="relative w-[170px]">
             <select
               value={pole}
               onChange={(e) => setPole(e.target.value)}
@@ -215,92 +300,127 @@ export function PlanningView({ sessions, teams }: Props) {
             </select>
           </div>
 
+          <div className="flex rounded-xl border border-slate-200 bg-white p-1">
+            <button
+              type="button"
+              onClick={() => setTerrain('all')}
+              className={`px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-lg ${terrain === 'all' ? 'bg-blue-50 text-blue-700' : 'text-slate-500'}`}
+            >
+              Tous
+            </button>
+            <button
+              type="button"
+              onClick={() => setTerrain('synthetique')}
+              className={`px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-lg ${terrain === 'synthetique' ? 'bg-blue-50 text-blue-700' : 'text-slate-500'}`}
+            >
+              Synthé
+            </button>
+            <button
+              type="button"
+              onClick={() => setTerrain('herbe')}
+              className={`px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-lg ${terrain === 'herbe' ? 'bg-blue-50 text-blue-700' : 'text-slate-500'}`}
+            >
+              Herbe
+            </button>
+            <button
+              type="button"
+              onClick={() => setTerrain('clubhouse')}
+              className={`px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-lg ${terrain === 'clubhouse' ? 'bg-blue-50 text-blue-700' : 'text-slate-500'}`}
+            >
+              Clubhouse
+            </button>
+          </div>
+
           <div className="relative">
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Rechercher..."
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[10px] font-bold text-slate-700 placeholder:text-slate-300 outline-none focus:border-blue-300 min-w-[180px] transition-all"
+              className="w-[150px] rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[10px] font-bold text-slate-700 placeholder:text-slate-300 outline-none focus:border-blue-300 transition-all"
             />
           </div>
 
           <Button type="button" size="sm" variant="ghost" className="h-10 px-5 text-[10px] font-black uppercase tracking-[0.2em] border border-slate-200 hover:bg-slate-50 text-slate-600" onClick={() => setCreateOpen(true)}>
-            + Séance
+            + Évènement
           </Button>
         </div>
       </div>
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl !text-slate-900">
-        <div className="mb-6 flex items-center justify-between border-b border-slate-100 pb-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-xl !text-slate-900">
+        <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-4">
           <h3 className="text-xl font-black uppercase tracking-widest text-slate-900">Planning Hebdomadaire</h3>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">
-            {filtered.length} séance(s) à {activeSite}
+            {filtered.length} évènement(s) à {activeSite}
           </p>
         </div>
         
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7">
-          {planningDays.map((day, idx) => {
-            const items = sessionsByDay.get(day) ?? []
-            const date = weekDays[idx]
-            const isToday = new Date().toDateString() === date.toDateString()
+        {filtered.length === 0 ? (
+          <p className="mt-2 text-center text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Aucune séance trouvée pour {activeSite}
+          </p>
+        ) : (
+          <div className="max-w-full overflow-hidden rounded-2xl border border-slate-200">
+            <div className="w-full">
+              <div className="grid grid-cols-[56px_repeat(7,minmax(0,1fr))] border-b border-slate-200 bg-slate-50">
+                <div className="px-3 py-2 text-[10px] font-black uppercase tracking-wider text-slate-500">Heure</div>
+                {planningDays.map((day, idx) => {
+                  const date = weekDays[idx]
+                  const isToday = new Date().toDateString() === date.toDateString()
+                  return (
+                    <div key={day} className={`px-3 py-2 ${isToday ? 'bg-blue-50' : ''}`}>
+                      <p className={`text-[10px] font-black uppercase tracking-wider ${isToday ? 'text-blue-700' : 'text-slate-600'}`}>{day}</p>
+                      <p className="text-xs font-bold text-slate-500">{date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}</p>
+                    </div>
+                  )
+                })}
+              </div>
 
-            return (
-              <section key={day} className={`flex flex-col rounded-2xl border transition-all p-4 ${isToday ? 'border-blue-200 bg-blue-50/50 shadow-sm' : 'border-slate-100 bg-slate-50/30'}`}>
-                <header className="flex flex-col gap-1 border-b border-slate-100 pb-3 mb-4">
-                  <div className="flex items-baseline justify-between">
-                    <p className={`text-[10px] font-black uppercase tracking-[0.3em] ${isToday ? 'text-blue-600' : 'text-slate-500'}`}>{day}</p>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isToday ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>{items.length}</span>
-                  </div>
-                  <p className={`text-sm font-black tracking-tight ${isToday ? 'text-slate-900' : 'text-slate-700'}`}>
-                    {date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
-                  </p>
-                </header>
+              <div className="grid grid-cols-[56px_repeat(7,minmax(0,1fr))]">
+                <div className="relative border-r border-slate-200 bg-slate-50" style={{ height: `${(totalMinutes / 60) * pxPerHour}px` }}>
+                  {slotLabels.map((slot, i) => (
+                    <div key={slot} className="absolute left-0 right-0 border-t border-slate-100" style={{ top: `${i * pxPerHour}px` }}>
+                      <span className="absolute -top-2.5 left-2 bg-slate-50 px-1 text-[10px] font-bold text-slate-500">{slot}</span>
+                    </div>
+                  ))}
+                </div>
 
-                <div className="flex-1">
-                  {items.length === 0 ? (
-                    <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 italic">Repos</p>
-                  ) : (
-                    <ul className="grid gap-3">
-                      {items.map((s) => (
-                        <li key={s.id}>
+                {planningDays.map((day) => {
+                  const placed = placedByDay.get(day) ?? []
+                  return (
+                    <div key={day} className="relative border-l border-slate-100" style={{ height: `${(totalMinutes / 60) * pxPerHour}px` }}>
+                      {slotLabels.map((_, i) => (
+                        <div key={`${day}-line-${i}`} className="absolute left-0 right-0 border-t border-slate-100" style={{ top: `${i * pxPerHour}px` }} />
+                      ))}
+
+                      {placed.map((s) => {
+                        const colWidth = 100 / s.lanes
+                        const left = s.lane * colWidth
+                        const kind = getSessionTone(s)
+                        return (
                           <button
+                            key={s.id}
                             type="button"
                             onClick={() => setSelectedSession(s)}
-                            className="w-full text-left rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-blue-300 hover:shadow-md group active:scale-[0.98]"
+                            className={`absolute overflow-hidden rounded-lg border px-1 py-0.5 text-left ${sessionKindClasses(kind)}`}
+                            style={{
+                              top: `${s.top}px`,
+                              height: `${s.height}px`,
+                              left: `calc(${left}% + 2px)`,
+                              width: `calc(${colWidth}% - 4px)`,
+                            }}
                           >
-                            <div className="space-y-3">
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="min-w-0">
-                                  <p className="truncate text-xs font-black uppercase tracking-wider text-slate-900 group-hover:text-blue-600 transition-colors">{s.team?.name ?? '—'}</p>
-                                  <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">{s.pole}</p>
-                                </div>
-                              </div>
-                              <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-50">
-                                <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-600 uppercase tracking-widest">
-                                  <Clock className="w-3 h-3 text-blue-400" />
-                                  {s.start_time}
-                                </div>
-                                <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-600 uppercase tracking-widest">
-                                  <MapPin className="w-3 h-3 text-blue-400" />
-                                  {s.location.split('-').pop()?.trim()}
-                                </div>
-                              </div>
-                            </div>
+                            <p className="truncate text-[9px] font-black uppercase tracking-tight text-slate-900">{s.team?.name ?? '—'}</p>
+                            <p className="mt-0.5 text-[9px] font-semibold text-slate-600">{s.start_time}-{s.end_time}</p>
                           </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </section>
-            )
-          })}
-        </div>
-        {filtered.length === 0 ? (
-          <p className="mt-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-            Aucune séance trouvée pour {activeSite} (mais la navigation semaine est active)
-          </p>
-        ) : null}
+                        )
+                      })}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <Modal
@@ -321,42 +441,53 @@ export function PlanningView({ sessions, teams }: Props) {
           ) : (
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                  <div className="flex items-center gap-2 text-white/40 mb-2">
-                    <MapPin className="w-4 h-4" />
-                    <p className="text-[10px] font-bold uppercase tracking-widest">Lieu</p>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="mb-2 flex items-center gap-2 text-slate-500">
+                    <MapPin className="h-4 w-4" />
+                    <p className="text-[10px] font-bold uppercase tracking-widest">Terrain</p>
                   </div>
-                  <p className="text-lg font-black text-white uppercase tracking-tight">{selectedSession.location}</p>
+                  <p className="text-lg font-black uppercase tracking-tight text-slate-900">
+                    {selectedSession.location.toLowerCase().includes('synth')
+                      ? 'Synthétique'
+                      : selectedSession.location.toLowerCase().includes('herbe')
+                        ? 'Herbe'
+                        : selectedSession.location.toLowerCase().includes('clubhouse')
+                          ? 'Clubhouse'
+                          : 'Non précisé'}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">{selectedSession.location}</p>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                  <div className="flex items-center gap-2 text-white/40 mb-2">
-                    <User className="w-4 h-4" />
-                    <p className="text-[10px] font-bold uppercase tracking-widest">Pôle</p>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="mb-2 flex items-center gap-2 text-slate-500">
+                    <User className="h-4 w-4" />
+                    <p className="text-[10px] font-bold uppercase tracking-widest">Coach</p>
                   </div>
-                  <p className="text-lg font-black text-white uppercase tracking-tight">{selectedSession.pole}</p>
+                  <p className="text-lg font-black uppercase tracking-tight text-slate-900">
+                    {selectedSession.staff?.length ? selectedSession.staff.join(', ') : 'Non précisé'}
+                  </p>
                 </div>
               </div>
 
               {selectedSession.note ? (
-                <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2">Note</p>
-                  <p className="text-sm text-white/80 leading-relaxed italic">&quot;{selectedSession.note}&quot;</p>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">Note</p>
+                  <p className="text-sm italic leading-relaxed text-slate-700">&quot;{selectedSession.note}&quot;</p>
                 </div>
               ) : null}
 
-              <div className="pt-4 border-t border-white/10 flex flex-wrap justify-end gap-3">
+              <div className="flex flex-wrap justify-end gap-3 border-t border-slate-200 pt-4">
                 {selectedSession.team ? (
-                  <Button onClick={() => setModalView('attendance')} className="bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-[10px]">
+                  <Button onClick={() => setModalView('attendance')} className="bg-blue-600 text-[10px] font-black uppercase tracking-widest text-white hover:bg-blue-700">
                     Gérer les présences
                   </Button>
                 ) : null}
                 <form action={deletePlanningSession}>
                   <input type="hidden" name="id" value={selectedSession.id} />
-                  <Button variant="secondary" type="submit" className="font-black uppercase tracking-widest text-[10px] text-rose-400 border-rose-500/20">
+                  <Button variant="secondary" type="submit" className="border-rose-200 text-[10px] font-black uppercase tracking-widest text-rose-700 hover:bg-rose-50">
                     Supprimer
                   </Button>
                 </form>
-                <Button variant="secondary" onClick={() => setSelectedSession(null)} className="font-black uppercase tracking-widest text-[10px]">
+                <Button variant="secondary" onClick={() => setSelectedSession(null)} className="text-[10px] font-black uppercase tracking-widest">
                   Fermer
                 </Button>
               </div>

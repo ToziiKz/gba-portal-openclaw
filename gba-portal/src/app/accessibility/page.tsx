@@ -4,7 +4,7 @@ import { TrustPageShell } from '@/components/TrustPageShell'
 export const metadata: Metadata = {
   title: 'Accessibilité',
   description:
-    'Engagement accessibilité de GBA Portal : navigation clavier, contrastes, contenus, contact et retours.',
+    'Engagement accessibilité de ESPACE GBA : navigation clavier, contrastes, contenus, contact et retours.',
   alternates: {
     canonical: '/accessibility',
   },

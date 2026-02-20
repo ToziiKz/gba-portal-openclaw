@@ -43,6 +43,15 @@ function inputBaseClassName() {
   return 'w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-white/25 focus:ring-2 focus:ring-white/20'
 }
 
+function formatPhone(phone?: string | null) {
+  const raw = (phone ?? '').trim()
+  if (!raw) return '—'
+  const digits = raw.replace(/\D/g, '')
+  if (digits.length === 9 && (digits.startsWith('6') || digits.startsWith('7'))) return `0${digits}`
+  if (digits.length === 11 && digits.startsWith('33') && (digits[2] === '6' || digits[2] === '7')) return `0${digits.slice(2)}`
+  return raw
+}
+
 type TabKey = 'resume' | 'contact' | 'legal' | 'presences'
 
 type PresenceStats = {
@@ -332,7 +341,13 @@ export function PlayersView({ initialPlayers, teams }: Props) {
                           {selectedPlayer.lastname} {selectedPlayer.firstname}
                         </h3>
                         <p className="mt-1 text-sm text-white/70">
-                          {selectedPlayer.gender === 'M' ? 'Masculin' : 'Féminin'} • {selectedPlayer.category}
+                          {(() => {
+                            const g = (selectedPlayer.gender ?? '').trim().toUpperCase()
+                            if (g === 'M' || g === 'MALE') return 'Masculin'
+                            if (g === 'F' || g === 'FEMALE') return 'Féminin'
+                            return 'Non renseigné'
+                          })()}{' '}
+                          • {selectedPlayer.category}
                         </p>
                       </div>
                       {selectedPlayer.status_label ? (
@@ -381,7 +396,7 @@ export function PlayersView({ initialPlayers, teams }: Props) {
 
                       <div className="space-y-1">
                         <p className="text-[10px] uppercase text-white/40">Mobile</p>
-                        <p className="text-sm text-white">{selectedPlayer.mobile_phone || '—'}</p>
+                        <p className="text-sm text-white">{formatPhone(selectedPlayer.mobile_phone)}</p>
                       </div>
                     </div>
                   </div>
@@ -426,14 +441,14 @@ export function PlayersView({ initialPlayers, teams }: Props) {
 
                       <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                         <p className="text-xs uppercase tracking-[0.35em] text-white/55">Mobile</p>
-                        <p className="mt-2 text-sm text-white">{selectedPlayer.mobile_phone || '—'}</p>
+                        <p className="mt-2 text-sm text-white">{formatPhone(selectedPlayer.mobile_phone)}</p>
                         <div className="mt-3 flex gap-2">
                           <Button
                             size="sm"
                             variant="secondary"
                             onClick={async () => {
                               if (!selectedPlayer.mobile_phone) return
-                              await navigator.clipboard.writeText(selectedPlayer.mobile_phone)
+                              await navigator.clipboard.writeText(formatPhone(selectedPlayer.mobile_phone))
                             }}
                           >
                             Copier

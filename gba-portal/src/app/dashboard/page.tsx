@@ -4,13 +4,10 @@ import {
   ClipboardCheck, 
   Users, 
   Calendar, 
-  Layout, 
   ArrowRight,
-  TrendingUp,
   MapPin,
   Clock,
   ChevronRight,
-  Plus,
   AlertCircle,
   Trophy,
   Lock
@@ -18,18 +15,18 @@ import {
 
 import { getDashboardHomeData } from '@/lib/dashboard/server-data'
 import { getCoachRosterHealth } from '@/lib/dashboard/roster-health'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Card, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 
 export const metadata: Metadata = {
-  title: 'Dashboard · GBA',
-  description: 'Command Center : Pilotage du club et de vos équipes.',
+  title: 'Espace GBA · Dashboard',
+  description: 'Tableau de bord opérationnel : priorités terrain, effectif et organisation du club.',
 }
 
 const weekdayOrder = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 
 export default async function DashboardPage() {
-  const { scope, teamCount, playerCount, sessionsCount, sessions } = await getDashboardHomeData()
+  const { scope, sessions } = await getDashboardHomeData()
   const { players: healthPlayers, stats: healthStats } = await getCoachRosterHealth()
 
   const orderedSessions = sessions.slice().sort((a, b) => {

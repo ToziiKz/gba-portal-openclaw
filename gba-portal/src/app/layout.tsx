@@ -13,10 +13,10 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 export const metadata: Metadata = {
   metadataBase: getMetadataBase(),
   title: {
-    default: 'GBA Portal',
-    template: '%s · GBA Portal',
+    default: 'ESPACE GBA',
+    template: '%s · ESPACE GBA',
   },
-  applicationName: 'GBA Portal',
+  applicationName: 'ESPACE GBA',
   description:
     'Vitrine premium du Groupement Bruche Ackerland : histoire, formation, communauté, partenaires et boutique.',
   keywords: [
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     'sponsors',
     'boutique',
   ],
-  authors: [{ name: 'GBA Portal' }],
+  authors: [{ name: 'ESPACE GBA' }],
   alternates: {
     canonical: '/',
   },
@@ -45,31 +45,31 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: 'GBA Portal',
+    title: 'ESPACE GBA',
     description:
       'Une vitrine premium du club : récit, formation, communauté, partenaires et boutique.',
     type: 'website',
     url: '/',
-    siteName: 'GBA Portal',
+    siteName: 'ESPACE GBA',
     locale: 'fr_FR',
     images: [
       {
         url: '/gba-logo.png',
         width: 1200,
         height: 630,
-        alt: 'GBA Portal',
+        alt: 'ESPACE GBA',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GBA Portal',
+    title: 'ESPACE GBA',
     description:
       'Une vitrine premium du club : récit, formation, communauté, partenaires et boutique.',
     images: [
       {
         url: '/gba-logo.png',
-        alt: 'GBA Portal',
+        alt: 'ESPACE GBA',
       },
     ],
   },
@@ -103,7 +103,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       {
         '@type': 'WebSite',
         '@id': `${baseUrl}#website`,
-        name: 'GBA Portal',
+        name: 'ESPACE GBA',
         url: baseUrl,
         inLanguage: 'fr-FR',
         publisher: { '@id': `${baseUrl}#organization` },

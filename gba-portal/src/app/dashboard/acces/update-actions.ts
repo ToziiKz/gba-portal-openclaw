@@ -1,7 +1,6 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/dashboard/authz'
 
 /**
@@ -9,7 +8,7 @@ import { requireRole } from '@/lib/dashboard/authz'
  * et ses équipes assignées.
  */
 export async function updateUserProfile(formData: FormData) {
-  const { supabase, user: adminUser } = await requireRole('admin')
+  const { supabase } = await requireRole('admin')
 
   const userId = String(formData.get('userId') ?? '')
   const role = String(formData.get('role') ?? 'viewer')
@@ -107,9 +106,9 @@ export async function deleteUserProfile(formData: FormData) {
 
     revalidatePath('/dashboard/acces')
     return { ok: true }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Delete error:', err)
-    
+
     // Si échec (FK persistante), on passe en mode "Archivage" pour libérer l'email
     const { error: archiveErr } = await supabase
       .from('profiles')

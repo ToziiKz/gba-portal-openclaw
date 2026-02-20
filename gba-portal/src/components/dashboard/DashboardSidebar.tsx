@@ -14,7 +14,8 @@ import {
   Settings,
   ChevronRight,
   LogOut,
-  HelpCircle
+  HelpCircle,
+  type LucideIcon
 } from 'lucide-react'
 
 import { getVisibleNavItems, isActivePath } from '@/lib/dashboard/nav'
@@ -24,7 +25,7 @@ type Props = {
   role: DashboardRole
 }
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, LucideIcon> = {
   '/dashboard': LayoutDashboard,
   '/dashboard/effectif': Users,
   '/dashboard/planning': Calendar,
@@ -42,17 +43,17 @@ export function DashboardSidebar({ role }: Props) {
   return (
     <aside className="fixed left-0 top-0 z-50 hidden h-full w-64 shrink-0 flex-col border-r border-[color:var(--ui-border)] bg-white lg:flex shadow-sm">
       {/* Brand Header */}
-      <div className="flex h-24 items-center px-6 border-b border-slate-50">
+      <div className="flex h-24 items-center justify-center px-4 border-b border-slate-50">
         <Link href="/dashboard" className="flex items-center gap-3 focus:outline-none group">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 shadow-lg shadow-blue-200 transition-transform group-hover:scale-105">
-            <Image src="/brand/logo.png" alt="GBA" width={32} height={32} className="object-contain brightness-0 invert" priority />
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white border border-blue-100 shadow-lg shadow-blue-100 transition-transform group-hover:scale-105">
+            <Image src="/gba-logo.png" alt="Logo du club GBA" width={34} height={34} className="object-contain" priority />
           </div>
-          <div className="leading-tight">
+          <div className="leading-tight text-center">
             <span className="block font-[var(--font-teko)] text-2xl font-black uppercase tracking-wider text-slate-900 leading-none">
-              GBA PORTAL
+              ESPACE GBA
             </span>
             <span className="block text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 mt-1">
-              Command Center
+              Centre opérationnel du club
             </span>
           </div>
         </Link>

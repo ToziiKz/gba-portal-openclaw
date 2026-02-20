@@ -13,6 +13,19 @@ type PlayerLite = {
   firstname: string | null
   lastname: string | null
   team_id: string | null
+  category: string | null
+  club_name: string | null
+  license_number: string | null
+  mobile_phone: string | null
+  email: string | null
+  gender: string | null
+  status_label: string | null
+  status_start_date: string | null
+  status_end_date: string | null
+  legal_guardian_name: string | null
+  address_street: string | null
+  address_zipcode: string | null
+  address_city: string | null
 }
 
 type SessionLite = {
@@ -38,7 +51,12 @@ export async function getScopedRosterData() {
   const scope = await getDashboardScope()
 
   let teamsQuery = supabase.from('teams').select('id, name, category, pole').order('name')
-  let playersQuery = supabase.from('players').select('id, firstname, lastname, team_id').order('lastname')
+  let playersQuery = supabase
+    .from('players')
+    .select(
+      'id, firstname, lastname, team_id, category, club_name, license_number, mobile_phone, email, gender, status_label, status_start_date, status_end_date, legal_guardian_name, address_street, address_zipcode, address_city'
+    )
+    .order('lastname')
 
   if (scope.role !== 'admin' && scope.role !== 'staff') {
     if (scope.viewableTeamIds && scope.viewableTeamIds.length > 0) {
@@ -99,7 +117,10 @@ export async function getScopedPlanningData() {
     }
   }
 
-  let [{ data: sessions, error: sessionsError }, { data: teams }] = await Promise.all([sessionsQuery, teamsQuery])
+  const [sessionsResult, teamsResult] = await Promise.all([sessionsQuery, teamsQuery])
+  let sessions = sessionsResult.data
+  const sessionsError = sessionsResult.error
+  const teams = teamsResult.data
 
   // Backward compatibility if session_date column is not deployed yet
   if (sessionsError && (sessionsError.message?.includes('session_date') || sessionsError.code === 'PGRST204')) {

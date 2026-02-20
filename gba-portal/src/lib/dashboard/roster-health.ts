@@ -17,6 +17,16 @@ export type PlayerHealthInfo = {
   size_label?: string | null // On l'ajoutera via metadata ou colonne si nécessaire
 }
 
+type RawPlayer = {
+  id: string
+  firstname: string
+  lastname: string
+  team_id: string | null
+  licence_status: 'valid' | 'pending' | 'missing' | 'expired'
+  payment_status: 'paid' | 'partial' | 'unpaid'
+  equipment_status: 'received' | 'partial' | 'pending'
+}
+
 export async function getCoachRosterHealth() {
   const supabase = await createClient()
   const scope = await getDashboardScope()
@@ -54,7 +64,7 @@ export async function getCoachRosterHealth() {
   }
 
   return {
-    players: (players ?? []).map((p: any) => ({
+    players: ((players ?? []) as RawPlayer[]).map((p) => ({
       ...p,
       first_name: p.firstname,
       last_name: p.lastname,

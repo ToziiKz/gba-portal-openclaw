@@ -752,9 +752,9 @@ export default function TactiquePage() {
       }
 
       alert('Feuille de match enregistrée avec succès !')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Save error:', err)
-      alert('Erreur : ' + err.message)
+      alert('Erreur : ' + (err instanceof Error ? err.message : 'inconnue'))
     } finally {
       setIsLoading(false)
     }

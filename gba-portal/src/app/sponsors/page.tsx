@@ -35,7 +35,7 @@ const tiers = [
 ]
 
 export const metadata: Metadata = {
-  title: 'Sponsors — GBA Portal',
+  title: 'Sponsors — ESPACE GBA',
   description: 'Devenez partenaire du Groupement Bruche Ackerland et soutenez le football local.',
 }
 

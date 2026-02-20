@@ -17,6 +17,16 @@ function formatDate(dateStr: string) {
   })
 }
 
+type ApprovalRequestRow = {
+  id: string
+  action: string
+  entity: string
+  payload: Record<string, string | null>
+  status: string
+  created_at: string
+  profiles: { firstname?: string | null; lastname?: string | null } | null
+}
+
 export default async function ValidationsPage() {
   const supabase = await createClient()
 
@@ -60,9 +70,8 @@ export default async function ValidationsPage() {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {(requests ?? []).map((r: any) => {
-            const payload = r.payload as any
-            const isCreation = r.action.includes('.create')
+          {((requests ?? []) as ApprovalRequestRow[]).map((r) => {
+            const payload = r.payload
             const isDeletion = r.action.includes('.delete')
             
             return (

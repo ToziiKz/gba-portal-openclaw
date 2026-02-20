@@ -6,7 +6,7 @@ import { TrustPageShell } from '@/components/TrustPageShell'
 export const metadata: Metadata = {
   title: 'À propos',
   description:
-    'GBA Portal : site officiel premium du Groupement Bruche Ackerland — histoire, formation, communauté, actus et partenaires.',
+    'ESPACE GBA : site officiel premium du Groupement Bruche Ackerland — histoire, formation, communauté, actus et partenaires.',
   alternates: {
     canonical: '/about',
   },
@@ -15,9 +15,9 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <TrustPageShell
-      eyebrow="GBA Portal"
+      eyebrow="ESPACE GBA"
       title="À propos"
-      lead="GBA Portal est le site officiel premium du Groupement Bruche Ackerland : une vitrine cinématique qui raconte le club, valorise la formation, et crée un lien simple avec la communauté et les partenaires. Notre obsession : une expérience rapide, accessible, et assez belle pour donner envie de s’engager — avec une confiance explicite (confidentialité, conditions, accessibilité)."
+      lead="ESPACE GBA est le site officiel premium du Groupement Bruche Ackerland : une vitrine cinématique qui raconte le club, valorise la formation, et crée un lien simple avec la communauté et les partenaires. Notre obsession : une expérience rapide, accessible, et assez belle pour donner envie de s’engager — avec une confiance explicite (confidentialité, conditions, accessibilité)."
     >
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-white">Notre promesse</h2>
@@ -91,7 +91,7 @@ export default function AboutPage() {
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-white">Crédits & contact</h2>
         <p className="text-sm leading-relaxed text-white/70">
-          GBA Portal est conçu pour le Groupement Bruche Ackerland. Pour une démo, un sponsoring ou
+          ESPACE GBA est conçu pour le Groupement Bruche Ackerland. Pour une démo, un sponsoring ou
           un accès staff, utilisez la page Contact.
         </p>
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">

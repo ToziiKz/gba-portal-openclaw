@@ -10,12 +10,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: "GBA Portal — Plus qu'un club, une famille",
+  title: "ESPACE GBA — Plus qu'un club, une famille",
   description:
     "Découvrez le Groupement Bruche Ackerland : une aventure humaine, sportive et locale. Formation, passion et excellence au cœur de l'Alsace.",
   alternates: { canonical: '/' },
   openGraph: {
-    title: "GBA Portal — Plus qu'un club, une famille",
+    title: "ESPACE GBA — Plus qu'un club, une famille",
     description:
       "Rejoignez l'aventure GBA. Une histoire de passion, de formation et de victoires partagées.",
     url: '/',
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
         url: '/gba-logo.png',
         width: 1200,
         height: 630,
-        alt: 'GBA Portal — Groupement Bruche Ackerland',
+        alt: 'ESPACE GBA — Groupement Bruche Ackerland',
       },
     ],
   },

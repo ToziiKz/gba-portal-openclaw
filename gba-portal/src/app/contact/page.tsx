@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Mail, MessageSquare, ShieldCheck, Trophy, ArrowUpRight } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Contact — GBA Portal',
+  title: 'Contact — ESPACE GBA',
   description: 'Prenez contact avec le Groupement Bruche Ackerland : Sponsoring, Presse, Inscriptions ou Support.',
 }
 

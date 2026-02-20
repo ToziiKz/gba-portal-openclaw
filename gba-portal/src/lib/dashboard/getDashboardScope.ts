@@ -15,8 +15,6 @@ type TeamRow = {
   pole: string | null
 }
 
-type MembershipRow = { team_id: string | null }
-
 function uniq<T>(arr: T[]) {
   return Array.from(new Set(arr))
 }
@@ -66,31 +64,9 @@ export async function getDashboardScope(): Promise<DashboardScope> {
     .select('id, name, category, pole')
     .eq('coach_id', user.id)
 
-  // Legacy fallback: staff_team_memberships, kept for backward compatibility
-  const { data: memberships } = await supabase
-    .from('staff_team_memberships')
-    .select('team_id')
-    .eq('user_id', user.id)
-
-  const membershipTeamIds = uniq((memberships as MembershipRow[] | null | undefined ?? [])
-    .map((m) => (m.team_id ? String(m.team_id) : null))
-    .filter((v): v is string => Boolean(v)))
-
-  let mergedTeams: TeamRow[] = (directTeams as TeamRow[] | null) ?? []
-
-  if (membershipTeamIds.length > 0) {
-    const existingIds = new Set(mergedTeams.map((t) => String(t.id)))
-    const missingIds = membershipTeamIds.filter((id) => !existingIds.has(id))
-
-    if (missingIds.length > 0) {
-      const { data: extraTeams } = await supabase
-        .from('teams')
-        .select('id, name, category, pole')
-        .in('id', missingIds)
-
-      mergedTeams = [...mergedTeams, ...(((extraTeams as TeamRow[] | null) ?? []))]
-    }
-  }
+  // Source of truth: only teams where coach_id = current user.
+  // Legacy memberships are intentionally ignored to prevent stale cross-team visibility.
+  const mergedTeams: TeamRow[] = (directTeams as TeamRow[] | null) ?? []
 
   const editableTeamIds = uniq(mergedTeams.map((t) => String(t.id)))
 

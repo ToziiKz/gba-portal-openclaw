@@ -33,7 +33,7 @@ const news = [
 ]
 
 export const metadata: Metadata = {
-  title: 'Actualités — GBA Portal',
+  title: 'Actualités — ESPACE GBA',
   description: 'Suivez les derniers moments forts, infos club et nouveautés du Groupement Bruche Ackerland.',
 }
 

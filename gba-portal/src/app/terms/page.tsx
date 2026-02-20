@@ -4,7 +4,7 @@ import { TrustPageShell } from '@/components/TrustPageShell'
 export const metadata: Metadata = {
   title: 'Conditions d’utilisation',
   description:
-    'Conditions d’utilisation de GBA Portal : accès, responsabilités, propriété, contact.',
+    'Conditions d’utilisation de ESPACE GBA : accès, responsabilités, propriété, contact.',
   alternates: {
     canonical: '/terms',
   },
@@ -20,7 +20,7 @@ export default function TermsPage() {
       lead="Un cadre simple : utiliser la plateforme de bonne foi, respecter les accès, et garder le jeu propre."
       cta={
         <a
-          href={`mailto:${contactEmail}?subject=${encodeURIComponent('Conditions d’utilisation — GBA Portal')}`}
+          href={`mailto:${contactEmail}?subject=${encodeURIComponent('Conditions d’utilisation — ESPACE GBA')}`}
           className="btn-ghost inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-xs font-semibold uppercase tracking-[0.5em] text-white/80 transition hover:border-white/50 hover:bg-white/10"
         >
           Nous écrire
