@@ -3,6 +3,7 @@
 import { requireRole } from '@/lib/dashboard/authz'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { log } from '@/lib/logger'
 
 export type Competition = {
   id: string
@@ -20,7 +21,7 @@ export async function getCompetitions() {
   const { data, error } = await supabase.from('competitions').select('*').order('match_date', { ascending: false })
 
   if (error) {
-    console.error('Error fetching competitions:', error)
+    log.error('Error fetching competitions:', error)
     return []
   }
   return data as Competition[]
@@ -46,7 +47,7 @@ export async function createCompetition(formData: FormData) {
   })
 
   if (error) {
-    console.error('Error creating competition:', error)
+    log.error('Error creating competition:', error)
     throw new Error('Failed to create competition')
   }
 
@@ -58,7 +59,7 @@ export async function deleteCompetition(id: string) {
   const { error } = await supabase.from('competitions').delete().eq('id', id)
 
   if (error) {
-    console.error('Error deleting competition:', error)
+    log.error('Error deleting competition:', error)
     throw new Error('Failed to delete competition')
   }
   revalidatePath('/dashboard/competitions')

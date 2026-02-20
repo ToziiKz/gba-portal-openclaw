@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { getDashboardScope } from '@/lib/dashboard/getDashboardScope'
+import { log } from '@/lib/logger'
 
 /**
  * Module "Santé Équipe" pour le Coach
@@ -52,7 +53,7 @@ export async function getCoachRosterHealth() {
   const { data: players, error } = await query.order('lastname')
 
   if (error) {
-    console.error('Error fetching roster health:', error)
+    log.error('Error fetching roster health:', error)
     return { players: [], stats: null }
   }
 

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Slot } from '@radix-ui/react-slot'
 
 import { cn } from './cn'
 
@@ -9,6 +10,7 @@ type ButtonSize = 'sm' | 'md' | 'lg'
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant
   size?: ButtonSize
+  asChild?: boolean
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -26,12 +28,14 @@ const sizeClasses: Record<ButtonSize, string> = {
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', type = 'button', disabled, ...props }, ref) => {
+  ({ className, variant = 'primary', size = 'md', type = 'button', disabled, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : 'button'
+
     return (
-      <button
+      <Comp
         ref={ref}
-        type={type}
-        disabled={disabled}
+        type={asChild ? undefined : type}
+        disabled={asChild ? undefined : disabled}
         className={cn(
           'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--ui-radius-sm)] font-medium transition-colors',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ui-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--ui-bg)]',

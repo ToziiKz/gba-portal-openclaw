@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/dashboard/authz'
+import { log } from '@/lib/logger'
 
 async function requireAdmin() {
   const { supabase, user } = await requireRole('admin')
@@ -13,7 +14,13 @@ async function requireAdmin() {
 }
 
 function buildInviteUrl(invitationId: string, token: string) {
-  const base = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const configuredBase = process.env.NEXT_PUBLIC_APP_URL?.trim()
+
+  if (process.env.NODE_ENV === 'production' && !configuredBase) {
+    throw new Error('NEXT_PUBLIC_APP_URL est requis en production pour générer les liens d’invitation.')
+  }
+
+  const base = configuredBase || 'http://localhost:3000'
   return `${base}/activate?inv=${invitationId}&token=${token}`
 }
 
@@ -124,7 +131,7 @@ export async function createDirectInvitation(formData: FormData) {
     .single()
 
   if (invErr || !inv) {
-    console.error('Insert error:', invErr)
+    log.error('Insert error:', invErr)
     throw new Error('Impossible de créer l’invitation.')
   }
 
@@ -217,52 +224,15 @@ export async function setCoachTeams(formData: FormData) {
 
   if (!coachId) throw new Error('coachId manquant')
 
-  const { error: profileRoleErr } = await supabase
-    .from('profiles')
-    .update({ role: 'coach', is_active: true })
-    .eq('id', coachId)
+  const { error: rpcErr } = await supabase.rpc('admin_update_profile_and_teams', {
+    p_user_id: coachId,
+    p_role: 'coach',
+    p_is_active: true,
+    p_team_ids: teamIds,
+  })
 
-  if (profileRoleErr) throw new Error('Impossible de basculer le compte en coach')
-
-  const { error: clearErr } = await supabase.from('teams').update({ coach_id: null }).eq('coach_id', coachId)
-  if (clearErr) throw new Error('Impossible de nettoyer les anciennes affectations')
-
-  if (teamIds.length > 0) {
-    const { error: assignErr } = await supabase
-      .from('teams')
-      .update({ coach_id: coachId })
-      .in('id', teamIds)
-    if (assignErr) throw new Error('Impossible d’affecter les équipes')
-  }
-
-  // Legacy compatibility: keep staff_team_memberships in sync when table exists.
-  const { error: clearMembershipErr } = await supabase
-    .from('staff_team_memberships')
-    .delete()
-    .eq('user_id', coachId)
-
-  // Ignore if table does not exist; otherwise fail to avoid silent inconsistency.
-  if (clearMembershipErr && !String(clearMembershipErr.message || '').includes('does not exist')) {
-    throw new Error('Impossible de nettoyer les memberships coach')
-  }
-
-  if (teamIds.length > 0) {
-    const rows = teamIds.map((teamId) => ({ user_id: coachId, team_id: teamId, role: 'coach' }))
-    const { error: insertMembershipErr } = await supabase.from('staff_team_memberships').insert(rows)
-    if (insertMembershipErr && !String(insertMembershipErr.message || '').includes('does not exist')) {
-      throw new Error('Impossible d’enregistrer les memberships coach')
-    }
-  }
-
-  const { data: assignedRows, error: verifyErr } = await supabase
-    .from('teams')
-    .select('id')
-    .eq('coach_id', coachId)
-
-  if (verifyErr) throw new Error('Impossible de vérifier les affectations coach')
-  const assignedCount = assignedRows?.length ?? 0
-  if (assignedCount !== teamIds.length) {
-    throw new Error('Affectation partielle détectée. Merci de réessayer.')
+  if (rpcErr) {
+    throw new Error('Impossible d’affecter les équipes coach: ' + rpcErr.message)
   }
 
   await logAccessEvent(supabase, user.id, 'coach.assign_teams', 'profile', coachId, {

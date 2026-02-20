@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { getDashboardScope } from '@/lib/dashboard/getDashboardScope'
+import { log } from '@/lib/logger'
 
 export type StockItem = {
   id: string
@@ -26,7 +27,7 @@ export async function getStockItems() {
     .order('label', { ascending: true })
 
   if (error) {
-    console.error('Error fetching stock items:', error)
+    log.error('Error fetching stock items:', error)
     return []
   }
 

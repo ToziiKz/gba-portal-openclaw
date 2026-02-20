@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { getDashboardScope } from '@/lib/dashboard/getDashboardScope'
+import { log } from '@/lib/logger'
 
 export type LicenceRow = {
   id: string
@@ -41,7 +42,7 @@ export async function getLicences() {
     .order('player_name', { ascending: true })
 
   if (error) {
-    console.error('Error fetching licences:', error)
+    log.error('Error fetching licences:', error)
     return []
   }
 

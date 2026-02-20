@@ -3,7 +3,10 @@
 import * as React from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
-import type { StockRow } from '@/lib/mocks/dashboardStock'
+type StockMovementItem = {
+  label: string
+  qty: number
+}
 import { cn } from '@/components/ui/cn'
 
 type MovementType = 'entry' | 'exit'
@@ -16,7 +19,7 @@ const REASONS = {
 interface StockMovementModalProps {
   isOpen: boolean
   onClose: () => void
-  item: StockRow | null
+  item: StockMovementItem | null
   onConfirm: (payload: { type: MovementType; amount: number; reason: string; note: string }) => void
 }
 

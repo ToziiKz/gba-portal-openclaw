@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Teko, Cinzel } from 'next/font/google'
 import { Play } from 'lucide-react'
+import { log } from '@/lib/logger'
 
 // Optimisation : Chargement des polices (pourrait être déplacé dans layout.tsx plus tard)
 const teko = Teko({ subsets: ['latin'], weight: ['400', '600'] })
@@ -31,7 +32,7 @@ export default function CinematicIntro() {
       // Gestion robuste des erreurs de lecture auto (bloquées par les navigateurs parfois)
       audioRef.current
         .play()
-        .catch((e) => console.warn('Autoplay audio bloqué ou interrompu :', e))
+        .catch((e) => log.warn('Autoplay audio bloqué ou interrompu :', e))
     }
 
     setIsVisible(false)

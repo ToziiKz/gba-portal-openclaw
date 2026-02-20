@@ -54,15 +54,20 @@ export async function activateCoachAccount(_prevState: unknown, formData: FormDa
 
   const usedAt = new Date().toISOString()
 
-  const { error: markUsedErr } = await supabase
+  const { data: claimedInvite, error: markUsedErr } = await supabase
     .from('coach_invitations')
     .update({ used_at: usedAt, used_by: signUp.user.id })
     .eq('id', inv.id)
+    .eq('token_hash', tokenHash)
+    .is('used_at', null)
+    .gt('expires_at', new Date().toISOString())
+    .select('id')
+    .maybeSingle()
 
-  if (markUsedErr) {
+  if (markUsedErr || !claimedInvite) {
     return {
       ok: false as const,
-      error: 'Compte créé mais invitation non marquée comme utilisée. Contactez un admin.',
+      error: 'Compte créé mais le lien n’est plus valide (déjà utilisé ou expiré). Contactez un admin.',
     }
   }
 

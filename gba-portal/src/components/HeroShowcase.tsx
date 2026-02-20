@@ -2,13 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
+import { log } from '@/lib/logger'
+
+const motionEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 const fadeStagger = {
   hidden: { opacity: 0, y: 26 },
   visible: (delay = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.9, delay, ease: motionEase },
   }),
 }
 
@@ -96,7 +99,7 @@ export function HeroShowcase() {
     video.volume = 0
 
     // Force play in case autoPlay was blocked
-    video.play().catch(e => console.error("Autoplay failed:", e))
+    video.play().catch(e => log.error("Autoplay failed:", e))
 
     audio.loop = true
     audio.preload = 'metadata'

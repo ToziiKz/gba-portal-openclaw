@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect } from 'react'
 
 import { activateCoachAccount } from './actions'
 import { Button } from '@/components/ui/Button'
@@ -18,6 +18,16 @@ export function ActivateForm({
   initialFullName?: string;
 }) {
   const [state, formAction, isPending] = useActionState(activateCoachAccount, initialState)
+
+  useEffect(() => {
+    if (!invitationId || !token) return
+
+    const url = new URL(window.location.href)
+    if (!url.searchParams.has('token')) return
+
+    url.searchParams.delete('token')
+    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`)
+  }, [invitationId, token])
 
   if (!invitationId || !token) {
     return (

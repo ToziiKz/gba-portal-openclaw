@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { getDashboardScope } from '@/lib/dashboard/getDashboardScope'
+import { log } from '@/lib/logger'
 
 export type StaffMember = {
   id: string
@@ -32,7 +33,7 @@ export async function getStaffMembers() {
     .order('full_name', { ascending: true })
 
   if (error) {
-    console.error('Error fetching staff:', error)
+    log.error('Error fetching staff:', error)
     return []
   }
 

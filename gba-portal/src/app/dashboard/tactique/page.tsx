@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/Button'
 import { toPng } from 'html-to-image'
 import { fetchPlayersByTeam, fetchVisibleTacticalTeams } from '@/lib/dashboard/tactical-data'
 import { Loader2 } from 'lucide-react'
+import { log } from '@/lib/logger'
 
 type Player = {
   id: string
@@ -753,7 +754,7 @@ export default function TactiquePage() {
 
       alert('Feuille de match enregistrée avec succès !')
     } catch (err: unknown) {
-      console.error('Save error:', err)
+      log.error('Save error:', err)
       alert('Erreur : ' + (err instanceof Error ? err.message : 'inconnue'))
     } finally {
       setIsLoading(false)

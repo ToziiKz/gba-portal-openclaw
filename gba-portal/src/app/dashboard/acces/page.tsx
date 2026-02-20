@@ -117,12 +117,13 @@ export default async function DashboardCoachAccessPage({
               {params.invite}
             </div>
             <div className="flex flex-wrap gap-3">
-              <Button asChild className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white border-none">
-                <a href={`mailto:?subject=${encodeURIComponent('Activation compte GBA')}&body=${encodeURIComponent(`Bonjour,\n\nVoici ton lien d’activation :\n${params.invite}\n\nCe lien expire dans 72h.`)}`}>
-                  <Mail className="mr-2 h-4 w-4" />
-                  Transmettre par Mail
-                </a>
-              </Button>
+              <a
+                href={`mailto:?subject=${encodeURIComponent('Activation compte GBA')}&body=${encodeURIComponent(`Bonjour,\n\nVoici ton lien d’activation :\n${params.invite}\n\nCe lien expire dans 72h.`)}`}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                <Mail className="mr-2 h-4 w-4" />
+                Transmettre par Mail
+              </a>
               <Link href="/dashboard/acces">
                 <Button variant="ghost" className="rounded-xl text-slate-400 text-xs font-bold uppercase tracking-widest">Fermer</Button>
               </Link>

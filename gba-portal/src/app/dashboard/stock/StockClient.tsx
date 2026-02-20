@@ -157,7 +157,6 @@ export function StockClient({ initialStock }: { initialStock: StockItem[] }) {
       <StockMovementModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        // @ts-expect-error - compatibility mapping
         item={selectedItem}
         onConfirm={handleModalConfirm}
       />

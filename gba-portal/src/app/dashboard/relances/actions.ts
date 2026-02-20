@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { log } from '@/lib/logger'
 
 export type Relance = {
   id: string
@@ -31,7 +32,7 @@ export async function getRelances() {
     .order('created_at', { ascending: false })
   
   if (error) {
-    console.error('Error fetching relances:', error)
+    log.error('Error fetching relances:', error)
     return []
   }
   return data as Relance[]
@@ -72,7 +73,7 @@ export async function createRelance(formData: FormData) {
   })
 
   if (error) {
-    console.error('Error creating relance:', error)
+    log.error('Error creating relance:', error)
     throw new Error('Failed to create relance')
   }
 
@@ -84,7 +85,7 @@ export async function updateRelanceStatus(id: string, status: string) {
     const { error } = await supabase.from('relances').update({ status }).eq('id', id)
     
     if (error) {
-        console.error('Error updating relance status:', error)
+        log.error('Error updating relance status:', error)
         throw new Error('Failed to update status')
     }
     revalidatePath('/dashboard/relances')
@@ -95,7 +96,7 @@ export async function deleteRelance(id: string) {
     const { error } = await supabase.from('relances').delete().eq('id', id)
     
     if (error) {
-        console.error('Error deleting relance:', error)
+        log.error('Error deleting relance:', error)
         throw new Error('Failed to delete relance')
     }
     revalidatePath('/dashboard/relances')

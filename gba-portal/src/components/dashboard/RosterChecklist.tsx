@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { Button } from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase/client'
+import { log } from '@/lib/logger'
 
 export type AttendanceStatus = 'present' | 'late' | 'absent' | 'excused'
 
@@ -74,7 +75,7 @@ export function RosterChecklist({
           .single()
 
         if (teamError || !teamData) {
-          console.error('Team fetch error:', teamError)
+          log.error('Team fetch error:', teamError)
           setIsLoading(false)
           return
         }
@@ -99,7 +100,7 @@ export function RosterChecklist({
         const { data: attendance, error: attError } = attendanceResult
 
         if (playersError || attError) {
-          console.error('Data fetch error:', playersError, attError)
+          log.error('Data fetch error:', playersError, attError)
           setRows([])
           setIsLoading(false)
           return
@@ -149,7 +150,7 @@ export function RosterChecklist({
           .in('player_id', playerIds)
 
         if (histErr) {
-          console.error('History attendance fetch error:', histErr)
+          log.error('History attendance fetch error:', histErr)
           setPlayerStats({})
           setStatsMeta({ sessionsUsed: 0 })
           return
@@ -190,7 +191,7 @@ export function RosterChecklist({
         setStatsMeta({ sessionsUsed: lastSessionIds.length })
         setPlayerStats(stats)
       } catch (err) {
-        console.error('Unexpected error in load:', err)
+        log.error('Unexpected error in load:', err)
       } finally {
         if (!cancelled) setIsLoading(false)
       }

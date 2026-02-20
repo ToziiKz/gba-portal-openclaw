@@ -85,6 +85,10 @@ export const viewport: Viewport = {
   colorScheme: 'dark',
 }
 
+function serializeJsonLd(value: unknown) {
+  return JSON.stringify(value).replace(/</g, '\\u003c')
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const baseUrl = getBaseUrl()
   const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? 'contact@gba-portal.fr'
@@ -127,10 +131,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main id="content" tabIndex={-1} className="outline-none">
           {children}
         </main>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <script type="application/ld+json">{serializeJsonLd(jsonLd)}</script>
       </body>
     </html>
   )

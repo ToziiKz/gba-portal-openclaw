@@ -1,3 +1,4 @@
+import { createClient } from '@/lib/supabase/server'
 import { ActivateForm } from './activate-form'
 
 export const metadata = {

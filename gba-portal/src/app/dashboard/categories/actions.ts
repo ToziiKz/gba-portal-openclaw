@@ -3,6 +3,7 @@
 import { requireRole } from '@/lib/dashboard/authz'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { log } from '@/lib/logger'
 
 export type Category = {
   id: string
@@ -22,7 +23,7 @@ export async function getCategories() {
   const { data, error } = await supabase.from('categories').select('*').order('name')
 
   if (error) {
-    console.error('Error fetching categories:', error)
+    log.error('Error fetching categories:', error)
     return []
   }
   return data as Category[]
@@ -51,7 +52,7 @@ export async function createCategory(formData: FormData) {
   })
 
   if (error) {
-    console.error('Error creating category:', error)
+    log.error('Error creating category:', error)
     throw new Error('Failed to create category')
   }
 
@@ -84,7 +85,7 @@ export async function updateCategory(id: string, formData: FormData) {
     .eq('id', id)
 
   if (error) {
-    console.error('Error updating category:', error)
+    log.error('Error updating category:', error)
     throw new Error('Failed to update category')
   }
 
@@ -96,7 +97,7 @@ export async function deleteCategory(id: string) {
   const { error } = await supabase.from('categories').delete().eq('id', id)
 
   if (error) {
-    console.error('Error deleting category:', error)
+    log.error('Error deleting category:', error)
     throw new Error('Failed to delete category')
   }
   revalidatePath('/dashboard/categories')
