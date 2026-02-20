@@ -27,7 +27,7 @@ export function CreatePlayerModal({ isOpen, onClose, teams }: Props) {
       } else {
         setError(result?.message || 'Erreur inconnue')
       }
-    } catch (e) {
+    } catch {
       setError('Erreur technique')
     } finally {
       setLoading(false)

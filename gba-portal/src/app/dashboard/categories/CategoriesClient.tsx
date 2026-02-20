@@ -168,7 +168,7 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
         }
         setIsModalOpen(false)
         router.refresh()
-    } catch (error) {
+    } catch {
         alert('Une erreur est survenue.')
     }
   }

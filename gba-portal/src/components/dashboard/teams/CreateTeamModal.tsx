@@ -28,7 +28,7 @@ export function CreateTeamModal({ isOpen, onClose }: Props) {
       } else {
         setError(result?.message || 'Erreur inconnue')
       }
-    } catch (e) {
+    } catch {
       setError('Erreur technique lors de la création')
     } finally {
       setLoading(false)

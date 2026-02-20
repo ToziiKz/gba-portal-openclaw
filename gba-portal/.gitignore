@@ -36,3 +36,6 @@ next-env.d.ts
 .agent/runtime/
 dev-server.log
 .dev-server.log
+
+# local backup artifacts
+*.bak

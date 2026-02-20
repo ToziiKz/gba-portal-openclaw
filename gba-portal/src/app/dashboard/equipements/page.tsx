@@ -115,7 +115,6 @@ export default function DashboardEquipementsPage() {
     }
 
     didInitFromStorage.current = true
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Init from URL (deep links) - only if filters weren't restored
