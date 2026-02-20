@@ -17,6 +17,8 @@ dist/
 # System
 .DS_Store
 Thumbs.db
+dev-server.log
+backups/
 
 # Project Specific
 gba-portal/.next/
