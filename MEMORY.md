@@ -7,6 +7,7 @@
 - Dev server target: `http://localhost:3001` (3000 often occupied)
 
 ## Durable Product Decisions
+- Product phase rule (critical): site is **V1 nearly usable**; do **not** redesign or change core UX/fond-forme. Prioritize only **fixes, optimization, and incremental improvements**.
 - Dashboard UX target: **coach-first**, low cognitive load, fast terrain usage.
 - Visual system: **single blue accent + light neutrals** (white/gray) across dashboard.
 - Access workflow (`/dashboard/acces`):
@@ -14,6 +15,8 @@
   - edit role/team/active state for existing users
   - robust delete strategy (fallback to archive/anonymize if hard delete blocked)
 - Activation flow: prefill full name from invitation; avoid redundant input.
+- Persistent user directive (critical): **même après fin de session, compaction, ou changement de modèle**, le site est en **V1 (presque utilisable)** et il ne faut **pas changer le fond ni la forme**. Priorité stricte: **corriger, optimiser, améliorer** au maximum.
+- Additional working rule: n’hésiter pas à retourner dans les fichiers/dossiers pour retrouver du contexte ou créer un support utile, avec un contexte aussi précis et détaillé que nécessaire.
 
 ## Data / Schema Realities (important)
 - `profiles` deletion does **not** imply deleting `auth.users` (reverse cascade only).
